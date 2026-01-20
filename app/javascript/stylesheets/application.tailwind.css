@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Configurar dark mode para usar classe .dark ao invés de @media */
+@custom-variant dark (&:where(.dark, .dark *));
+
+[x-cloak] {
+  display: none !important;
+}

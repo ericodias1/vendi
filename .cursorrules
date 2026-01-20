@@ -1,0 +1,634 @@
+# Cursor Rules - Vendi Gestão
+
+## 📋 Contexto do Projeto
+
+Este é o projeto **Vendi Gestão**, uma plataforma web mobile-first para gestão de vendas e estoque de pequenos negócios de roupa infantil. O projeto utiliza Ruby on Rails 8 com padrões modernos de desenvolvimento.
+
+---
+
+## 🎯 Princípios Fundamentais
+
+1. **CRUD primeiro**: Preferir ações CRUD padrão ao invés de actions customizadas
+2. **Services apenas quando necessário**: Usar services apenas quando a lógica ficar complexa
+3. **Validações no model**: Sempre validar no model, nunca nos services
+4. **Resources com only/except**: Usar `resources` com `only:` ou `except:` para limitar ações
+5. **Multi-Account First**: Tudo deve considerar isolamento por account
+6. **Pundit para autorização**: Todas as ações devem ser autorizadas
+7. **Busca abstraída**: Usar concern `Searchable` para lógica de busca nos models
+8. **Service base robusto**: Classe `Service` com métodos auxiliares para validações e tratamento de erros
+9. **Responsividade First**: Layout otimizado para desktop (laptop) e mobile
+10. **Mobile-First Design**: Interface pensada primeiro para mobile, depois adaptada para desktop
+
+---
+
+## 📁 Estrutura de Arquivos
+
+### Controllers
+
+```
+app/controllers/
+  backoffice/
+    base_controller.rb           # Base para controllers backoffice
+    *_controller.rb              # Controllers específicos
+  concerns/
+    authentication.rb            # Concern para autenticação
+```
+
+**Todos os controllers devem herdar de `Backoffice::BaseController`**
+
+### Services
+
+```
+app/services/
+  service.rb                     # Classe base para services (com métodos auxiliares)
+  backoffice/
+    */                           # Namespace do recurso
+      *_service.rb               # Services específicos
+```
+
+### Models
+
+```
+app/models/
+  application_record.rb          # Base para todos os models
+  *.rb                          # Models específicos
+  concerns/
+    searchable.rb                # Concern para busca
+    *.rb                        # Outros concerns dos models
+```
+
+### Policies
+
+```
+app/policies/
+  application_policy.rb          # Base para todas as policies
+  backoffice_policy.rb          # Policy única para backoffice
+```
+
+### Models Principais do Vendi Gestão
+
+- `Account` (não "Store") - Representa a conta/loja do usuário
+- `AccountConfig` (não "StoreConfig") - Configurações da conta
+- `Product` - Produtos do catálogo
+- `ProductVariant` - Variações por tamanho E/OU cor
+- `User` - Usuários/vendedores
+- `Sale`, `SaleItem`, `Payment` - Vendas e pagamentos
+- `Customer` - Clientes
+- `Notification` - Notificações
+- `StockMovement` - Movimentações de estoque
+
+---
+
+## 🔧 Padrões de Código
+
+### Controllers
+
+```ruby
+# frozen_string_literal: true
+
+module Backoffice
+  class ResourceNameController < BaseController
+    before_action :set_resource, only: [:show, :edit, :update, :destroy]
+
+    def index
+      @resources = current_account.resources
+                                  .search(params[:search])
+                                  .order(created_at: :desc)
+    end
+
+    def show
+    end
+
+    def new
+      @resource = current_account.resources.build
+    end
+
+    def create
+      @resource = current_account.resources.build(resource_params)
+
+      if @resource.save
+        redirect_to backoffice_resources_path, notice: "Recurso criado com sucesso"
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+
+    def edit
+    end
+
+    def update
+      if @resource.update(resource_params)
+        redirect_to backoffice_resources_path, notice: "Recurso atualizado com sucesso"
+      else
+        render :edit, status: :unprocessable_entity
+      end
+    end
+
+    def destroy
+      @resource.destroy
+      redirect_to backoffice_resources_path, notice: "Recurso excluído com sucesso"
+    end
+
+    private
+
+    def set_resource
+      @resource = ResourceName.find(params[:id])
+    end
+
+    def resource_params
+      params.require(:resource_name).permit(:field1, :field2, :field3)
+    end
+  end
+end
+```
+
+**Padrões Importantes:**
+- ✅ Sempre usar `current_account` (método) para filtrar recursos
+- ✅ Sempre criar recursos associados ao account: `current_account.resources.build(params)`
+- ✅ Sempre usar `before_action :set_resource` para actions que precisam
+- ✅ Sempre usar strong parameters
+- ✅ Sempre herdar de `Backoffice::BaseController`
+
+### Services
+
+**Crie um service apenas quando:**
+- Precisa criar/atualizar múltiplos models em uma transação
+- Precisa executar lógica complexa (emails, integrações, cálculos)
+- Precisa de múltiplos passos em sequência
+- A lógica não faz sentido estar no model ou controller
+
+**Não crie um service quando:**
+- É apenas um CRUD simples
+- A lógica cabe em um callback do model
+- É apenas validação (vai no model)
+
+**Estrutura de um Service:**
+
+```ruby
+# frozen_string_literal: true
+
+module Backoffice
+  module ResourceName
+    class CreateService < Service
+      attr_reader :resource, :account, :current_user
+
+      def initialize(account:, current_user:, **params)
+        super()
+        @account = account
+        @current_user = current_user
+        @params = params
+      end
+
+      def call
+        return false unless valid?
+
+        execute_with_transaction do
+          create_resource
+          send_notification
+          log_audit
+        end
+      end
+
+      private
+
+      def valid?
+        validate_account
+        validate_params
+        validate_permissions
+        errors.empty?
+      end
+
+      def validate_account
+        validate_presence(:account, @account) &&
+        validate_active(@account, attribute: :account, message: "Conta não está ativa")
+      end
+
+      def validate_params
+        # Validações de negócio (não de dados - dados vão no model)
+        validate_condition(
+          !@account.archived?,
+          attribute: :base,
+          message: "Não é possível criar recursos em contas arquivadas"
+        )
+      end
+
+      def validate_permissions
+        # Pundit já faz isso no controller
+        return true
+      end
+
+      def create_resource
+        @resource = create_model!(
+          @account.resources,
+          @params,
+          raise_on_error: true
+        )
+      end
+
+      def send_notification
+        # Lógica complexa (emails, etc)
+      end
+
+      def log_audit
+        # Log de auditoria
+      end
+    end
+  end
+end
+```
+
+**⚠️ IMPORTANTE sobre Validações:**
+- **Validações de dados SEMPRE no model** (presence, format, uniqueness, etc)
+- **Services apenas para validações de negócio** (regras complexas, condições entre models)
+- Use métodos auxiliares da classe `Service`: `validate_presence`, `validate_model`, `validate_condition`, etc
+
+### Models
+
+```ruby
+# frozen_string_literal: true
+
+class ResourceName < ApplicationRecord
+  belongs_to :account
+
+  include Searchable
+  searchable_columns :name, :description, :email
+
+  # ⚠️ IMPORTANTE: Validações SEMPRE no model
+  validates :name, presence: true
+  validates :email, uniqueness: { scope: :account_id }, allow_nil: true
+
+  # Scopes
+  scope :active, -> { where(active: true) }
+  scope :recent, -> { order(created_at: :desc) }
+
+  # Valores padrão
+  after_initialize :set_defaults
+
+  private
+
+  def set_defaults
+    if new_record?
+      self.active ||= true
+      self.status ||= 'pending'
+    end
+  end
+end
+```
+
+**Padrões Importantes:**
+- ✅ Sempre incluir `belongs_to :account` e validar
+- ✅ Sempre validar no model (nunca no service)
+- ✅ Usar concern `Searchable` para busca
+- ✅ Valores padrão sempre no model com `after_initialize`
+- ✅ Validações de uniqueness com scope `:account_id` (multi-account)
+
+### Concern Searchable
+
+```ruby
+# app/models/concerns/searchable.rb
+# frozen_string_literal: true
+
+module Searchable
+  extend ActiveSupport::Concern
+
+  included do
+    scope :search, ->(term) {
+      return all if term.blank?
+      return all if searchable_columns.blank?
+
+      search_term = "%#{term.strip}%"
+      conditions = searchable_columns.map { |col| 
+        "#{table_name}.#{col} ILIKE ?" 
+      }.join(" OR ")
+      
+      where(conditions, *([search_term] * searchable_columns.count))
+    }
+  end
+
+  class_methods do
+    attr_accessor :searchable_columns
+
+    def searchable_columns(*columns)
+      @searchable_columns = columns.map(&:to_s)
+    end
+  end
+end
+```
+
+**Uso no model:**
+```ruby
+class Product < ApplicationRecord
+  include Searchable
+  searchable_columns :name, :description, :sku
+end
+```
+
+**Uso no controller:**
+```ruby
+def index
+  @products = current_account.products.search(params[:search]).order(created_at: :desc)
+end
+```
+
+### Rotas
+
+**Sempre usar `resources` com `only:` ou `except:` para limitar ações:**
+
+```ruby
+# ✅ Correto - Todas as ações CRUD
+resources :announcements
+
+# ✅ Correto - Apenas algumas ações
+resources :messages, only: [:index, :show]
+
+# ✅ Correto - Todas exceto algumas
+resources :push_notifications, only: [:new, :create]
+
+# ❌ Evitar - Actions customizadas (prefira usar update com status)
+resources :announcements do
+  member do
+    post :publish  # Se possível, usar update com status
+  end
+end
+```
+
+**Preferir status como atributo ao invés de actions:**
+```ruby
+# ✅ Correto
+PATCH /backoffice/announcements/:id
+# params: { announcement: { status: 'published' } }
+
+# ❌ Evitar
+POST /backoffice/announcements/:id/publish
+```
+
+### Policies
+
+**Usar `BackofficePolicy` única para todos os recursos:**
+
+```ruby
+# app/policies/backoffice_policy.rb
+# frozen_string_literal: true
+
+class BackofficePolicy < ApplicationPolicy
+  class Scope < Scope
+    def resolve
+      return scope.none unless user.present?
+      return scope.all if user.super_admin?
+      scope.where(account: user.account)
+    end
+  end
+
+  def show?
+    return true if user&.super_admin?
+    user.present?
+  end
+
+  def create?
+    return true if user&.super_admin?
+    user.present?
+  end
+
+  def update?
+    return true if user&.super_admin?
+    user.present?
+  end
+
+  def destroy?
+    return true if user&.super_admin?
+    user.present?
+  end
+end
+```
+
+---
+
+## 🎨 UI e Design System
+
+### Componentes Reutilizáveis
+
+**SEMPRE usar componentes existentes em `app/views/shared/ui/`:**
+
+- `_heading.html.erb` - ⚠️ **NUNCA escrever `<h1>`, `<h2>`, `<h3>` diretamente**
+- `_button.html.erb` - Botões com variantes
+- `_card.html.erb` - Cards de conteúdo
+- `_badge.html.erb` - Badges de status
+- `_form_input.html.erb` - Inputs de formulário
+- `_toast.html.erb` - Notificações toast
+
+**Exemplo de uso:**
+```erb
+<!-- ✅ Correto - Usar componente -->
+<%= render 'shared/ui/heading', text: "Dashboard", size: :xl %>
+
+<!-- ❌ Errado - Tag HTML direta -->
+<h1>Dashboard</h1>
+```
+
+### Sistema de Toasts
+
+**⚠️ IMPORTANTE**: O projeto usa **toasts ao invés de flash messages**. Sempre usar toasts para feedback ao usuário.
+
+**Em controllers, usar `flash` normalmente - o layout converte automaticamente:**
+```ruby
+redirect_to backoffice_resources_path, notice: "Recurso criado com sucesso!"
+flash.now[:error] = "Erro ao processar"
+```
+
+**Para renderizar toasts manualmente:**
+```erb
+<%= render 'shared/ui/toast', type: :success, message: "Produto criado com sucesso!" %>
+```
+
+### Cores do Vendi Gestão
+
+```css
+/* Cores Primárias */
+--color-vendi-green-500: #00D863;  /* Primary Green */
+--color-vendi-green-600: #00B854;  /* Primary Green Dark (hover) */
+
+/* Badges de Estoque */
+/* EM ESTOQUE: badge-success (verde) */
+/* BAIXO: badge-warning (laranja) */
+/* SEM ESTOQUE: badge-error (vermelho) */
+```
+
+### Responsividade
+
+**Desktop (≥1024px):**
+- Sidebar lateral sempre visível
+- Topbar com ações principais
+- Conteúdo centralizado com max-width
+
+**Mobile/Tablet (<1024px):**
+- Bottom navigation fixa no rodapé
+- 4 tabs principais + último item abre sidebar
+- Layout adaptado para touch
+
+**Breakpoints:**
+- Mobile: < 768px
+- Tablet: 768px - 1023px
+- Desktop: ≥ 1024px
+
+### Tipografia
+
+**SEMPRE usar o componente `shared/ui/heading` para títulos:**
+
+```erb
+<%= render 'shared/ui/heading', text: "Dashboard", size: :xl %>
+<%= render 'shared/ui/heading', text: "Vendas de Hoje", size: :lg %>
+<%= render 'shared/ui/heading', text: "Produtos em Destaque", size: :md %>
+
+<!-- Com descrição -->
+<%= render 'shared/ui/heading', 
+    text: "Dashboard", 
+    size: :xl,
+    description: "Acompanhe suas vendas e estoque em tempo real" %>
+```
+
+**Tamanhos disponíveis:**
+- `:xl` → H1 (Títulos de página)
+- `:lg` → H2 (Títulos de seção)
+- `:md` → H3 (Subtítulos)
+
+---
+
+## 🚫 O Que NÃO Fazer
+
+1. **NÃO usar "Store"** - Sempre usar "Account"
+2. **NÃO criar lógica complexa em controllers** - Use services apenas quando necessário
+3. **NÃO esquecer responsividade** - Sempre testar desktop e mobile
+4. **NÃO validar dados no service** - Validações sempre no model
+5. **NÃO usar variável `@current_account`** - Sempre usar método `current_account`
+6. **NÃO escrever tags HTML de título diretamente** - Sempre usar componente `heading`
+7. **NÃO usar flash messages diretamente** - Sempre usar toasts (flash é convertido automaticamente)
+8. **NÃO criar services para CRUD simples** - Use apenas quando necessário
+9. **NÃO usar actions customizadas** - Prefira CRUD com status como atributo
+10. **NÃO esquecer isolamento multi-account** - Sempre filtrar por `current_account`
+
+---
+
+## ✅ O Que Sempre Fazer
+
+1. **SEMPRE incluir account em queries** - `current_account.resources`
+2. **SEMPRE criar recursos associados ao account** - `current_account.resources.build(params)`
+3. **SEMPRE validar no model** - Nunca no service
+4. **SEMPRE usar `before_action :set_resource`** - Para actions que precisam
+5. **SEMPRE usar strong parameters** - Nos controllers
+6. **SEMPRE usar componente heading** - Para títulos
+7. **SEMPRE usar toasts** - Para feedback ao usuário
+8. **SEMPRE usar concern Searchable** - Para busca nos models
+9. **SEMPRE usar `resources` com `only:` ou `except:`** - Nas rotas
+10. **SEMPRE considerar responsividade** - Testar em desktop e mobile
+11. **SEMPRE herdar de `Backoffice::BaseController`** - Para controllers backoffice
+12. **SEMPRE validar uniqueness com scope** - `uniqueness: { scope: :account_id }`
+
+---
+
+## 🔐 Segurança
+
+1. **Sempre validar account_id** - Não confiar apenas em params
+2. **Sempre autenticar** - `before_action :authenticate_user!`
+3. **Sempre autorizar** - Verificar se resource pertence ao account do usuário
+4. **Sempre sanitizar inputs** - Strong parameters
+5. **Sempre usar Pundit** - Para autorização
+
+---
+
+## 📱 Especificidades do Vendi Gestão
+
+### Modelagem de Dados
+
+- **Account** (não Store) - Representa a loja/conta do usuário
+- **ProductVariant** - Suporta tamanho E/OU cor (não apenas tamanho)
+- **Sale** - Com snapshot de produtos (dados históricos preservados)
+- **StockMovement** - Auditoria completa de movimentações
+
+### Variações de Produto
+
+**Variações podem ser por tamanho E/OU cor:**
+```ruby
+class ProductVariant < ApplicationRecord
+  belongs_to :product
+  
+  # Variação pode ser por tamanho E/OU cor
+  # size e color são ambos opcionais, mas pelo menos um deve existir
+  validates :size, presence: true, if: -> { color.blank? }
+  validates :color, presence: true, if: -> { size.blank? }
+end
+```
+
+### Fluxo de Vendas
+
+- Multi-step (3 passos): Selecionar Produtos → Pagamento → Confirmação
+- Dados temporários salvos na sessão durante o fluxo
+- Snapshot de produtos ao criar venda (preserva histórico)
+- Estoque decrementado automaticamente ao finalizar
+- Suporta múltiplas formas de pagamento: PIX, Cartão, Dinheiro, Fiado
+
+---
+
+## 📝 Convenções de Nomenclatura
+
+- **Controllers**: `ResourceNamesController` (plural, PascalCase, namespace `Backoffice`)
+- **Models**: `ResourceName` (singular, PascalCase)
+- **Services**: `Backoffice::ResourceNames::CreateService` (namespace, ação)
+- **Policies**: `BackofficePolicy` (única para todos os recursos)
+- **Routes**: `resources :resource_names` (plural, snake_case, namespace `backoffice`)
+- **Concerns**: `Searchable` (PascalCase)
+
+---
+
+## 🧪 Checklist de Implementação
+
+### Novo Recurso CRUD
+- [ ] Criar migration com `account_id`
+- [ ] Criar model com `belongs_to :account`
+- [ ] Incluir concern `Searchable` e definir `searchable_columns` se necessário
+- [ ] Adicionar validações no model
+- [ ] Adicionar scopes se necessário
+- [ ] Adicionar valores padrão com `after_initialize`
+- [ ] Criar controller herdando de `Backoffice::BaseController`
+- [ ] Implementar actions CRUD padrão
+- [ ] Usar `current_account` (método) ao invés de `@current_account`
+- [ ] Usar `.search(params[:search])` se o model incluir `Searchable`
+- [ ] Adicionar `before_action :set_resource`
+- [ ] Criar `resource_params` com strong parameters
+- [ ] Adicionar rotas com `resources :resource_name` no namespace `backoffice`
+- [ ] Testar isolamento por account
+
+### Novo Service (Quando Necessário)
+- [ ] Criar service herdando de `Service`
+- [ ] Implementar `initialize` com parâmetros
+- [ ] Implementar `call` que retorna true/false
+- [ ] Implementar `valid?` usando métodos auxiliares da classe `Service`
+- [ ] Usar métodos auxiliares: `validate_presence`, `validate_model`, `save_model!`, etc.
+- [ ] Implementar métodos privados para cada passo
+- [ ] Usar `execute_with_transaction` para operações atômicas
+- [ ] **NÃO** adicionar validações de dados (vão no model)
+- [ ] Usar métodos auxiliares para tratamento de erros de models
+
+---
+
+## 🎯 Regras Obrigatórias que NUNCA Devem Ser Violadas
+
+1. **Validações SEMPRE no model**, nunca no service
+2. **Sempre usar método `current_account`** (não variável `@current_account`) em queries
+3. **Sempre criar recursos associados ao account** via `current_account.resources.build`
+4. **Sempre usar strong parameters** nos controllers
+5. **Sempre herdar de `Backoffice::BaseController`** para controllers backoffice
+6. **Sempre usar `resources` com `only:` ou `except:`** nas rotas
+7. **Preferir CRUD actions** ao invés de actions customizadas
+8. **Usar services apenas quando necessário** (lógica complexa, múltiplos models)
+9. **Sempre usar `before_action :set_resource`** para actions que precisam
+10. **Valores padrão sempre no model** com `after_initialize`
+11. **Usar concern `Searchable`** para busca nos models
+12. **Usar métodos auxiliares da classe `Service`** para validações e tratamento de erros
+13. **NUNCA escrever tags HTML de título diretamente** - Sempre usar componente `heading`
+14. **NUNCA usar flash messages diretamente** - Sempre usar toasts
+
+---
+
+**FIM DO DOCUMENTO**
+
+Este arquivo `.cursorrules` consolida todos os padrões de desenvolvimento do projeto Vendi Gestão, garantindo consistência, manutenibilidade e simplicidade do código.
