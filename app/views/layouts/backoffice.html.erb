@@ -6,6 +6,16 @@
     <meta name="turbo-cache-control" content="no-cache">
     <meta name="turbo-prefetch" content="false">
 
+
+    <!-- Material Design Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    
+
+    <!-- Manrope Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -13,9 +23,32 @@
     <%= vite_javascript_tag 'application', 'data-turbo-track': 'reload' %>
   </head>
 
-  <body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-5 py-6">
-      <%= yield %>
+  <body class="min-h-screen" data-controller="sidebar">
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container">
+      <%= render 'shared/flash_toasts' if notice.present? || alert.present? || flash.any? %>
     </div>
+
+    <div class="flex h-screen overflow-hidden">
+      <!-- Sidebar Overlay (mobile only) -->
+      <div class="hidden fixed inset-0 bg-black/50 z-40 md:hidden"
+           data-sidebar-target="overlay"
+           data-action="click->sidebar#close"></div>
+
+      <!-- Sidebar -->
+      <%= render "backoffice/shared/sidebar" %>
+
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto p-6 pb-20 md:pb-6">
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation (mobile only) -->
+    <%= render "backoffice/shared/bottom_nav" %>
   </body>
 </html>
+

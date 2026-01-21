@@ -5,8 +5,6 @@ class BackofficePolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
       return scope.none unless user.present?
-
-      # Filtra pelo account do usuário
       scope.where(account: user.account)
     end
   end

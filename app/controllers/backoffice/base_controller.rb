@@ -2,7 +2,7 @@
 
 module Backoffice
   class BaseController < ApplicationController
-    layout "backoffice"
+        layout "backoffice"
 
     before_action :authenticate_user!
     before_action :authorize_resource, if: -> { action_name != "index" }

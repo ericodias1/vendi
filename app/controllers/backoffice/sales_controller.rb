@@ -8,6 +8,22 @@ module Backoffice
       @sales = current_account.sales
                               .search(params[:search])
                               .order(created_at: :desc)
+      
+      # Filtrar por período
+      case params[:period]
+      when 'today'
+        @sales = @sales.where('created_at >= ?', Date.current.beginning_of_day)
+        @active_period = 'today'
+      when 'week'
+        @sales = @sales.where('created_at >= ?', 7.days.ago.beginning_of_day)
+        @active_period = 'week'
+      when 'month'
+        @sales = @sales.where('created_at >= ?', Date.current.beginning_of_month)
+        @active_period = 'month'
+      else
+        @active_period = 'today'
+        @sales = @sales.where('created_at >= ?', Date.current.beginning_of_day)
+      end
     end
 
     def show

@@ -1,0 +1,48 @@
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
+  <div class="flex items-center gap-4">
+    <%= render 'shared/ui/back_link', path: backoffice_products_path, class: "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-2 rounded-full transition-colors" %>
+    <%= render 'shared/ui/heading',
+        text: "Novo produto",
+        size: :lg %>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto pb-32">
+  <!-- Headline -->
+  <section class="px-4 pt-4 mb-4">
+    <%= render 'shared/ui/heading',
+        text: "Cadastre o básico. Você pode completar depois.",
+        size: :lg %>
+  </section>
+
+  <%= form_with model: @product, url: backoffice_products_path, local: true, multipart: true, data: { 
+      controller: "product-form", 
+      product_form_available_sizes_value: @available_sizes.to_json,
+      product_form_available_colors_value: @available_colors.to_json
+    } do |f| %>
+    <%= render 'form', form: f, available_sizes: @available_sizes, available_colors: @available_colors, submit_text: "Salvar produto" %>
+  <% end %>
+</main>
+
+<script>
+function incrementStock(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    const currentValue = parseInt(input.value) || 0;
+    input.value = currentValue + 1;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+}
+
+function decrementStock(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    const currentValue = parseInt(input.value) || 0;
+    if (currentValue > 0) {
+      input.value = currentValue - 1;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+}
+</script>

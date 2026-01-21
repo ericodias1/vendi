@@ -1,0 +1,53 @@
+<% if false %>
+  Stock Stepper component
+  Usage:
+    <%= render 'shared/ui/stock_stepper', form: f, variant_id: variant.id, current_value: variant.stock_quantity, field_name: "adjustments[#{variant.id}]" %>
+<% end %>
+<%
+  form = local_assigns[:form]
+  variant_id = local_assigns[:variant_id]
+  current_value = local_assigns[:current_value] || 0
+  field_name = local_assigns[:field_name] || "adjustments[#{variant_id}]"
+  input_id = "stock_#{variant_id}"
+%>
+<div class="flex items-center gap-3 text-[#0e1b12] dark:text-white bg-background-light dark:bg-background-dark/50 p-1 rounded-full border border-black/5 dark:border-white/5">
+  <button 
+    type="button"
+    class="flex size-8 items-center justify-center rounded-full bg-white dark:bg-[#2a4533] shadow-sm text-primary hover:bg-primary/10 transition-colors"
+    onclick="decrementStock('<%= input_id %>')">
+    <span class="material-symbols-outlined text-xl">remove</span>
+  </button>
+  <%= form.number_field field_name, 
+      id: input_id,
+      value: current_value,
+      min: 0,
+      class: "text-base font-bold w-6 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" %>
+  <button 
+    type="button"
+    class="flex size-8 items-center justify-center rounded-full bg-white dark:bg-[#2a4533] shadow-sm text-primary hover:bg-primary/10 transition-colors"
+    onclick="incrementStock('<%= input_id %>')">
+    <span class="material-symbols-outlined text-xl">add</span>
+  </button>
+</div>
+
+<script>
+function incrementStock(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    const currentValue = parseInt(input.value) || 0;
+    input.value = currentValue + 1;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+}
+
+function decrementStock(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    const currentValue = parseInt(input.value) || 0;
+    if (currentValue > 0) {
+      input.value = currentValue - 1;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+}
+</script>

@@ -1,0 +1,124 @@
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md mb-4">
+  <div class="flex items-center p-4 justify-between">
+    <%= render 'shared/ui/back_link', path: backoffice_products_path, class: "flex size-12 shrink-0 items-center justify-start cursor-pointer" %>
+    <%= render 'shared/ui/heading',
+        text: @product.name,
+        size: :lg,
+        class: "flex-1 text-center" %>
+    <div 
+      class="flex w-12 items-center justify-end relative"
+      data-controller="dropdown">
+      <button 
+        type="button"
+        class="flex items-center justify-center rounded-full size-12 bg-transparent text-[#0e1b12] dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+        data-action="click->dropdown#toggle"
+        data-dropdown-target="button">
+        <span class="material-symbols-outlined">more_vert</span>
+      </button>
+      
+      <!-- Dropdown Menu -->
+      <div 
+        class="hidden absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800 py-2 z-50"
+        data-dropdown-target="menu">
+        <%= link_to edit_backoffice_product_stock_adjustment_path(@product),
+            class: "flex items-center gap-3 px-4 py-3 text-sm text-[#0e1b12] dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" do %>
+          <span class="material-symbols-outlined text-xl">edit_square</span>
+          <span>Ajustar estoque</span>
+        <% end %>
+        <%= link_to edit_backoffice_product_path(@product),
+            class: "flex items-center gap-3 px-4 py-3 text-sm text-[#0e1b12] dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" do %>
+          <span class="material-symbols-outlined text-xl">edit</span>
+          <span>Editar produto</span>
+        <% end %>
+        <% unless @product.has_sales? %>
+          <%= link_to backoffice_product_path(@product),
+              method: :delete,
+              data: { 
+                confirm: "Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.",
+                turbo_method: :delete
+              },
+              class: "flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-error/10 dark:hover:bg-error/20 transition-colors" do %>
+            <span class="material-symbols-outlined text-xl">delete</span>
+            <span>Excluir produto</span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="pb-32 @xl:pb-8 @container">
+  <div class="px-4 @xl:flex @xl:gap-6 @xl:max-w-4xl @xl:mx-auto">
+    <!-- Hero Card Section -->
+    <div class="@xl:flex-1">
+      <%= render 'shared/ui/product_hero_card', product: @product %>
+    </div>
+
+    <!-- Product Details Section -->
+    <section class="pt-6 pb-4 @xl:pt-0 @xl:flex-1">
+      <div class="bg-white dark:bg-[#1a2e1f] border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+        <!-- Stock Info Card -->
+        <div class="flex items-center gap-4 min-h-[80px] py-2">
+          <div class="text-primary flex items-center justify-center rounded-xl bg-primary/10 shrink-0 size-12">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </div>
+          <div class="flex flex-col justify-center flex-1">
+            <p class="text-[#0e1b12] dark:text-white text-base font-bold leading-normal">
+              <%= @product.size.present? || @product.color.present? ? decorate(@product).display_variation : "Estoque" %>
+            </p>
+            <p class="text-primary text-sm font-semibold leading-normal">
+              <%= @product.stock_quantity %> unidades
+            </p>
+          </div>
+          <div class="shrink-0">
+            <%= render 'shared/ui/badge', 
+                text: decorate(@product).stock_badge_text, 
+                variant: decorate(@product).stock_badge_variant,
+                class: "text-xs font-bold uppercase tracking-wider" %>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Bottom Sticky Actions (Mobile Only) -->
+<div class="fixed-footer flex flex-col gap-3 @xl:hidden">
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+    <%= render 'shared/ui/button',
+        variant: :primary,
+        size: :lg,
+        href: edit_backoffice_product_stock_adjustment_path(@product),
+        class: "flex items-center justify-center gap-2 h-14 rounded-full" do %>
+      <span class="material-symbols-outlined">edit_square</span>
+      <span>Ajustar estoque</span>
+    <% end %>
+    <%= render 'shared/ui/button',
+        variant: :secondary,
+        size: :lg,
+        href: edit_backoffice_product_path(@product),
+        class: "flex items-center justify-center gap-2 h-14 rounded-full" do %>
+      <span class="material-symbols-outlined text-[20px]">edit</span>
+      <span>Editar produto</span>
+    <% end %>
+    <% unless @product.has_sales? %>
+      <%= render 'shared/ui/button',
+          variant: :danger,
+          size: :lg,
+          href: backoffice_product_path(@product),
+          method: :delete,
+          data: {
+            confirm: "Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.",
+            turbo_method: :delete
+          },
+          class: "flex-1",
+          form_class: "flex items-center justify-center gap-2 h-14 rounded-full" do %>
+        <span class="material-symbols-outlined text-[20px]">delete</span>
+        <span>Excluir produto</span>
+      <% end %>
+    <% end %>
+  </div>
+  <!-- iOS Home Indicator Spacing -->
+  <div class="h-4"></div>
+</div>

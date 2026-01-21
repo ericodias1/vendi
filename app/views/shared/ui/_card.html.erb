@@ -1,0 +1,16 @@
+<% if false %>
+  Card component
+  Usage:
+    <%= render 'shared/ui/card', class: "mb-4" do %>
+      <div>Content here</div>
+    <% end %>
+<% end %>
+
+<% card_class = local_assigns.fetch(:class, "") %>
+<div class="card <%= card_class %>">
+  <% if block_given? %>
+    <div class="card-body">
+      <%= yield %>
+    </div>
+  <% end %>
+</div>

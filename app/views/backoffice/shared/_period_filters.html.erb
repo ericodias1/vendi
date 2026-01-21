@@ -1,0 +1,29 @@
+<% if false %>
+  Period Filters component with Alpine.js
+  Usage:
+    <%= render 'backoffice/shared/period_filters', active_period: params[:period] || 'today' %>
+<% end %>
+<%
+  active_period = local_assigns[:active_period] || 'today'
+%>
+
+<div x-data="{ activePeriod: '<%= active_period %>' }"
+     class="flex gap-2 mb-5">
+  <%= link_to backoffice_sales_path(period: 'today'),
+      class: "px-5 py-2 rounded-full border-0 text-sm font-medium transition-all #{active_period == 'today' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'}"
+      data: { "x-bind:class": "activePeriod === 'today' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'" } do %>
+    Hoje
+  <% end %>
+
+  <%= link_to backoffice_sales_path(period: 'week'),
+      class: "px-5 py-2 rounded-full border-0 text-sm font-medium transition-all #{active_period == 'week' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'}"
+      data: { "x-bind:class": "activePeriod === 'week' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'" } do %>
+    7 dias
+  <% end %>
+
+  <%= link_to backoffice_sales_path(period: 'month'),
+      class: "px-5 py-2 rounded-full border-0 text-sm font-medium transition-all #{active_period == 'month' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'}"
+      data: { "x-bind:class": "activePeriod === 'month' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'" } do %>
+    Mês
+  <% end %>
+</div>

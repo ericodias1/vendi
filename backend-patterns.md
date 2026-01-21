@@ -8,11 +8,12 @@ Este documento define todos os padrões de implementação de backend para o pro
 1. **CRUD primeiro**: Preferir ações CRUD padrão ao invés de actions customizadas
 2. **Services apenas quando necessário**: Usar services apenas quando a lógica ficar complexa
 3. **Validações no model**: Sempre validar no model, nunca nos services
-4. **Resources com only/except**: Usar `resources` com `only:` ou `except:` para limitar ações
-5. **Multi-Account First**: Tudo deve considerar isolamento por account
-6. **Pundit para autorização**: Todas as ações devem ser autorizadas
-7. **Busca abstraída**: Usar concern `Searchable` para lógica de busca nos models
-8. **Service base robusto**: Classe `Service` com métodos auxiliares para validações e tratamento de erros
+4. **Form Objects para formulários complexos**: Usar Form Objects quando precisar validar múltiplos models ou campos que não pertencem a um único model
+5. **Resources com only/except**: Usar `resources` com `only:` ou `except:` para limitar ações
+6. **Multi-Account First**: Tudo deve considerar isolamento por account
+7. **Pundit para autorização**: Todas as ações devem ser autorizadas
+8. **Busca abstraída**: Usar concern `Searchable` para lógica de busca nos models
+9. **Service base robusto**: Classe `Service` com métodos auxiliares para validações e tratamento de erros
 
 ---
 
@@ -56,6 +57,13 @@ app/models/
 app/policies/
   application_policy.rb          # Base para todas as policies
   backoffice_policy.rb          # Policy única para backoffice
+```
+
+### 1.5 Form Objects
+
+```
+app/forms/
+  *_form.rb                      # Form objects para validações complexas
 ```
 
 ---
@@ -630,6 +638,271 @@ def create
   end
 end
 ```
+
+---
+
+## 3.5 Form Objects
+
+### 3.5.1 Quando Usar Form Objects
+
+**Use Form Objects quando:**
+- Precisa validar múltiplos models simultaneamente (ex: criar Account + User + AccountConfig)
+- Campos do formulário não pertencem a um único model
+- Precisa de validações customizadas que não fazem sentido nos models individuais
+- Quer simplificar a lógica de validação no controller e service
+
+**Não use Form Objects quando:**
+- É apenas um CRUD simples de um único model
+- As validações já estão bem definidas no model
+- Não há necessidade de validar múltiplos models juntos
+
+### 3.5.2 Estrutura de um Form Object
+
+```ruby
+# frozen_string_literal: true
+
+class RegistrationForm
+  include ActiveModel::Model
+  include ActiveModel::Attributes
+
+  # Attributes
+  attribute :account_name, :string
+  attribute :whatsapp, :string
+  attribute :name, :string
+  attribute :email, :string
+  attribute :password, :string
+  attribute :password_confirmation, :string
+
+  # Validations
+  validates :account_name, presence: true
+  validates :whatsapp, presence: true
+  validates :email, presence: true
+  validates :password, presence: true, length: { minimum: 6 }
+  validates :password_confirmation, presence: true
+  validate :password_confirmation_matches
+
+  # Accessors for models
+  def account_attributes
+    {
+      name: account_name,
+      whatsapp: whatsapp,
+      active: true
+    }
+  end
+
+  def user_attributes
+    {
+      name: name,
+      email: email&.downcase&.strip,
+      password: password,
+      password_confirmation: password_confirmation,
+      role: "owner"
+    }
+  end
+
+  private
+
+  def password_confirmation_matches
+    return if password.blank? || password_confirmation.blank?
+
+    unless password == password_confirmation
+      errors.add(:password_confirmation, "não confere")
+    end
+  end
+end
+```
+
+**Padrões Importantes:**
+- ✅ Sempre usar `ActiveModel::Model` e `ActiveModel::Attributes`
+- ✅ Validações no form object, não no service
+- ✅ Métodos `*_attributes` para facilitar criação dos models
+- ✅ Validações customizadas usando `validate :method_name`
+
+### 3.5.3 Uso do Form Object no Controller
+
+```ruby
+# frozen_string_literal: true
+
+class RegistrationsController < ApplicationController
+  layout "auth"
+  skip_before_action :authenticate_user!
+
+  def new
+    redirect_to backoffice_root_path if current_user
+    @form = RegistrationForm.new
+  end
+
+  def create
+    @form = RegistrationForm.new(registration_params)
+    service = Backoffice::Accounts::CreateService.new(form: @form)
+    
+    if service.call
+      session[:user_id] = service.user.id
+      redirect_to backoffice_root_path, notice: "Conta criada com sucesso!"
+    else
+      # Adiciona erros do service ao form
+      service.errors.each do |error|
+        @form.errors.add(error.attribute, error.message) unless @form.errors[error.attribute].include?(error.message)
+      end
+      
+      flash.now[:alert] = "Erro ao criar conta. Verifique os campos abaixo."
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def registration_params
+    params.permit(
+      :account_name,
+      :whatsapp,
+      :name,
+      :email,
+      :password,
+      :password_confirmation
+    )
+  end
+end
+```
+
+**Padrões Importantes:**
+- ✅ Controller cria o form object em `new` e `create`
+- ✅ Usa `form_with model: @form` na view para integração automática
+- ✅ Passa form object para o service ao invés de params brutos
+- ✅ Adiciona erros do service ao form object para exibição
+
+### 3.5.4 Uso do Form Object no Service
+
+```ruby
+# frozen_string_literal: true
+
+module Backoffice
+  module Accounts
+    class CreateService < Service
+      attr_reader :account, :user, :account_config
+
+      def initialize(form:)
+        super()
+        @form = form
+        @account = nil
+        @user = nil
+        @account_config = nil
+      end
+
+      def call
+        return false unless @form.valid?
+
+        execute_with_transaction do
+          create_account
+          create_user
+          create_account_config
+        end
+      end
+
+      private
+
+      def create_account
+        @account = Account.new(
+          @form.account_attributes.merge(slug: generate_slug(@form.account_name))
+        )
+        save_model!(@account, raise_on_error: true)
+      end
+
+      def create_user
+        @user = User.new(
+          @form.user_attributes.merge(account: @account)
+        )
+        save_model!(@user, raise_on_error: true)
+      end
+
+      def create_account_config
+        @account_config = @account.build_account_config(
+          stock_alerts_enabled: true,
+          stock_alert_threshold: 5,
+          pix_enabled: true,
+          card_enabled: true,
+          cash_enabled: true,
+          credit_enabled: false,
+          require_customer: false,
+          auto_send_payment_link: false
+        )
+        save_model!(@account_config, raise_on_error: true)
+      end
+
+      def generate_slug(name)
+        base_slug = name.parameterize
+        slug = base_slug
+        counter = 1
+        
+        while Account.exists?(slug: slug)
+          slug = "#{base_slug}-#{counter}"
+          counter += 1
+        end
+        
+        slug
+      end
+    end
+  end
+end
+```
+
+**Padrões Importantes:**
+- ✅ Service recebe o form object ao invés de params brutos
+- ✅ Valida apenas se form é válido: `return false unless @form.valid?`
+- ✅ Usa métodos `*_attributes` do form object para criar models
+- ✅ Não faz validações de dados (isso é responsabilidade do form object)
+- ✅ Foca apenas na criação dos models em transação
+
+### 3.5.5 Uso do Form Object na View
+
+```erb
+<%= form_with model: @form, url: registration_path, method: :post, local: true, class: "space-y-4" do |f| %>
+  <!-- Account Name Field -->
+  <%= render 'shared/auth/label', text: "Nome da loja" %>
+  <%= render 'shared/auth/input', 
+      form: f, 
+      field: :account_name, 
+      type: :text, 
+      placeholder: "Ex: Loja de Roupas Infantis" %>
+
+  <!-- Email Field -->
+  <%= render 'shared/auth/label', text: "E-mail" %>
+  <%= render 'shared/auth/input', 
+      form: f, 
+      field: :email, 
+      type: :email, 
+      placeholder: "seu@email.com" %>
+
+  <!-- Password Field -->
+  <%= render 'shared/auth/label', text: "Senha" %>
+  <%= render 'shared/auth/input', 
+      form: f, 
+      field: :password, 
+      type: :password, 
+      show_toggle: true,
+      minlength: 6 %>
+
+  <!-- Error Messages -->
+  <%= render 'shared/auth/error_message', errors: @form.errors %>
+  
+  <!-- Submit Button -->
+  <%= render 'shared/auth/button', text: "Criar conta", icon: "person_add" %>
+<% end %>
+```
+
+**Padrões Importantes:**
+- ✅ Usa `form_with model: @form` para integração automática
+- ✅ Componentes de input detectam erros automaticamente via `form.object.errors`
+- ✅ Erros são exibidos individualmente por campo e também em bloco
+- ✅ Form object funciona como um model normal para o Rails
+
+### 3.5.6 Benefícios dos Form Objects
+
+1. **Separação de Responsabilidades**: Validações de formulário separadas dos models
+2. **Simplificação do Service**: Service não precisa validar dados, apenas criar models
+3. **Reutilização**: Form object pode ser usado em diferentes contextos
+4. **Testabilidade**: Fácil testar validações isoladamente
+5. **Manutenibilidade**: Lógica de validação centralizada em um único lugar
 
 ---
 
@@ -1307,6 +1580,7 @@ end
 - **Controllers**: `ResourceNamesController` (plural, PascalCase, namespace `Backoffice`)
 - **Models**: `ResourceName` (singular, PascalCase)
 - **Services**: `Backoffice::ResourceNames::CreateService` (namespace, ação)
+- **Form Objects**: `RegistrationForm` (singular, PascalCase, sufixo `Form`)
 - **Policies**: `BackofficePolicy` (única para todos os recursos)
 - **Routes**: `resources :resource_names` (plural, snake_case, namespace `backoffice`)
 - **Concerns**: `Searchable` (PascalCase)
@@ -1349,6 +1623,15 @@ end
 - **Consistência**: Todos os services usam os mesmos padrões
 - **Manutenibilidade**: Fácil adicionar novos métodos auxiliares
 - **Testabilidade**: Métodos auxiliares podem ser testados isoladamente
+
+### 13.6 Por Que Form Objects?
+
+- **Separação de Responsabilidades**: Validações de formulário separadas dos models
+- **Simplificação do Service**: Service não precisa validar dados, apenas criar models
+- **Reutilização**: Form object pode ser usado em diferentes contextos
+- **Testabilidade**: Fácil testar validações isoladamente
+- **Manutenibilidade**: Lógica de validação centralizada em um único lugar
+- **Múltiplos Models**: Facilita validação e criação de múltiplos models simultaneamente
 
 ---
 

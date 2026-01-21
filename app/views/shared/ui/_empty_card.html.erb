@@ -1,0 +1,47 @@
+<% if false %>
+  Empty Card component
+  Usage:
+    <%= render 'shared/ui/empty_card',
+        title: "Sua vitrine está vazia",
+        description: "Cadastre seu primeiro produto para começar a vender agora mesmo.",
+        cta_text: "Cadastrar meu primeiro produto",
+        cta_path: new_backoffice_product_path %>
+<% end %>
+<%
+  title = local_assigns[:title] || "Nenhum item encontrado"
+  description = local_assigns[:description] || ""
+  cta_text = local_assigns[:cta_text]
+  cta_path = local_assigns[:cta_path] || local_assigns[:href]
+  icon = local_assigns[:icon]
+%>
+
+<%= render 'shared/ui/card', class: "text-center py-12" do %>
+  <% if icon.present? %>
+    <div class="mb-4 flex justify-center">
+      <%= icon %>
+    </div>
+  <% else %>
+    <div class="mb-4 flex justify-center">
+      <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+        <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        </svg>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render 'shared/ui/heading', text: title, size: :lg, class: "mb-2" %>
+
+  <% if description.present? %>
+    <p class="text-sm text-slate-600 mb-6 max-w-md mx-auto"><%= description %></p>
+  <% end %>
+
+  <% if cta_text.present? && cta_path.present? %>
+    <%= render 'shared/ui/button',
+        text: cta_text,
+        variant: :primary,
+        size: :lg,
+        href: cta_path,
+        class: "mx-auto" %>
+  <% end %>
+<% end %>

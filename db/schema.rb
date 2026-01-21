@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_20_140129) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_21_171010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_140129) do
     t.datetime "created_at", null: false
     t.boolean "credit_enabled", default: false
     t.decimal "daily_goal", precision: 10, scale: 2, default: "0.0"
+    t.text "enabled_colors", default: [], array: true
+    t.text "enabled_sizes", default: [], array: true
     t.decimal "monthly_goal", precision: 10, scale: 2
     t.boolean "pix_enabled", default: true
     t.boolean "require_customer", default: false
@@ -47,6 +49,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_140129) do
     t.string "whatsapp"
     t.index ["active"], name: "index_accounts_on_active"
     t.index ["slug"], name: "index_accounts_on_slug", unique: true
+  end
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "customers", force: :cascade do |t|
@@ -92,7 +122,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_140129) do
     t.string "material"
     t.string "name", null: false
     t.integer "position"
+    t.string "size"
     t.string "sku"
+    t.integer "stock_quantity", default: 0, null: false
     t.string "supplier_code"
     t.datetime "updated_at", null: false
     t.index ["account_id", "sku"], name: "index_products_on_account_id_and_sku", unique: true, where: "(sku IS NOT NULL)"
@@ -128,6 +160,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_140129) do
     t.index ["user_id"], name: "index_sales_on_user_id"
   end
 
+  create_table "stock_movements", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}
+    t.string "movement_type", null: false
+    t.text "observations"
+    t.bigint "product_id"
+    t.integer "quantity_after", null: false
+    t.integer "quantity_before", null: false
+    t.integer "quantity_change", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["account_id"], name: "index_stock_movements_on_account_id"
+    t.index ["created_at"], name: "index_stock_movements_on_created_at"
+    t.index ["movement_type"], name: "index_stock_movements_on_movement_type"
+    t.index ["product_id"], name: "index_stock_movements_on_product_id"
+    t.index ["user_id"], name: "index_stock_movements_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.boolean "active", default: true, null: false
@@ -135,6 +186,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_140129) do
     t.string "email", null: false
     t.string "name"
     t.string "password_digest", null: false
+    t.datetime "password_reset_sent_at"
+    t.string "password_reset_token"
     t.string "phone"
     t.string "role", default: "employee"
     t.datetime "updated_at", null: false
@@ -144,10 +197,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_140129) do
   end
 
   add_foreign_key "account_configs", "accounts"
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "customers", "accounts"
   add_foreign_key "products", "accounts"
   add_foreign_key "sales", "accounts"
   add_foreign_key "sales", "customers"
   add_foreign_key "sales", "users"
+  add_foreign_key "stock_movements", "accounts"
+  add_foreign_key "stock_movements", "products"
+  add_foreign_key "stock_movements", "users"
   add_foreign_key "users", "accounts"
 end

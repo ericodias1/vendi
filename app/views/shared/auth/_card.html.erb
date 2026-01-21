@@ -1,0 +1,13 @@
+<% if false %>
+  Auth Card component
+  Usage:
+    <%= render 'shared/auth/card' do %>
+      <!-- Content -->
+    <% end %>
+<% end %>
+<%
+  card_class = local_assigns[:class] || ""
+%>
+<div class="w-full max-w-[440px] bg-white rounded-xl shadow-sm border border-black/5 p-8 <%= card_class %>">
+  <%= yield %>
+</div>

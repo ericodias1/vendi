@@ -1,0 +1,24 @@
+<% if notice.present? %>
+  <%= render 'shared/ui/toast', type: :success, message: notice %>
+<% end %>
+
+<% if alert.present? %>
+  <%= render 'shared/ui/toast', type: :error, message: alert %>
+<% end %>
+
+<% flash.each do |type, message| %>
+  <% next if type == 'notice' || type == 'alert' %>
+  <% 
+    toast_type = case type.to_s
+                 when 'success'
+                   :success
+                 when 'error', 'danger'
+                   :error
+                 when 'warning'
+                   :warning
+                 else
+                   :info
+                 end
+  %>
+  <%= render 'shared/ui/toast', type: toast_type, message: message %>
+<% end %>

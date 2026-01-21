@@ -1,0 +1,22 @@
+<% if false %>
+  Auth Link component
+  Usage:
+    <%= render 'shared/auth/link', text: "Voltar para login", path: login_path %>
+    <%= render 'shared/auth/link', text: "Cadastre-se agora", path: "#", class: "mt-10" %>
+<% end %>
+<%
+  text = local_assigns[:text] || ""
+  path = local_assigns[:path] || "#"
+  link_class = local_assigns[:class] || "link-primary link-sm"
+  wrapper_class = local_assigns[:wrapper_class] || "text-center"
+  show_arrow = local_assigns[:show_arrow] != false
+%>
+<div class="<%= wrapper_class %>">
+  <%= link_to path, class: link_class do %>
+    <% if show_arrow && text.include?("Voltar") %>
+      ← <%= text.gsub("← ", "") %>
+    <% else %>
+      <%= text %>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,49 @@
+<% if false %>
+  Heading component
+  Usage:
+    <%= render 'shared/ui/heading', text: "Page Title", size: :xl %>
+    <%= render 'shared/ui/heading', text: "Section Title", size: :lg, description: "Optional description text" %>
+
+  Sizes:
+    - :xl -> h1, text-2xl, font-bold
+    - :lg -> h2, text-lg, font-semibold
+    - :md -> h3, text-md, font-semibold
+<% end %>
+<%
+  text = local_assigns[:text] || local_assigns[:title] || ""
+  size = local_assigns[:size] || :lg
+  description = local_assigns[:description] || local_assigns[:subtitle]
+  heading_class = local_assigns[:class] || "mb-4"
+
+  # Map size to heading tag and styles
+  size_config = {
+    xl: {
+      tag: :h1,
+      text_class: "text-2xl",
+      font_weight: "font-extrabold",
+      description_class: "mt-2 text-sm text-slate-500"
+    },
+    lg: {
+      tag: :h2,
+      text_class: "text-lg",
+      font_weight: "font-semibold",
+      description_class: "mt-1 text-sm text-slate-600"
+    },
+    md: {
+      tag: :h3,
+      text_class: "text-md",
+      font_weight: "font-semibold",
+      description_class: "mt-1 text-xs text-slate-500"
+    }
+  }
+
+  config = size_config[size] || size_config[:lg]
+  tag = config[:tag]
+  text_classes = "#{config[:text_class]} #{config[:font_weight]} text-slate-900".strip
+%>
+<div class="<%= heading_class %>">
+  <%= content_tag tag, text, class: text_classes %>
+  <% if description.present? %>
+    <p class="<%= config[:description_class] %>"><%= description %></p>
+  <% end %>
+</div>

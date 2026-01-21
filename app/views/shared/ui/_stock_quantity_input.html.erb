@@ -1,0 +1,49 @@
+<% if false %>
+  Stock Quantity Input component
+  Usage:
+    <%= render 'shared/ui/stock_quantity_input', 
+        form: f, 
+        field: :stock_quantity,
+        input_id: "stock_quantity",
+        value: @product.stock_quantity || 0,
+        wrapper_class: "w-full" %>
+<% end %>
+<%
+  form = local_assigns[:form]
+  field = local_assigns[:field] || :stock_quantity
+  input_id = local_assigns[:input_id] || (form ? "#{form.object_name}_#{field}" : "stock_quantity")
+  value = local_assigns[:value] || (form ? form.object.send(field) : 0)
+  min = local_assigns[:min] || 0
+  step = local_assigns[:step] || 1
+  wrapper_class = local_assigns[:wrapper_class] || "w-full"
+  input_width = local_assigns[:input_width] || "w-12"
+%>
+<div class="flex items-center justify-center gap-3 text-[#0e1b12] dark:text-white bg-background-light dark:bg-background-dark/50 p-1 rounded-full border border-black/5 dark:border-white/5 <%= wrapper_class %>">
+  <button 
+    type="button"
+    class="flex size-8 items-center justify-center rounded-full bg-white dark:bg-[#2a4533] shadow-sm text-primary hover:bg-primary/10 transition-colors"
+    onclick="decrementStock('<%= input_id %>')">
+    <span class="material-symbols-outlined text-xl">remove</span>
+  </button>
+  <% if form %>
+    <%= form.number_field field,
+        id: input_id,
+        value: value,
+        min: min,
+        step: step,
+        class: "text-base font-bold #{input_width} p-0 text-center bg-transparent focus:outline-0 focus:ring-0 border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" %>
+  <% else %>
+    <%= number_field_tag field,
+        value,
+        id: input_id,
+        min: min,
+        step: step,
+        class: "text-base font-bold #{input_width} p-0 text-center bg-transparent focus:outline-0 focus:ring-0 border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" %>
+  <% end %>
+  <button 
+    type="button"
+    class="flex size-8 items-center justify-center rounded-full bg-white dark:bg-[#2a4533] shadow-sm text-primary hover:bg-primary/10 transition-colors"
+    onclick="incrementStock('<%= input_id %>')">
+    <span class="material-symbols-outlined text-xl">add</span>
+  </button>
+</div>

@@ -1,0 +1,49 @@
+<% if false %>
+  Table component (using nice_partials)
+  Usage:
+    <%= render 'shared/ui/table' do |t| %>
+      <% t.thead do %>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      <% end %>
+      <% t.tbody do %>
+        <% @users.each do |user| %>
+          <tr>
+            <td><%= user.name %></td>
+            <td><%= user.email %></td>
+          </tr>
+        <% end %>
+      <% end %>
+      <% t.tfoot do %>
+        <tr>
+          <td colspan="2">Total</td>
+        </tr>
+      <% end %>
+    <% end %>
+<% end %>
+<%
+  table_class = local_assigns[:class] || ""
+  wrapper_class = local_assigns[:wrapper_class] || ""
+%>
+
+<div class="overflow-x-auto table-container <%= wrapper_class %>">
+  <table class="min-w-full divide-y divide-slate-200 [&>thead]:bg-slate-50 [&>thead>tr>th]:px-6 [&>thead>tr>th]:py-3 [&>thead>tr>th]:text-left [&>thead>tr>th]:text-xs [&>thead>tr>th]:font-medium [&>thead>tr>th]:text-slate-500 [&>thead>tr>th]:uppercase [&>thead>tr>th]:tracking-wider [&>tbody]:bg-white [&>tbody]:divide-y [&>tbody]:divide-slate-200 [&>tbody>tr>td]:px-6 [&>tbody>tr>td]:py-4 [&>tbody>tr>td]:whitespace-nowrap [&>tbody>tr>td]:text-sm [&>tfoot>tr>td]:px-6 [&>tfoot>tr>td]:py-4 [&>tfoot>tr>td]:text-sm <%= table_class %>">
+    <% if partial.thead? %>
+      <thead>
+        <%= partial.thead %>
+      </thead>
+    <% end %>
+    <% if partial.tbody? %>
+      <tbody>
+        <%= partial.tbody %>
+      </tbody>
+    <% end %>
+    <% if partial.tfoot? %>
+      <tfoot>
+        <%= partial.tfoot %>
+      </tfoot>
+    <% end %>
+  </table>
+</div>

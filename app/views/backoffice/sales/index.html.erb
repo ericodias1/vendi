@@ -1,0 +1,46 @@
+<div class="mb-6">
+  <div class="flex items-center justify-between mb-2">
+    <div>
+      <%= render 'shared/ui/heading',
+          text: "Vendas",
+          size: :xl,
+          description: "Acompanhe rapidamente o que foi vendido." %>
+    </div>
+    <button class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors">
+      <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Filtros de Período -->
+<%= render 'backoffice/shared/period_filters', active_period: @active_period %>
+
+<!-- Lista de Vendas -->
+<% if @sales.any? %>
+  <div class="space-y-3">
+    <% @sales.each do |sale| %>
+      <%= render 'backoffice/shared/sale_card', sale: sale %>
+    <% end %>
+  </div>
+<% else %>
+  <%= render 'shared/ui/empty_card',
+      title: "Nenhuma venda encontrada",
+      description: "Registre sua primeira venda para começar a acompanhar suas vendas.",
+      cta_text: "Registrar venda",
+      cta_path: new_backoffice_sale_path %>
+<% end %>
+
+<!-- FAB (Floating Action Button) -->
+<%= render 'shared/ui/button',
+    text: "",
+    variant: :primary,
+    size: :lg,
+    href: new_backoffice_sale_path,
+    class: "fixed bottom-20 right-6 w-auto px-6 py-4 rounded-full shadow-xl z-30 md:bottom-6 flex items-center gap-2" do %>
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+  </svg>
+  <span class="hidden md:inline font-semibold">Registrar venda</span>
+<% end %>

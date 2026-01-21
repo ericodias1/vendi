@@ -1,0 +1,55 @@
+<% if false %>
+  Image Upload component with preview
+  Usage:
+    <%= render 'shared/ui/image_upload', form: f, field: :images, existing_image: @product.main_image %>
+<% end %>
+<%
+  form = local_assigns[:form]
+  field = local_assigns[:field] || :images
+  existing_image = local_assigns[:existing_image]
+  wrapper_class = local_assigns[:wrapper_class] || ""
+  preview_class = local_assigns[:preview_class] || "w-full h-48"
+  # `existing_image` pode ser um ActiveStorage::Attachment (ex: images.first),
+  # então não use `attached?` aqui.
+  existing_image_url = existing_image.present? ? url_for(existing_image.variant(resize_to_limit: [400, 400])) : nil rescue nil
+%>
+<div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col items-center gap-4 <%= wrapper_class %>" 
+     data-controller="image-upload"
+     data-image-upload-existing-image-value="<%= existing_image_url %>">
+  <!-- Preview (hidden by default) -->
+  <div data-image-upload-target="preview" 
+       class="<%= preview_class %> bg-center bg-no-repeat bg-cover rounded-lg relative <%= existing_image_url ? '' : 'hidden' %>">
+    <button type="button" 
+            data-image-upload-target="removeButton"
+            data-action="click->image-upload#removeImage"
+            class="absolute top-2 right-2 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors <%= existing_image_url ? '' : 'hidden' %>">
+      <span class="material-symbols-outlined text-sm">close</span>
+    </button>
+  </div>
+  
+  <!-- Placeholder (shown when no image) -->
+  <div data-image-upload-target="placeholder" 
+       class="<%= preview_class %> bg-zinc-100 dark:bg-zinc-800 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-zinc-700 <%= existing_image_url ? 'hidden' : '' %>">
+    <span class="material-symbols-outlined text-4xl text-zinc-400">image</span>
+  </div>
+  
+  <!-- File Name (hidden by default) -->
+  <div data-image-upload-target="fileName" class="hidden text-sm text-zinc-600 dark:text-zinc-400 text-center w-full truncate">
+    <span class="material-symbols-outlined text-sm align-middle mr-1">description</span>
+    <span></span>
+  </div>
+  
+  <!-- File Input -->
+  <label class="w-full flex items-center justify-center gap-2 border-2 border-primary text-[#0e1b12] dark:text-white py-3 rounded-xl font-semibold hover:bg-primary/10 transition-colors cursor-pointer">
+    <span class="material-symbols-outlined">add_a_photo</span>
+    <span>Adicionar foto</span>
+    <%= form.file_field field, 
+        multiple: true, 
+        accept: "image/*",
+        data: {
+          image_upload_target: "input",
+          action: "change->image-upload#selectFile"
+        },
+        class: "hidden" %>
+  </label>
+</div>

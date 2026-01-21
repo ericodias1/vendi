@@ -1,0 +1,21 @@
+<% if false %>
+  Label component
+  Usage:
+    <%= render 'shared/ui/label', text: "Name", for: "name_field" %>
+    <%= render 'shared/ui/label', text: "Email", required: true %>
+<% end %>
+<%
+  label_text = local_assigns[:text] || local_assigns[:label]
+  label_for = local_assigns[:for] || local_assigns[:field_id]
+  label_required = local_assigns[:required] || false
+  label_class = local_assigns[:class] || "block text-sm font-medium text-slate-700 mb-1"
+%>
+<label<%= " for=\"#{label_for}\"" if label_for %> class="<%= label_class %><%= ' required' if label_required %>">
+  <%= label_text %>
+  <% if local_assigns[:small] %>
+    <span class="text-xs text-slate-500"><%= local_assigns[:small] %></span>
+  <% end %>
+  <% if label_required %>
+    <span class="text-red-500">*</span>
+  <% end %>
+</label>

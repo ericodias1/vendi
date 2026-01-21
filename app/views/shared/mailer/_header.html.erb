@@ -1,0 +1,14 @@
+<% if false %>
+  Mailer Header component
+  Usage:
+    <%= render 'shared/mailer/header' %>
+<% end %>
+<%
+  header_class = local_assigns[:class] || ""
+  # Usa URL absoluta para a imagem na pasta public
+  # root_url usa o host configurado em action_mailer.default_url_options
+  logo_url = "#{root_url.chomp('/')}/images/vendi-gestao-logo.png"
+%>
+<div style="display: flex; align-items: center; justify-content: center; background-color: #ffffff; padding: 24px 24px 8px 24px; <%= header_class %>">
+  <img src="<%= logo_url %>" alt="Vendi Gestão" style="height: 32px; width: auto;" />
+</div>

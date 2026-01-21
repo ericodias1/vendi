@@ -1,0 +1,13 @@
+<% if false %>
+  Mailer Content Wrapper component
+  Usage:
+    <%= render 'shared/mailer/content_wrapper' do %>
+      <!-- Content -->
+    <% end %>
+<% end %>
+<%
+  wrapper_class = local_assigns[:class] || ""
+%>
+<div style="padding: 24px 40px; <%= wrapper_class %>">
+  <%= yield %>
+</div>

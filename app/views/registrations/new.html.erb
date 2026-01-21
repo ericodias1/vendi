@@ -1,0 +1,87 @@
+<% content_for :title, "Cadastro - Vendi Gestão" %>
+
+<!-- Headline Section -->
+<%= render 'shared/auth/heading', 
+    text: "Criar conta",
+    description: "Comece a gerenciar seu varejo de forma simples e moderna." %>
+
+<!-- Registration Form -->
+<%= form_with model: @form, url: registration_path, method: :post, local: true, class: "space-y-4" do |f| %>
+  <!-- Error Messages -->
+  <%= render 'shared/auth/error_message', errors: @form.errors %>
+  <%= render 'shared/auth/error_message', message: flash[:alert] %>
+
+  <!-- Account Name Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "Nome da loja" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :account_name, 
+        type: :text, 
+        placeholder: "Ex: Loja de Roupas Infantis" %>
+  </div>
+
+  <!-- WhatsApp Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "WhatsApp" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :whatsapp, 
+        type: :phone, 
+        placeholder: "(11) 99999-9999" %>
+  </div>
+
+  <!-- User Name Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "Seu nome" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :name, 
+        type: :text, 
+        placeholder: "Seu nome completo",
+        required: false %>
+  </div>
+
+  <!-- Email Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "E-mail" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :email, 
+        type: :email, 
+        placeholder: "seu@email.com" %>
+  </div>
+
+  <!-- Password Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "Senha" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :password, 
+        type: :password, 
+        show_toggle: true,
+        minlength: 6 %>
+  </div>
+
+  <!-- Password Confirmation Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "Confirmar senha" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :password_confirmation, 
+        type: :password, 
+        show_toggle: true,
+        minlength: 6 %>
+  </div>
+
+  <!-- Primary Action Button -->
+  <%= render 'shared/auth/button', text: "Criar conta", icon: "person_add" %>
+<% end %>
+
+<!-- Footer Link -->
+<div class="mt-10 text-center">
+  <p class="text-slate-500 text-sm">
+    Já tem uma conta? 
+    <%= link_to "Entrar", login_path, class: "link-primary" %>
+  </p>
+</div>

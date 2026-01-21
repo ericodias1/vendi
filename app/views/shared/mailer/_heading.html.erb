@@ -1,0 +1,22 @@
+<% if false %>
+  Mailer Heading component
+  Usage:
+    <%= render 'shared/mailer/heading', text: "Recupere sua senha" %>
+<% end %>
+<%
+  text = local_assigns[:text] || local_assigns[:title] || ""
+  size = local_assigns[:size] || "2xl"
+  heading_class = local_assigns[:class] || ""
+  
+  size_styles = {
+    "xl" => "font-size: 24px;",
+    "2xl" => "font-size: 24px;",
+    "3xl" => "font-size: 30px;"
+  }
+  style = size_styles[size] || size_styles["2xl"]
+%>
+<div style="text-align: center; <%= heading_class %>">
+  <h3 style="color: #0d1c0d; letter-spacing: -0.02em; <%= style %> font-weight: 700; line-height: 1.2; font-family: 'Manrope', sans-serif; margin: 0;">
+    <%= text %>
+  </h3>
+</div>

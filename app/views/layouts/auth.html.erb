@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) || "Vendi Gestão" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-cache">
+    <meta name="turbo-prefetch" content="false">
+
+    <!-- Material Design Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+    
+    <!-- Manrope Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag 'application', 'data-turbo-track': 'reload' %>
+  </head>
+
+  <body class="min-h-screen bg-background-light flex flex-col font-display">
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container">
+      <%= render 'shared/flash_toasts' if notice.present? || alert.present? || flash.any? %>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center p-4">
+      <div class="w-full max-w-[440px]">
+        <!-- Logo -->
+        <%= render 'shared/auth/logo' %>
+        
+        <!-- Auth Card -->
+        <%= render 'shared/auth/card' do %>
+          <%= yield %>
+        <% end %>
+      </div>
+    </main>
+
+    <!-- App Info Footer -->
+    <footer class="p-6 text-center">
+      <p class="text-slate-400 text-xs font-medium">
+        © 2024 Vendi Gestão. Todos os direitos reservados.
+      </p>
+    </footer>
+  </body>
+</html>

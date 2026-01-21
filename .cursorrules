@@ -4,6 +4,20 @@
 
 Este é o projeto **Vendi Gestão**, uma plataforma web mobile-first para gestão de vendas e estoque de pequenos negócios de roupa infantil. O projeto utiliza Ruby on Rails 8 com padrões modernos de desenvolvimento.
 
+### 📚 Documentação do Projeto
+
+**⚠️ IMPORTANTE**: Sempre consulte os documentos presentes na pasta `docs/` antes de implementar funcionalidades ou fazer alterações significativas. Esses documentos contêm:
+
+- **Especificações completas** (`vendi-especificacao-completa.md`) - Requisitos funcionais e não funcionais detalhados
+- **Design System** (`vendi-design-system.md`) - Padrões de UI, componentes, cores, tipografia e responsividade
+- **Cronograma** (`vendi-cronograma.md`) - Roadmap, fases de desenvolvimento e status das tarefas
+
+**Regra obrigatória**: Antes de implementar qualquer feature, funcionalidade ou componente:
+1. Consulte primeiro os documentos em `docs/` para entender os requisitos
+2. Verifique o design system para seguir os padrões de UI
+3. Consulte o cronograma para entender o contexto e prioridades
+4. Siga as especificações ao implementar funcionalidades
+
 ---
 
 ## 🎯 Princípios Fundamentais
@@ -11,13 +25,14 @@ Este é o projeto **Vendi Gestão**, uma plataforma web mobile-first para gestã
 1. **CRUD primeiro**: Preferir ações CRUD padrão ao invés de actions customizadas
 2. **Services apenas quando necessário**: Usar services apenas quando a lógica ficar complexa
 3. **Validações no model**: Sempre validar no model, nunca nos services
-4. **Resources com only/except**: Usar `resources` com `only:` ou `except:` para limitar ações
-5. **Multi-Account First**: Tudo deve considerar isolamento por account
-6. **Pundit para autorização**: Todas as ações devem ser autorizadas
-7. **Busca abstraída**: Usar concern `Searchable` para lógica de busca nos models
-8. **Service base robusto**: Classe `Service` com métodos auxiliares para validações e tratamento de erros
-9. **Responsividade First**: Layout otimizado para desktop (laptop) e mobile
-10. **Mobile-First Design**: Interface pensada primeiro para mobile, depois adaptada para desktop
+4. **Form Objects para validações de formulários complexos**: Usar Form Objects quando precisar validar múltiplos models ou campos que não pertencem a um único model
+5. **Resources com only/except**: Usar `resources` com `only:` ou `except:` para limitar ações
+6. **Multi-Account First**: Tudo deve considerar isolamento por account
+7. **Pundit para autorização**: Todas as ações devem ser autorizadas
+8. **Busca abstraída**: Usar concern `Searchable` para lógica de busca nos models
+9. **Service base robusto**: Classe `Service` com métodos auxiliares para validações e tratamento de erros
+10. **Responsividade First**: Layout otimizado para desktop (laptop) e mobile
+11. **Mobile-First Design**: Interface pensada primeiro para mobile, depois adaptada para desktop
 
 ---
 
@@ -63,6 +78,41 @@ app/models/
 app/policies/
   application_policy.rb          # Base para todas as policies
   backoffice_policy.rb          # Policy única para backoffice
+```
+
+### Form Objects
+
+```
+app/forms/
+  *_form.rb                      # Form objects para validações complexas
+```
+
+### Views e Partials
+
+**Partials locais** (como `app/views/backoffice/products/_form.html.erb`):
+- ⚠️ **NÃO precisam de instruções de uso** no topo do arquivo
+- São específicos do contexto e não são componentes reutilizáveis globais
+- Apenas os parâmetros necessários devem ser documentados se houver
+
+**Partials compartilhados** (como `app/views/shared/ui/_*.html.erb`):
+- ✅ **Devem ter instruções de uso** no topo do arquivo
+- São componentes reutilizáveis que podem ser usados em múltiplos contextos
+- Devem documentar todos os parâmetros e opções disponíveis
+
+**Exemplo:**
+```erb
+<!-- ✅ Correto - Partial local (_form.html.erb) -->
+<%
+  form = local_assigns[:form]
+  submit_text = local_assigns[:submit_text] || "Salvar"
+%>
+
+<!-- ✅ Correto - Partial compartilhado (_button.html.erb) -->
+<% if false %>
+  Button component
+  Usage:
+    <%= render 'shared/ui/button', text: "Save", variant: :primary %>
+<% end %>
 ```
 
 ### Models Principais do Vendi Gestão
@@ -240,6 +290,7 @@ end
 **⚠️ IMPORTANTE sobre Validações:**
 - **Validações de dados SEMPRE no model** (presence, format, uniqueness, etc)
 - **Services apenas para validações de negócio** (regras complexas, condições entre models)
+- **Form Objects para validações de formulários complexos** (múltiplos models, campos que não pertencem a um único model)
 - Use métodos auxiliares da classe `Service`: `validate_presence`, `validate_model`, `validate_condition`, etc
 
 ### Models
@@ -329,6 +380,146 @@ def index
   @products = current_account.products.search(params[:search]).order(created_at: :desc)
 end
 ```
+
+### Form Objects
+
+**Use Form Objects quando:**
+- Precisa validar múltiplos models simultaneamente (ex: criar Account + User + AccountConfig)
+- Campos do formulário não pertencem a um único model
+- Precisa de validações customizadas que não fazem sentido nos models individuais
+- Quer simplificar a lógica de validação no controller e service
+
+**Não use Form Objects quando:**
+- É apenas um CRUD simples de um único model
+- As validações já estão bem definidas no model
+- Não há necessidade de validar múltiplos models juntos
+
+**Estrutura de um Form Object:**
+
+```ruby
+# frozen_string_literal: true
+
+class RegistrationForm
+  include ActiveModel::Model
+  include ActiveModel::Attributes
+
+  # Attributes
+  attribute :account_name, :string
+  attribute :whatsapp, :string
+  attribute :name, :string
+  attribute :email, :string
+  attribute :password, :string
+  attribute :password_confirmation, :string
+
+  # Validations
+  validates :account_name, presence: true
+  validates :whatsapp, presence: true
+  validates :email, presence: true
+  validates :password, presence: true, length: { minimum: 6 }
+  validates :password_confirmation, presence: true
+  validate :password_confirmation_matches
+
+  # Accessors for models
+  def account_attributes
+    {
+      name: account_name,
+      whatsapp: whatsapp,
+      active: true
+    }
+  end
+
+  def user_attributes
+    {
+      name: name,
+      email: email&.downcase&.strip,
+      password: password,
+      password_confirmation: password_confirmation,
+      role: "owner"
+    }
+  end
+
+  private
+
+  def password_confirmation_matches
+    return if password.blank? || password_confirmation.blank?
+
+    unless password == password_confirmation
+      errors.add(:password_confirmation, "não confere")
+    end
+  end
+end
+```
+
+**Uso no Controller:**
+
+```ruby
+def new
+  @form = RegistrationForm.new
+end
+
+def create
+  @form = RegistrationForm.new(registration_params)
+  service = Backoffice::Accounts::CreateService.new(form: @form)
+  
+  if service.call
+    redirect_to backoffice_root_path, notice: "Conta criada com sucesso!"
+  else
+    # Adiciona erros do service ao form
+    service.errors.each do |error|
+      @form.errors.add(error.attribute, error.message) unless @form.errors[error.attribute].include?(error.message)
+    end
+    
+    flash.now[:alert] = "Erro ao criar conta. Verifique os campos abaixo."
+    render :new, status: :unprocessable_entity
+  end
+end
+```
+
+**Uso no Service:**
+
+```ruby
+def initialize(form:)
+  super()
+  @form = form
+end
+
+def call
+  return false unless @form.valid?
+
+  execute_with_transaction do
+    create_account
+    create_user
+    create_account_config
+  end
+end
+
+private
+
+def create_account
+  @account = Account.new(
+    @form.account_attributes.merge(slug: generate_slug(@form.account_name))
+  )
+  save_model!(@account, raise_on_error: true)
+end
+```
+
+**Uso na View:**
+
+```erb
+<%= form_with model: @form, url: registration_path, method: :post, local: true do |f| %>
+  <%= render 'shared/auth/input', form: f, field: :account_name, type: :text %>
+  <%= render 'shared/auth/input', form: f, field: :email, type: :email %>
+  <!-- Erros são exibidos automaticamente via form object -->
+  <%= render 'shared/auth/error_message', errors: @form.errors %>
+<% end %>
+```
+
+**Padrões Importantes:**
+- ✅ Sempre usar `ActiveModel::Model` e `ActiveModel::Attributes`
+- ✅ Validações no form object, não no service
+- ✅ Métodos `*_attributes` para facilitar criação dos models
+- ✅ Service recebe o form object e valida apenas se ele é válido
+- ✅ Controller usa `form_with model: @form` para integração automática
 
 ### Rotas
 
@@ -498,30 +689,33 @@ flash.now[:error] = "Erro ao processar"
 1. **NÃO usar "Store"** - Sempre usar "Account"
 2. **NÃO criar lógica complexa em controllers** - Use services apenas quando necessário
 3. **NÃO esquecer responsividade** - Sempre testar desktop e mobile
-4. **NÃO validar dados no service** - Validações sempre no model
+4. **NÃO validar dados no service** - Validações sempre no model ou form object
 5. **NÃO usar variável `@current_account`** - Sempre usar método `current_account`
 6. **NÃO escrever tags HTML de título diretamente** - Sempre usar componente `heading`
 7. **NÃO usar flash messages diretamente** - Sempre usar toasts (flash é convertido automaticamente)
 8. **NÃO criar services para CRUD simples** - Use apenas quando necessário
 9. **NÃO usar actions customizadas** - Prefira CRUD com status como atributo
 10. **NÃO esquecer isolamento multi-account** - Sempre filtrar por `current_account`
+11. **NÃO validar múltiplos models no service** - Use form object quando precisar validar múltiplos models
 
 ---
 
 ## ✅ O Que Sempre Fazer
 
-1. **SEMPRE incluir account em queries** - `current_account.resources`
-2. **SEMPRE criar recursos associados ao account** - `current_account.resources.build(params)`
-3. **SEMPRE validar no model** - Nunca no service
-4. **SEMPRE usar `before_action :set_resource`** - Para actions que precisam
-5. **SEMPRE usar strong parameters** - Nos controllers
-6. **SEMPRE usar componente heading** - Para títulos
-7. **SEMPRE usar toasts** - Para feedback ao usuário
-8. **SEMPRE usar concern Searchable** - Para busca nos models
-9. **SEMPRE usar `resources` com `only:` ou `except:`** - Nas rotas
-10. **SEMPRE considerar responsividade** - Testar em desktop e mobile
-11. **SEMPRE herdar de `Backoffice::BaseController`** - Para controllers backoffice
-12. **SEMPRE validar uniqueness com scope** - `uniqueness: { scope: :account_id }`
+1. **SEMPRE consultar documentos em `docs/`** - Antes de implementar features, verificar especificações, design system e cronograma
+2. **SEMPRE incluir account em queries** - `current_account.resources`
+3. **SEMPRE criar recursos associados ao account** - `current_account.resources.build(params)`
+4. **SEMPRE validar no model ou form object** - Nunca no service
+5. **SEMPRE usar `before_action :set_resource`** - Para actions que precisam
+6. **SEMPRE usar strong parameters** - Nos controllers
+7. **SEMPRE usar componente heading** - Para títulos
+8. **SEMPRE usar toasts** - Para feedback ao usuário
+9. **SEMPRE usar concern Searchable** - Para busca nos models
+10. **SEMPRE usar `resources` com `only:` ou `except:`** - Nas rotas
+11. **SEMPRE considerar responsividade** - Testar em desktop e mobile
+12. **SEMPRE herdar de `Backoffice::BaseController`** - Para controllers backoffice
+13. **SEMPRE validar uniqueness com scope** - `uniqueness: { scope: :account_id }`
+14. **SEMPRE usar form object quando validar múltiplos models** - Simplifica service e controller
 
 ---
 
@@ -605,14 +799,24 @@ end
 - [ ] Usar métodos auxiliares: `validate_presence`, `validate_model`, `save_model!`, etc.
 - [ ] Implementar métodos privados para cada passo
 - [ ] Usar `execute_with_transaction` para operações atômicas
-- [ ] **NÃO** adicionar validações de dados (vão no model)
+- [ ] **NÃO** adicionar validações de dados (vão no model ou form object)
 - [ ] Usar métodos auxiliares para tratamento de erros de models
+
+### Novo Form Object (Quando Necessário)
+- [ ] Criar form object em `app/forms/`
+- [ ] Incluir `ActiveModel::Model` e `ActiveModel::Attributes`
+- [ ] Definir attributes com `attribute :field_name, :type`
+- [ ] Adicionar validações usando `validates` e `validate`
+- [ ] Criar métodos `*_attributes` para facilitar criação dos models
+- [ ] Usar no controller com `form_with model: @form`
+- [ ] Passar form object para o service ao invés de params brutos
+- [ ] Service valida apenas se form é válido: `return false unless @form.valid?`
 
 ---
 
 ## 🎯 Regras Obrigatórias que NUNCA Devem Ser Violadas
 
-1. **Validações SEMPRE no model**, nunca no service
+1. **Validações SEMPRE no model ou form object**, nunca no service
 2. **Sempre usar método `current_account`** (não variável `@current_account`) em queries
 3. **Sempre criar recursos associados ao account** via `current_account.resources.build`
 4. **Sempre usar strong parameters** nos controllers
@@ -626,6 +830,7 @@ end
 12. **Usar métodos auxiliares da classe `Service`** para validações e tratamento de erros
 13. **NUNCA escrever tags HTML de título diretamente** - Sempre usar componente `heading`
 14. **NUNCA usar flash messages diretamente** - Sempre usar toasts
+15. **Usar form object quando validar múltiplos models** - Simplifica service e controller
 
 ---
 

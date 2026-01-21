@@ -1,0 +1,9 @@
+<% if false %>
+  Mailer Bottom Bar component
+  Usage:
+    <%= render 'shared/mailer/bottom_bar' %>
+<% end %>
+<%
+  bar_class = local_assigns[:class] || ""
+%>
+<div style="height: 8px; background-color: #10b981; <%= bar_class %>"></div>

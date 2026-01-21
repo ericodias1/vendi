@@ -1,0 +1,199 @@
+/* app/javascript/stylesheets/colors.css */
+
+:root {
+  /* === PRIMARY COLORS === */
+  --color-primary-50: #f7f7f7;
+  --color-primary-100: #f0f0f1;
+  --color-primary-200: #ececed;
+  --color-primary-300: #cecfd2;
+  --color-primary-400: #94979c;
+  --color-primary-500: #85888e;
+  --color-primary-600: #61656c;
+  --color-primary-700: #373a41;
+  --color-primary-800: #22262f;
+  --color-primary-900: #13161b;
+  --color-primary-950: #0c0e12;
+
+  /* === BRAND COLORS === */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
+
+  /* === VENDI GESTÃO - CORES PRIMÁRIAS === */
+  --color-primary: #10b981;  /* Primary - emerald-500 */
+  --color-primary-dark: #059669;  /* Primary Dark - emerald-600 */
+
+  /* Variantes para uso em backgrounds e badges (derivadas de primary) */
+  --color-primary-light: #D1FAE5;  /* Para badges - mais elegante */
+  --color-primary-soft: #ECFDF5;   /* Backgrounds de alertas */
+
+  /* === VENDI GESTÃO - CORES DE ALERTA === */
+  --color-vendi-warning-orange: #FF8C42;
+  --color-vendi-warning-light: #FFF4EC; /* Background de alertas laranja */
+
+  /* Integração com sistema existente */
+  --color-brand-500: var(--color-primary);
+  --color-brand-600: var(--color-primary-dark);
+  --color-brand-700: #047857;
+
+  /* === SUCCESS COLORS === */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+  --color-success-950: #022c22;
+
+  /* === WARNING COLORS === */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+  --color-warning-950: #451a03;
+
+  /* === ERROR COLORS === */
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+  --color-error-950: #450a0a;
+
+  /* === TEXT SEMANTIC COLORS === */
+  --color-text-primary: var(--color-primary-900);
+  --color-text-secondary: var(--color-primary-700);
+  --color-text-tertiary: var(--color-primary-600);
+  --color-text-quaternary: var(--color-primary-400);
+  --color-text-white: #ffffff;
+  --color-text-disabled: var(--color-primary-300);
+  --color-text-placeholder: var(--color-primary-400);
+
+  /* === BACKGROUND SEMANTIC COLORS === */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: var(--color-primary-50);
+  --color-bg-tertiary: var(--color-primary-100);
+  --color-bg-active: var(--color-primary-50);
+  --color-bg-disabled: var(--color-primary-100);
+  --color-bg-overlay: rgba(17, 24, 39, 0.8);
+  --color-bg-layout: #f8fafc; /* Background Light - slate-50 */
+  --color-sidebar-bg: #ffffff; /* Sidebar Background */
+
+  /* === BORDER SEMANTIC COLORS === */
+  --color-border-primary: var(--color-primary-300);
+  --color-border-secondary: var(--color-primary-200);
+  --color-border-tertiary: var(--color-primary-100);
+  --color-border-disabled: var(--color-primary-200);
+  --color-border-brand: var(--color-brand-300);
+  --color-border-error: var(--color-error-300);
+
+  /* === BUTTON SEMANTIC COLORS === */
+  --color-button-primary-bg: var(--color-primary);
+  --color-button-primary-bg-hover: var(--color-primary-dark);
+  --color-button-primary-border: var(--color-primary);
+  --color-button-primary-border-hover: var(--color-primary-dark);
+  --color-button-primary-fg: #ffffff;
+
+  --color-button-secondary-bg: #ffffff;
+  --color-button-secondary-bg-hover: #f9fafb;
+  --color-button-secondary-border: #d1d5db;
+  --color-button-secondary-border-hover: #9ca3af;
+  --color-button-secondary-fg: #374151;
+  --color-button-secondary-fg-hover: #111827;
+
+  --color-button-tertiary-bg: transparent;
+  --color-button-tertiary-bg-hover: var(--color-primary-50);
+  --color-button-tertiary-fg: var(--color-text-primary);
+  --color-button-tertiary-fg-hover: var(--color-text-primary);
+}
+
+@theme {
+  /* Variáveis principais */
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-soft: var(--color-primary-soft);
+  
+  /* Backgrounds */
+  --color-background-light: var(--color-bg-layout);
+  --color-sidebar-bg: var(--color-sidebar-bg);
+  
+  /* Alertas */
+  --color-vendi-warning-orange: var(--color-vendi-warning-orange);
+  --color-vendi-warning-light: var(--color-vendi-warning-light);
+  
+  /* === SUCCESS COLORS (Badges de Estoque - EM ESTOQUE) === */
+  --color-success-50: var(--color-success-50);
+  --color-success-100: var(--color-success-100);
+  --color-success-200: var(--color-success-200);
+  --color-success-300: var(--color-success-300);
+  --color-success-400: var(--color-success-400);
+  --color-success-500: var(--color-success-500);
+  --color-success-600: var(--color-success-600);
+  --color-success-700: var(--color-success-700);
+  --color-success-800: var(--color-success-800);
+  --color-success-900: var(--color-success-900);
+  --color-success-950: var(--color-success-950);
+  
+  /* === WARNING COLORS (Badges de Estoque - BAIXO) === */
+  --color-warning-50: var(--color-warning-50);
+  --color-warning-100: var(--color-warning-100);
+  --color-warning-200: var(--color-warning-200);
+  --color-warning-300: var(--color-warning-300);
+  --color-warning-400: var(--color-warning-400);
+  --color-warning-500: var(--color-warning-500);
+  --color-warning-600: var(--color-warning-600);
+  --color-warning-700: var(--color-warning-700);
+  --color-warning-800: var(--color-warning-800);
+  --color-warning-900: var(--color-warning-900);
+  --color-warning-950: var(--color-warning-950);
+  
+  /* === ERROR COLORS (Badges de Estoque - SEM ESTOQUE) === */
+  --color-error-50: var(--color-error-50);
+  --color-error-100: var(--color-error-100);
+  --color-error-200: var(--color-error-200);
+  --color-error-300: var(--color-error-300);
+  --color-error-400: var(--color-error-400);
+  --color-error-500: var(--color-error-500);
+  --color-error-600: var(--color-error-600);
+  --color-error-700: var(--color-error-700);
+  --color-error-800: var(--color-error-800);
+  --color-error-900: var(--color-error-900);
+  --color-error-950: var(--color-error-950);
+  
+  /* === BRAND COLORS === */
+  --color-brand-50: var(--color-brand-50);
+  --color-brand-100: var(--color-brand-100);
+  --color-brand-200: var(--color-brand-200);
+  --color-brand-300: var(--color-brand-300);
+  --color-brand-400: var(--color-brand-400);
+  --color-brand-500: var(--color-brand-500);
+  --color-brand-600: var(--color-brand-600);
+  --color-brand-700: var(--color-brand-700);
+  --color-brand-800: var(--color-brand-800);
+  --color-brand-900: var(--color-brand-900);
+  --color-brand-950: var(--color-brand-950);
+}

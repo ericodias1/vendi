@@ -1,0 +1,21 @@
+<% if false %>
+  Auth Button component
+  Usage:
+    <%= render 'shared/auth/button', text: "Entrar", icon: "login" %>
+    <%= render 'shared/auth/button', text: "Enviar", type: :submit, icon: "send" %>
+<% end %>
+<%
+  text = local_assigns[:text] || "Enviar"
+  icon = local_assigns[:icon]
+  type = local_assigns[:type] || :submit
+  button_class = local_assigns[:class] || ""
+  wrapper_class = local_assigns[:wrapper_class] || "pt-4"
+%>
+<div class="<%= wrapper_class %>">
+  <button type="<%= type %>" class="w-full bg-primary hover:brightness-95 active:scale-[0.98] transition-all text-white font-bold h-14 rounded-lg text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 <%= button_class %>">
+    <%= text %>
+    <% if icon.present? %>
+      <span class="material-symbols-outlined"><%= icon %></span>
+    <% end %>
+  </button>
+</div>

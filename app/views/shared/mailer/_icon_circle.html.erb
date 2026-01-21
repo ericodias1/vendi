@@ -1,0 +1,16 @@
+<% if false %>
+  Mailer Icon Circle component
+  Usage:
+    <%= render 'shared/mailer/icon_circle', icon: "lock_reset" %>
+<% end %>
+<%
+  icon = local_assigns[:icon] || "info"
+  size = local_assigns[:size] || 80
+  icon_size = local_assigns[:icon_size] || 40
+  wrapper_class = local_assigns[:class] || ""
+%>
+<div style="display: flex; justify-content: center; padding: 16px 0; <%= wrapper_class %>">
+  <div style="position: relative; display: flex; align-items: center; justify-content: center; width: <%= size %>px; height: <%= size %>px; background-color: rgba(16, 185, 129, 0.2); border-radius: 9999px;">
+    <span class="material-symbols-outlined" style="color: #10b981; font-size: <%= icon_size %>px;"><%= icon %></span>
+  </div>
+</div>

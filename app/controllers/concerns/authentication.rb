@@ -15,8 +15,8 @@ module Authentication
   end
 
   def authenticate_user!
-    return redirect_to backoffice_login_path unless current_user
-
+    return redirect_to login_path unless current_user
+    
     @current_account = current_user.account
   end
 end

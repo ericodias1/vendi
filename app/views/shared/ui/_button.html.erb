@@ -1,0 +1,92 @@
+<% if false %>
+  Button component
+  Usage:
+    <%= render 'shared/ui/button', text: "Save", type: :submit, variant: :primary, size: :md %>
+    <%= render 'shared/ui/button', text: "Cancel", type: :button, variant: :secondary, size: :sm %>
+    <%= render 'shared/ui/button', text: "Delete", variant: :danger, size: :lg %>
+    
+    Or as link:
+    <%= render 'shared/ui/button', text: "Back", href: "/path", variant: :tertiary %>
+    
+    Or with button_to (for POST requests):
+    <%= render 'shared/ui/button', text: "Delete", url: delete_path, method: :delete, variant: :danger %>
+<% end %>
+<% 
+  text = local_assigns[:text] || local_assigns[:label] || "Button"
+  type = local_assigns[:type] || :button
+  variant = local_assigns[:variant] || :primary
+  size = local_assigns[:size] || :md
+  href = local_assigns[:href] || local_assigns[:url]
+  method = local_assigns[:method]
+  button_class = local_assigns[:class] || ""
+  width_class = local_assigns[:width] || ""
+  form = local_assigns[:form]
+  
+  # Build button classes
+  base_classes = "btn-base"
+  size_classes = {
+    sm: "btn-sm",
+    md: "btn-md",
+    lg: "btn-lg",
+    xl: "btn-xl"
+  }
+  variant_classes = {
+    primary: "btn-primary",
+    secondary: "btn-secondary",
+    tertiary: "btn-tertiary",
+    danger: "btn-danger"
+  }
+  
+  full_class = "#{base_classes} #{size_classes[size]} #{variant_classes[variant]} #{width_class} #{button_class}".strip
+  
+  # Prepare options excluding our component-specific params
+  excluded_params = [:text, :label, :type, :variant, :size, :href, :url, :class, :width, :form]
+  options = local_assigns.except(*excluded_params).merge(class: full_class)
+  
+  # Determine if we should use block or text
+  # Use block if:
+  # 1. Block is given AND
+  # 2. (text was not explicitly provided OR text is blank/empty)
+  text_provided = local_assigns.key?(:text) || local_assigns.key?(:label)
+  text_is_blank = text.blank? || text == "Button"
+  use_block = block_given? && (!text_provided || text_is_blank)
+%>
+<% if use_block && block_given? %>
+  <% if href.present? && method.present? %>
+    <% 
+      form_options = local_assigns[:form] || {}
+      button_to_options = options
+    %>
+    <%= button_to href, method: method, form: form_options, **button_to_options do %>
+      <%= yield %>
+    <% end %>
+  <% elsif href.present? %>
+    <%= link_to href, **options do %>
+      <%= yield %>
+    <% end %>
+  <% elsif form && type == :submit %>
+    <%= form.submit **options do %>
+      <%= yield %>
+    <% end %>
+  <% else %>
+    <%= button_tag type: type, **options do %>
+      <%= yield %>
+    <% end %>
+  <% end %>
+<% else %>
+  <% if href.present? && method.present? %>
+    <% 
+      form_options = local_assigns[:form] || {}
+      button_to_options = options
+    %>
+    <%= button_to text, href, method: method, form: form_options, **button_to_options %>
+  <% elsif href.present? %>
+    <%= link_to href, **options do %>
+      <%= text %>
+    <% end %>
+  <% elsif form && type == :submit %>
+    <%= form.submit text, **options %>
+  <% else %>
+    <%= button_tag text, type: type, **options %>
+  <% end %>
+<% end %>

@@ -1,0 +1,37 @@
+<% if false %>
+  Product Hero Card component
+  Usage:
+    <%= render 'shared/ui/product_hero_card', product: @product %>
+<% end %>
+<%
+  product = local_assigns[:product]
+  decorated_product = decorate(product)
+  image_url = product_image_url(product, size: :large) || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\' viewBox=\'0 0 400 400\'%3E%3Crect fill=\'%23e5e7eb\' width=\'400\' height=\'400\'/%3E%3Ctext fill=\'%239ca3af\' font-family=\'sans-serif\' font-size=\'48\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3Eapparel%3C/text%3E%3C/svg%3E'
+%>
+<div class="@container">
+  <div class="flex flex-col items-stretch justify-start rounded-xl @xl:flex-row @xl:items-start shadow-sm bg-white dark:bg-[#1a2e1f] overflow-hidden">
+    <div class="w-full bg-center bg-no-repeat aspect-square bg-cover" style="background-image: url('<%= image_url %>');">
+    </div>
+    <div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-1 py-5 px-5">
+      <p class="text-primary text-sm font-semibold uppercase tracking-wider"><%= product.name %></p>
+      <p class="text-[#0e1b12] dark:text-white text-3xl font-extrabold leading-tight tracking-[-0.015em]">
+        <%= decorated_product.formatted_price %>
+      </p>
+      <div class="flex items-center gap-3 justify-between mt-2">
+        <% if product.last_sale_text.present? %>
+          <p class="text-[#4e9767] dark:text-primary/70 text-base font-medium leading-normal">
+            Última venda: <%= product.last_sale_text %>
+          </p>
+        <% elsif product.size.present? || product.color.present? %>
+          <p class="text-[#4e9767] dark:text-primary/70 text-base font-medium leading-normal">
+            <%= decorated_product.display_variation %>
+          </p>
+        <% end %>
+        <%= render 'shared/ui/badge', 
+            text: decorated_product.stock_badge_text, 
+            variant: decorated_product.stock_badge_variant,
+            class: "px-4 py-1.5 rounded-full border" %>
+      </div>
+    </div>
+  </div>
+</div>

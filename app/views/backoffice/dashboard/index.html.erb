@@ -1,4 +1,58 @@
-<div class="container mx-auto px-5 py-6">
-  <h1 class="text-2xl font-bold mb-4">Dashboard</h1>
-  <p class="text-gray-600">Bem-vindo ao Vendi Gestão</p>
+<div class="mb-6">
+  <div class="flex items-center justify-between mb-2">
+    <div>
+      <%= render 'shared/ui/heading',
+          text: "#{greeting}, #{@account.name} 👋",
+          size: :xl,
+          description: l(Date.current, format: :long) %>
+    </div>
+  </div>
+  <% if @daily_goal > 0 %>
+    <%= render 'shared/ui/badge', text: "META DIÁRIA: #{price_display(@daily_goal)}", variant: :success %>
+  <% end %>
 </div>
+
+<!-- Card de Vendas de Hoje -->
+<%= render 'shared/ui/card', class: "mb-5" do %>
+  <div class="text-center py-8">
+    <p class="text-4xl font-bold mb-2" style="color: var(--color-primary);">
+      <%= price_display(@today_total, size: :large) %>
+    </p>
+    <p class="text-sm text-slate-500">
+      <%= @today_count %> <%= @today_count == 1 ? 'venda' : 'vendas' %>
+      <% if @avg_ticket > 0 %>
+        • Ticket médio: <%= price_display(@avg_ticket) %>
+      <% end %>
+    </p>
+  </div>
+<% end %>
+
+<!-- Empty State ou Lista de Vendas Recentes -->
+<% if @today_sales.empty? %>
+  <%= render 'shared/ui/empty_card',
+      title: "Pronto para começar?",
+      description: "Registre sua primeira venda e acompanhe seu dia aqui.",
+      cta_text: "Registrar venda agora",
+      cta_path: new_backoffice_sale_path %>
+<% else %>
+  <div class="mb-5">
+    <%= render 'shared/ui/heading', text: "Vendas de Hoje", size: :lg, class: "mb-4" %>
+    <div class="space-y-3">
+      <% @today_sales.limit(5).each do |sale| %>
+        <%= render 'backoffice/shared/sale_card', sale: sale %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<!-- FAB (Floating Action Button) -->
+<%= render 'shared/ui/button',
+    text: "",
+    variant: :primary,
+    size: :lg,
+    href: new_backoffice_sale_path,
+    class: "fixed bottom-20 right-6 w-16 h-16 rounded-full shadow-xl z-30 md:bottom-6" do %>
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+  </svg>
+<% end %>

@@ -1,0 +1,49 @@
+<% if false %>
+  Sale Card component for Vendi Gestão
+  Usage:
+    <%= render 'backoffice/shared/sale_card', sale: @sale %>
+<% end %>
+<%
+  sale = local_assigns[:sale]
+  time = sale.created_at.strftime("%H:%M")
+  items_count = sale.total_items || 0
+  items_text = items_count == 1 ? "1 item" : "#{items_count} itens"
+  # TODO: Quando Payment model estiver implementado, usar sale.payments.first.payment_method
+  # Por enquanto, usar um método padrão baseado no status
+  payment_method = sale.status == 'paid' ? 'pix' : 'cash'
+%>
+
+<%= link_to backoffice_sale_path(sale), class: "block" do %>
+  <%= render 'shared/ui/card', class: "mb-3 hover:shadow-md transition-shadow cursor-pointer" do %>
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-sm font-medium text-slate-900"><%= time %></span>
+        </div>
+
+        <p class="text-sm text-slate-700 mb-2">
+          <%= items_text %>
+          <% if sale.observations.present? %>
+            • <%= truncate(sale.observations, length: 30) %>
+          <% end %>
+        </p>
+
+        <div class="flex items-center gap-2">
+          <%= payment_method_badge(payment_method) %>
+        </div>
+      </div>
+
+      <div class="shrink-0 text-right">
+        <div class="text-lg font-bold" style="color: var(--color-primary);">
+          <%= price_display(sale.total_amount, size: :regular) %>
+        </div>
+      </div>
+
+      <div class="shrink-0">
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </div>
+  <% end %>
+<% end %>

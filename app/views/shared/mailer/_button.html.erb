@@ -1,0 +1,16 @@
+<% if false %>
+  Mailer Button component
+  Usage:
+    <%= render 'shared/mailer/button', text: "Redefinir Senha", url: @reset_url %>
+<% end %>
+<%
+  text = local_assigns[:text] || "Clique aqui"
+  url = local_assigns[:url] || "#"
+  button_class = local_assigns[:class] || ""
+  wrapper_class = local_assigns[:wrapper_class] || ""
+%>
+<div style="display: flex; flex-direction: column; align-items: center; padding: 16px 0; <%= wrapper_class %>">
+  <a href="<%= url %>" style="display: flex; min-width: 240px; cursor: pointer; align-items: center; justify-content: center; overflow: hidden; border-radius: 9999px; height: 56px; padding: 0 32px; background-color: #10b981; color: #0d1c0d; font-size: 16px; font-weight: 700; line-height: 1.5; letter-spacing: 0.015em; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); transition: opacity 0.2s; <%= button_class %>">
+    <span style="color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= text %></span>
+  </a>
+</div>

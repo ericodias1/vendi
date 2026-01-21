@@ -1,0 +1,28 @@
+<% content_for :title, "Esqueci minha senha - Vendi Gestão" %>
+
+<!-- Headline Section -->
+<%= render 'shared/auth/heading', 
+    text: "Esqueci minha senha",
+    description: "Digite seu e-mail e enviaremos instruções para redefinir sua senha." %>
+
+<!-- Forgot Password Form -->
+<%= form_with url: password_resets_path, method: :post, local: true, class: "space-y-4" do |f| %>
+  <!-- Email Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "E-mail" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :email, 
+        type: :email, 
+        placeholder: "seu@email.com" %>
+  </div>
+
+  <!-- Error Messages -->
+  <%= render 'shared/auth/error_message', message: flash[:alert] %>
+
+  <!-- Primary Action Button -->
+  <%= render 'shared/auth/button', text: "Enviar instruções", icon: "send" %>
+<% end %>
+
+<!-- Back to Login -->
+<%= render 'shared/auth/link', text: "Voltar para login", path: login_path, wrapper_class: "mt-6 text-center" %>

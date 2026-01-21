@@ -1,0 +1,75 @@
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
+  <div class="flex items-center gap-4">
+    <%= render 'shared/ui/back_link', path: backoffice_root_path, class: "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-2 rounded-full transition-colors" %>
+    <%= render 'shared/ui/heading',
+        text: "Configurações",
+        size: :lg %>
+  </div>
+</header>
+
+<main class="max-w-2xl mx-auto pb-32">
+  <!-- Info Card -->
+  <section class="px-4 mb-6">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+      <p class="text-sm text-zinc-600 dark:text-zinc-400">
+        Configure quais tamanhos e cores estarão disponíveis ao cadastrar produtos. 
+        Isso facilita o cadastro e previne erros de digitação.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sizes Section -->
+  <section class="px-4 mb-6">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-4">
+        <%= render 'shared/ui/heading',
+            text: "Tamanhos",
+            size: :md %>
+        <span class="text-sm text-zinc-500">
+          <%= @account_config.enabled_sizes_list.count %> selecionados
+        </span>
+      </div>
+      
+      <div class="flex flex-wrap gap-2 mb-4">
+        <% ProductVariations::SIZES.each do |size| %>
+          <div class="px-3 py-1.5 rounded-full text-sm font-medium <%= @account_config.enabled_sizes_list.include?(size) ? 'bg-primary text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400' %>">
+            <%= size %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Colors Section -->
+  <section class="px-4 mb-6">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-4">
+        <%= render 'shared/ui/heading',
+            text: "Cores",
+            size: :md %>
+        <span class="text-sm text-zinc-500">
+          <%= @account_config.enabled_colors_list.count %> selecionadas
+        </span>
+      </div>
+      
+      <div class="flex flex-wrap gap-2">
+        <% ProductVariations::COLORS.each do |color| %>
+          <div class="px-3 py-1.5 rounded-full text-sm font-medium <%= @account_config.enabled_colors_list.include?(color) ? 'bg-primary text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400' %>">
+            <%= color %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Action Button -->
+  <div class="px-4">
+    <%= render 'shared/ui/button',
+        text: "Editar configurações",
+        variant: :primary,
+        size: :lg,
+        href: edit_backoffice_account_config_path,
+        class: "w-full" %>
+  </div>
+</main>

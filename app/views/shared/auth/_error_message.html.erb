@@ -1,0 +1,24 @@
+<% if false %>
+  Auth Error Message component
+  Usage:
+    <%= render 'shared/auth/error_message', message: flash[:alert] %>
+    <%= render 'shared/auth/error_message', errors: @user.errors %>
+<% end %>
+<%
+  message = local_assigns[:message]
+  errors = local_assigns[:errors]
+  error_class = local_assigns[:class] || ""
+%>
+<% if message.present? || (errors.present? && errors.any?) %>
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm <%= error_class %>">
+    <% if errors.present? && errors.any? %>
+      <ul class="list-disc list-inside">
+        <% errors.full_messages.each do |error_message| %>
+          <li><%= error_message %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <%= message %>
+    <% end %>
+  </div>
+<% end %>

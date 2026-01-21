@@ -1,0 +1,53 @@
+<div class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+  <div class="flex items-center gap-4">
+    <!-- Mobile Menu Toggle -->
+    <button type="button"
+            class="md:hidden p-2 rounded-md text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+            data-action="click->sidebar#toggle"
+            aria-label="Toggle menu">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <% if current_account.present? %>
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-slate-900"><%= current_account.name %></h2>
+      </div>
+    <% end %>
+  </div>
+
+  <% if current_user.present? %>
+    <div class="flex items-center gap-4">
+      <!-- User Menu -->
+      <div class="relative" data-controller="dropdown">
+        <button type="button"
+                class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg"
+                data-action="click->dropdown#toggle">
+          <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-medium">
+            <%= current_user.email.first.upcase %>
+          </div>
+          <span class="hidden md:block"><%= current_user.email %></span>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50"
+             data-dropdown-target="menu">
+          <div class="border-t border-slate-200 my-1"></div>
+          <%= button_to "#", method: :delete,
+              class: "block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left" do %>
+            Sair
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="flex items-center gap-4">
+      <%= link_to "#", class: "px-4 py-2 text-sm font-medium text-primary hover:text-primary-dark" do %>
+        Entrar
+      <% end %>
+    </div>
+  <% end %>
+</div>

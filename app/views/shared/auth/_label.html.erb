@@ -1,0 +1,17 @@
+<% if false %>
+  Auth Label component
+  Usage:
+    <%= render 'shared/auth/label', text: "E-mail" %>
+    <%= render 'shared/auth/label', text: "Senha", link: { text: "Esqueci minha senha", path: forgot_password_path } %>
+<% end %>
+<%
+  text = local_assigns[:text] || local_assigns[:label] || ""
+  link = local_assigns[:link]
+  label_class = local_assigns[:class] || ""
+%>
+<div class="flex justify-between items-center <%= label_class %>">
+  <label class="text-slate-900 text-sm font-semibold"><%= text %></label>
+  <% if link.present? %>
+    <%= link_to link[:text], link[:path], class: "link-primary link-xs" %>
+  <% end %>
+</div>

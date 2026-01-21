@@ -1,0 +1,11 @@
+<% if false %>
+  Auth Logo component
+  Usage:
+    <%= render 'shared/auth/logo' %>
+<% end %>
+<%
+  logo_class = local_assigns[:class] || "mb-8"
+%>
+<div class="flex justify-center <%= logo_class %>">
+  <%= image_tag "vendi-gestao-logo.png", alt: "Vendi Gestão", class: "h-12 w-auto" %>
+</div>

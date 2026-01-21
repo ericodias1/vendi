@@ -1,0 +1,46 @@
+<% content_for :title, "Entrar - Vendi Gestão" %>
+
+<!-- Headline Section -->
+<%= render 'shared/auth/heading', 
+    text: "Entrar no Vendi Gestão",
+    description: "Gerencie seu varejo de forma simples e moderna." %>
+
+<!-- Login Form -->
+<%= form_with url: login_path, method: :post, local: true, class: "space-y-4" do |f| %>
+  <!-- Email Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "E-mail" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :email, 
+        type: :email, 
+        placeholder: "seu@email.com" %>
+  </div>
+
+  <!-- Password Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', 
+        text: "Senha",
+        link: { text: "Esqueci minha senha", path: forgot_password_path } %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :password, 
+        type: :password, 
+        show_toggle: true %>
+  </div>
+
+  <!-- Error Messages -->
+  <%= render 'shared/auth/error_message', message: flash[:alert] %>
+
+  <!-- Primary Action Button -->
+  <%= render 'shared/auth/button', text: "Entrar", icon: "login" %>
+<% end %>
+
+<!-- Footer Link -->
+<div class="mt-10 text-center">
+  <p class="text-slate-500 text-sm">
+    Não tem uma conta? 
+    <%= link_to "Cadastre-se agora", signup_path, class: "link-primary" %>
+  </p>
+</div>
+

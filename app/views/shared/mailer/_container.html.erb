@@ -1,0 +1,13 @@
+<% if false %>
+  Mailer Container component
+  Usage:
+    <%= render 'shared/mailer/container' do %>
+      <!-- Email content -->
+    <% end %>
+<% end %>
+<%
+  container_class = local_assigns[:class] || ""
+%>
+<div style="width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e5e7eb; <%= container_class %>">
+  <%= yield %>
+</div>

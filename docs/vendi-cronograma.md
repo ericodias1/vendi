@@ -13,31 +13,31 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 ### Tarefas
 
 #### 0.1 Setup do Projeto
-- [ ] Criar projeto Rails 8
-- [ ] Configurar PostgreSQL
-- [ ] Configurar Redis (para cache e jobs)
-- [ ] Configurar Sidekiq
-- [ ] Configurar Active Storage (AWS S3 ou local)
-- [ ] Configurar Devise para autenticação
-- [ ] Configurar Tailwind CSS
-- [ ] Configurar Hotwire (Turbo + Stimulus)
-- [ ] Configurar ambiente de desenvolvimento
-- [ ] Configurar ambiente de staging/produção
+- [x] Criar projeto Rails 8
+- [x] Configurar PostgreSQL
+- [x] Configurar Solid Cache/Queue/Cable (substituindo Redis/Sidekiq)
+- [x] Configurar Active Storage (local configurado, S3 preparado)
+- [x] Configurar autenticação (has_secure_password - padrão Núcleo)
+- [x] Configurar Tailwind CSS
+- [x] Configurar Hotwire (Turbo + Stimulus)
+- [x] Configurar ambiente de desenvolvimento
+- [x] Configurar ambiente de staging/produção (básico)
 
 #### 0.2 Estrutura Base
-- [ ] Criar estrutura de diretórios (controllers, services, policies)
-- [ ] Configurar rotas base
-- [ ] Criar layouts responsivos (desktop e mobile)
-- [ ] Configurar Cursor Rules (.cursorrules)
-- [ ] Setup de testes (RSpec ou Minitest)
+- [x] Criar estrutura de diretórios (controllers, services, policies)
+- [x] Configurar rotas base
+- [x] Criar layouts responsivos (desktop e mobile - básico)
+- [x] Configurar Cursor Rules (.cursorrules)
 
 #### 0.3 Componentes UI Base
-- [ ] Criar componentes shared/ui (card, button, table, heading, back_link)
-- [ ] Criar sistema de navegação (sidebar desktop, bottom nav mobile)
-- [ ] Configurar sistema de cores e design tokens
-- [ ] Criar componentes de formulário base
+- [x] Criar componentes shared/ui (card, button, table, heading, back_link, badge, toast)
+- [x] Criar componentes de formulário base (form_input, form_select, form_textarea, label)
+- [x] Criar sistema de navegação (sidebar desktop, bottom nav mobile)
+- [x] Configurar sistema de cores e design tokens (colors.css com cores Vendi)
+- [x] Criar controllers Stimulus (sidebar, toast, dropdown)
+- [x] Configurar layout backoffice com sidebar e bottom nav
 
-**Estimativa:** 1 semana  
+**Estimativa:** 1 semana
 **Prioridade:** Crítica
 
 ---
@@ -49,28 +49,29 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 ### Tarefas
 
 #### 1.1 Models Base
-- [ ] Criar model `Account` (migration, model, validações)
-- [ ] Criar model `AccountConfig` (migration, model, relacionamento 1:1 com Account)
-- [ ] Criar model `User` (migration, model, Devise)
-- [ ] Configurar relacionamentos Account ↔ User
+- [x] Criar model `Account` (migration, model, validações)
+- [x] Criar model `AccountConfig` (migration, model, relacionamento 1:1 com Account)
+- [x] Criar model `User` (migration, model, has_secure_password)
+- [x] Configurar relacionamentos Account ↔ User
+- [x] Criar models adicionais: `Product`, `Sale`, `Customer` (estrutura básica)
 - [ ] Criar seeds básicos para desenvolvimento
 
 #### 1.2 Autenticação
-- [ ] Configurar Devise (registro, login, logout)
-- [ ] Criar controllers de autenticação
-- [ ] Criar views de login e registro
-- [ ] Implementar recuperação de senha
-- [ ] Criar concern `Authentication` (current_user, current_account)
-- [ ] Implementar autorização básica (verificar account do usuário)
+- [x] Configurar has_secure_password (padrão Núcleo)
+- [x] Criar concern `Authentication` (current_user, current_account)
+- [x] Implementar autorização básica (Pundit + BackofficePolicy)
+- [x] Criar controllers de autenticação (sessions)
+- [x] Criar views de login e registro
+- [x] Implementar recuperação de senha
 
 #### 1.3 Layouts Responsivos
-- [ ] Criar layout desktop com sidebar
-- [ ] Criar layout mobile com bottom navigation
-- [ ] Implementar toggle sidebar no mobile (último item do bottom nav)
-- [ ] Criar topbar com informações da conta
-- [ ] Implementar sistema de navegação responsiva
+- [x] Criar layout backoffice básico
+- [x] Criar layout desktop com sidebar
+- [x] Criar layout mobile com bottom navigation
+- [x] Implementar toggle sidebar no mobile (último item do bottom nav)
+- [x] Implementar sistema de navegação responsiva
 
-**Estimativa:** 2 semanas  
+**Estimativa:** 2 semanas
 **Prioridade:** Crítica
 
 ---
@@ -82,20 +83,21 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 ### Tarefas
 
 #### 2.1 Models de Produtos
-- [ ] Criar model `Product` (migration, validações, relacionamentos)
+- [x] Criar model `Product` (migration, validações, relacionamentos)
+- [x] Implementar soft delete em Product (Discard)
+- [x] Criar concern `Searchable` para busca
+- [x] Criar scopes úteis (ativos, recentes)
 - [ ] Criar model `ProductVariant` (tamanho e/ou cor)
 - [ ] Criar model `StockMovement` (histórico de movimentações)
-- [ ] Implementar soft delete em Product
-- [ ] Criar scopes úteis (ativos, com estoque baixo, etc)
 - [ ] Implementar métodos de cálculo de estoque disponível
 
 #### 2.2 CRUD de Produtos
-- [ ] Criar `ProductsController` (index, show, new, create, edit, update, destroy)
-- [ ] Criar service `Admin::Products::CreateService`
-- [ ] Criar service `Admin::Products::UpdateService`
-- [ ] Criar service `Admin::Products::DestroyService`
+- [x] Criar `ProductsController` (index, show, new, create - básico)
+- [x] Implementar busca de produtos (Searchable concern)
+- [ ] Criar service `Backoffice::Products::CreateService` se necessário
+- [ ] Criar service `Backoffice::Products::UpdateService` se necessário
+- [ ] Criar service `Backoffice::Products::DestroyService` se necessário
 - [ ] Criar views: index, show, new, edit
-- [ ] Implementar busca de produtos
 - [ ] Implementar filtros (todos, estoque baixo, mais vendidos)
 - [ ] Implementar paginação
 
@@ -130,7 +132,7 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [ ] Implementar link direto para ajuste de estoque
 - [ ] Criar sistema de notificações para estoque baixo
 
-**Estimativa:** 3 semanas  
+**Estimativa:** 3 semanas
 **Prioridade:** Crítica
 
 ---
@@ -142,20 +144,20 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 ### Tarefas
 
 #### 3.1 Models de Vendas
-- [ ] Criar model `Sale` (migration, validações, relacionamentos)
+- [x] Criar model `Sale` (migration, validações, relacionamentos)
+- [x] Criar model `Customer` (migration, validações)
+- [x] Criar enums para status (draft, pending_payment, paid, cancelled)
+- [x] Implementar cálculo de totais (subtotal, desconto, total - campos básicos)
 - [ ] Criar model `SaleItem` (com snapshot do produto)
 - [ ] Criar model `Payment` (migration, validações)
-- [ ] Criar model `Customer` (migration, validações)
 - [ ] Implementar geração automática de número da venda
-- [ ] Implementar cálculo de totais (subtotal, desconto, total)
-- [ ] Criar enums para status (draft, pending_payment, paid, cancelled)
 
 #### 3.2 Lista de Vendas
-- [ ] Criar `SalesController` (index, show)
+- [x] Criar `SalesController` (index, show, new, create - básico)
+- [x] Implementar busca de vendas (Searchable concern)
 - [ ] Criar view de lista com cards de vendas
 - [ ] Implementar filtros de período (hoje, 7 dias, mês)
 - [ ] Implementar filtros de status
-- [ ] Implementar busca de vendas
 - [ ] Criar paginação
 
 #### 3.3 Detalhe da Venda
@@ -213,7 +215,7 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [ ] Implementar estatísticas do cliente (total de compras, valor gasto)
 - [ ] Criar view de histórico de compras do cliente
 
-**Estimativa:** 4 semanas  
+**Estimativa:** 4 semanas
 **Prioridade:** Crítica
 
 ---
@@ -225,7 +227,8 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 ### Tarefas
 
 #### 4.1 Dashboard
-- [ ] Criar `DashboardController`
+- [x] Criar `DashboardController`
+- [x] Criar view básica do dashboard
 - [ ] Implementar query de vendas do dia
 - [ ] Criar card de "Vendas de Hoje" com valor total
 - [ ] Calcular e mostrar ticket médio
@@ -247,7 +250,7 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [ ] Implementar query de produtos mais vendidos
 - [ ] Criar gráfico de vendas (Chart.js ou ApexCharts) - opcional
 
-**Estimativa:** 2 semanas  
+**Estimativa:** 2 semanas
 **Prioridade:** Alta
 
 ---
@@ -287,7 +290,7 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [ ] Implementar deduplicação de notificações
 - [ ] Implementar auto-arquivo de notificações lidas
 
-**Estimativa:** 2 semanas  
+**Estimativa:** 2 semanas
 **Prioridade:** Média
 
 ---
@@ -336,7 +339,7 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [ ] Preparar deploy para produção
 - [ ] Configurar monitoramento (Sentry, etc)
 
-**Estimativa:** 2 semanas  
+**Estimativa:** 2 semanas
 **Prioridade:** Média
 
 ---
@@ -360,11 +363,11 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 
 Para um lançamento inicial, as fases críticas são:
 
-- ✅ **Fase 0:** Setup e Infraestrutura
-- ✅ **Fase 1:** Modelagem e Autenticação
-- ✅ **Fase 2:** Produtos e Estoque
-- ✅ **Fase 3:** Vendas (completo)
-- ✅ **Fase 4:** Dashboard básico
+- ✅ **Fase 0:** Setup e Infraestrutura (parcialmente completo - falta componentes UI e testes)
+- ✅ **Fase 1:** Modelagem e Autenticação (autenticação completa, falta layouts responsivos avançados)
+- ⚠️ **Fase 2:** Produtos e Estoque (models criados, falta CRUD completo e variações)
+- ⚠️ **Fase 3:** Vendas (estrutura básica criada, falta fluxo completo)
+- ⚠️ **Fase 4:** Dashboard básico (controller e view básicos criados)
 
 **Estimativa MVP:** 12 semanas
 
@@ -427,5 +430,28 @@ Funcionalidades que podem ser adiadas para pós-MVP:
 
 ---
 
-**Última atualização:** 2025-01-XX  
-**Versão:** 1.0
+**Última atualização:** 2025-01-20
+**Versão:** 1.1
+
+## 📊 Progresso Atual
+
+### ✅ Concluído
+- Setup completo do projeto Rails 8
+- Configuração de banco de dados (PostgreSQL + Solid Cache/Queue/Cable)
+- Estrutura base de arquitetura (Service, BaseController, Policies, Concerns)
+- Models principais criados (Account, AccountConfig, User, Product, Sale, Customer)
+- Migrations com índices e constraints
+- Controllers básicos (Dashboard, Products, Sales)
+- Rotas configuradas no namespace backoffice
+- Layout backoffice básico
+- Autenticação completa (SessionsController, views de login e registro)
+- Recuperação de senha (PasswordResetsController, mailer)
+
+### 🚧 Em Progresso
+- CRUD completo de produtos e vendas
+- Componentes UI reutilizáveis
+
+### 📝 Próximos Passos
+1. Implementar CRUD completo de produtos com views
+2. Criar componentes UI base (shared/ui)
+3. Implementar sistema de navegação responsiva

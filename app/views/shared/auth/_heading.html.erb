@@ -1,0 +1,17 @@
+<% if false %>
+  Auth Heading component
+  Usage:
+    <%= render 'shared/auth/heading', text: "Entrar no Vendi Gestão" %>
+    <%= render 'shared/auth/heading', text: "Título", description: "Descrição opcional" %>
+<% end %>
+<%
+  text = local_assigns[:text] || local_assigns[:title] || ""
+  description = local_assigns[:description] || local_assigns[:subtitle]
+  heading_class = local_assigns[:class] || "mb-8"
+%>
+<div class="text-center <%= heading_class %>">
+  <h1 class="text-[28px] font-extrabold leading-tight text-slate-900 mb-2"><%= text %></h1>
+  <% if description.present? %>
+    <p class="text-slate-500 text-sm"><%= description %></p>
+  <% end %>
+</div>

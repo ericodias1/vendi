@@ -1,0 +1,9 @@
+<% if false %>
+  Mailer Divider component
+  Usage:
+    <%= render 'shared/mailer/divider' %>
+<% end %>
+<%
+  divider_class = local_assigns[:class] || ""
+%>
+<div style="height: 1px; background-color: #f3f4f6; width: 100%; margin: 16px 0; <%= divider_class %>"></div>

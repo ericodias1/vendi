@@ -1,0 +1,139 @@
+<%
+  form = local_assigns[:form]
+  available_sizes = local_assigns[:available_sizes] || @available_sizes || []
+  available_colors = local_assigns[:available_colors] || @available_colors || []
+  submit_text = local_assigns[:submit_text] || "Salvar produto"
+%>
+
+<!-- Photo Section -->
+<section class="px-4 pb-4 mb-4">
+  <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+    <!-- Card Title -->
+    <div class="mb-4">
+      <%= render 'shared/ui/heading',
+          text: "Foto do Produto",
+          size: :md %>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+        Adicione uma foto para facilitar a identificação
+      </p>
+    </div>
+    
+    <%= render 'shared/ui/image_upload', 
+        form: form, 
+        field: :images, 
+        existing_image: (defined?(@product) && @product.persisted?) ? @product.images.first : nil %>
+  </div>
+</section>
+
+<!-- Basic Info Card -->
+<section class="px-4 pb-4 mb-4">
+  <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+    <!-- Card Title -->
+    <div class="mb-2">
+      <%= render 'shared/ui/heading',
+          text: "Informações Básicas",
+          size: :md %>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+        Preencha os dados principais do produto
+      </p>
+    </div>
+
+    <!-- Product Name -->
+    <div>
+      <%= render 'shared/ui/form_input', 
+          form: form, 
+          field: :name, 
+          label: "Nome do produto",
+          type: :text,
+          required: true,
+          placeholder: "Ex: Vestido floral",
+          wrapper_class: defined?(@product) && @product.errors[:name].any? ? "border-error" : "" %>
+      <% if defined?(@product) && @product.errors[:name].any? %>
+        <p class="text-error text-sm font-normal mt-1.5 ml-1 flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">error</span>
+          <%= @product.errors[:name].first %>
+        </p>
+      <% end %>
+    </div>
+
+    <!-- Price -->
+    <div>
+      <%= render 'shared/ui/form_input', 
+          form: form, 
+          field: :base_price, 
+          label: "Preço (Opcional)",
+          type: :number,
+          step: 0.01,
+          min: 0,
+          placeholder: "R$ 79,90" %>
+    </div>
+  </div>
+</section>
+
+<!-- Variation and Stock Card -->
+<section class="px-4 pb-4 mb-4">
+  <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+    <!-- Card Title -->
+    <div class="mb-2">
+      <%= render 'shared/ui/heading',
+          text: "Variações e Estoque",
+          size: :md %>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+        Defina tamanho, cor e quantidade disponível
+      </p>
+    </div>
+
+    <!-- Size -->
+    <% if available_sizes.any? %>
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Tamanho (Opcional)</label>
+        <%= form.select :size, 
+            options_for_select([["Selecione um tamanho", ""]] + available_sizes.map { |s| [s, s] }, form.object.size), 
+            {}, 
+            { class: "w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-[#0e1b12] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary text-sm" } %>
+      </div>
+    <% end %>
+
+    <!-- Color -->
+    <% if available_colors.any? %>
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Cor (Opcional)</label>
+        <%= form.select :color, 
+            options_for_select([["Selecione uma cor", ""]] + available_colors.map { |c| [c, c] }, form.object.color), 
+            {}, 
+            { class: "w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-[#0e1b12] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary text-sm" } %>
+      </div>
+    <% end %>
+
+    <!-- Stock Quantity -->
+    <div>
+      <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Quantidade em Estoque</label>
+      <%= render 'shared/ui/stock_quantity_input',
+          form: form,
+          field: :stock_quantity,
+          input_id: "stock_quantity",
+          value: form.object.stock_quantity || 1,
+          min: 0,
+          step: 1,
+          wrapper_class: "w-full",
+          input_width: "w-12" %>
+      <% if defined?(@product) && @product.errors[:stock_quantity].any? %>
+        <p class="text-error text-xs mt-1 ml-1 flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">error</span>
+          <%= @product.errors[:stock_quantity].first %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Fixed Footer CTA -->
+<div class="fixed-footer">
+  <%= render 'shared/ui/button',
+      text: submit_text,
+      variant: :primary,
+      size: :lg,
+      type: :submit,
+      form: form,
+      class: "w-full" %>
+</div>

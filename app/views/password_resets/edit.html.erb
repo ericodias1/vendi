@@ -1,0 +1,41 @@
+<% content_for :title, "Redefinir senha - Vendi Gestão" %>
+
+<!-- Headline Section -->
+<%= render 'shared/auth/heading', 
+    text: "Redefinir senha",
+    description: "Digite sua nova senha abaixo." %>
+
+<!-- Reset Password Form -->
+<%= form_with url: password_reset_path(token: params[:token]), method: :patch, local: true, class: "space-y-4" do |f| %>
+  <!-- Password Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "Nova senha" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :password, 
+        type: :password, 
+        show_toggle: true,
+        minlength: 6 %>
+  </div>
+
+  <!-- Password Confirmation Field -->
+  <div class="flex flex-col gap-2">
+    <%= render 'shared/auth/label', text: "Confirmar nova senha" %>
+    <%= render 'shared/auth/input', 
+        form: f, 
+        field: :password_confirmation, 
+        type: :password, 
+        show_toggle: true,
+        minlength: 6 %>
+  </div>
+
+  <!-- Error Messages -->
+  <%= render 'shared/auth/error_message', errors: @user&.errors %>
+  <%= render 'shared/auth/error_message', message: flash[:alert] %>
+
+  <!-- Primary Action Button -->
+  <%= render 'shared/auth/button', text: "Redefinir senha", icon: "lock_reset" %>
+<% end %>
+
+<!-- Back to Login -->
+<%= render 'shared/auth/link', text: "Voltar para login", path: login_path, wrapper_class: "mt-6 text-center" %>

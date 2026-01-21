@@ -1,0 +1,25 @@
+<% if false %>
+  Mailer Body Text component
+  Usage:
+    <%= render 'shared/mailer/body_text', text: "Olá! Recebemos um pedido..." %>
+    Or with block:
+    <%= render 'shared/mailer/body_text' do %>
+      Texto customizado com <strong>negrito</strong>
+    <% end %>
+<% end %>
+<%
+  text = local_assigns[:text]
+  body_class = local_assigns[:class] || ""
+  text_class = local_assigns[:text_class] || ""
+%>
+<div style="text-align: center; <%= body_class %>">
+  <% if block_given? %>
+    <p style="color: rgba(13, 28, 13, 0.7); font-size: 16px; font-weight: 400; line-height: 1.6; font-family: 'Manrope', sans-serif; padding: 0 16px; margin: 0; <%= text_class %>">
+      <%= yield %>
+    </p>
+  <% else %>
+    <p style="color: rgba(13, 28, 13, 0.7); font-size: 16px; font-weight: 400; line-height: 1.6; font-family: 'Manrope', sans-serif; padding: 0 16px; margin: 0; <%= text_class %>">
+      <%= text %>
+    </p>
+  <% end %>
+</div>

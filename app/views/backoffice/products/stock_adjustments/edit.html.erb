@@ -1,0 +1,88 @@
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 flex items-center justify-between mb-4">
+  <div class="flex items-center gap-3">
+    <%= render 'shared/ui/back_link', path: backoffice_product_path(@product), class: "text-[#0e1b12] dark:text-white flex items-center justify-center size-10 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors mb-4", only_icon: true %>
+    <%= render 'shared/ui/heading',
+        text: "Ajustar estoque",
+        size: :lg %>
+  </div>
+  <div class="size-10"></div> <!-- Spacer for symmetry -->
+</header>
+
+<main class="max-w-md mx-auto px-4 pb-32">
+  <!-- BodyText Helper -->
+  <div class="py-4">
+    <p class="text-[#0e1b12]/60 dark:text-white/60 text-sm font-normal leading-normal">
+      Use + e - para corrigir o estoque rapidamente.
+    </p>
+  </div>
+
+  <%= form_with model: @product, url: backoffice_product_stock_adjustment_path(@product), method: :patch, local: true do |f| %>
+    <!-- Stock Adjustment Card -->
+    <section class="bg-white dark:bg-[#1a2e1f] rounded-xl p-4 shadow-sm border border-black/5 dark:border-white/5 mb-6">
+      <div class="mb-4">
+        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Produto</p>
+        <p class="text-base font-semibold text-[#0e1b12] dark:text-white"><%= @product.name %></p>
+        <% if @product.size.present? || @product.color.present? %>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            <%= decorate(@product).display_variation %>
+          </p>
+        <% end %>
+      </div>
+
+      <div>
+        <div class="flex items-center gap-4 mb-2">
+          <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300 shrink-0">Quantidade em Estoque</label>
+          <%= render 'shared/ui/stock_quantity_input',
+              form: f,
+              field: :stock_quantity,
+              input_id: "product_stock_quantity",
+              value: @product.stock_quantity || 0,
+              min: 0,
+              step: 1,
+              wrapper_class: "flex-1",
+              input_width: "w-6" %>
+        </div>
+        <% if @product.errors[:stock_quantity].any? %>
+          <p class="text-error text-xs mt-1 flex items-center gap-1">
+            <span class="material-symbols-outlined text-xs">error</span>
+            <%= @product.errors[:stock_quantity].first %>
+          </p>
+        <% end %>
+      </div>
+    </section>
+
+    <!-- Fixed Footer Button -->
+    <div class="fixed-footer">
+      <%= render 'shared/ui/button',
+          text: "Confirmar ajuste",
+          variant: :primary,
+          size: :lg,
+          type: :submit,
+          form: f,
+          class: "w-full" %>
+    </div>
+  <% end %>
+</main>
+
+<script>
+function incrementStock(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    const currentValue = parseInt(input.value) || 0;
+    input.value = currentValue + 1;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+}
+
+function decrementStock(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    const currentValue = parseInt(input.value) || 0;
+    if (currentValue > 0) {
+      input.value = currentValue - 1;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+}
+</script>

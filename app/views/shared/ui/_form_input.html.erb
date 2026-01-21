@@ -1,0 +1,79 @@
+<% if false %>
+  Form input component (works with form_with)
+  Usage:
+    <%= render 'shared/ui/form_input', form: f, field: :name, label: "Name", type: :text %>
+    <%= render 'shared/ui/form_input', form: f, field: :price, label: "Price", type: :number, step: 0.01 %>
+    <%= render 'shared/ui/form_input', form: f, field: :due_date, label: "Due Date", type: :date, required: true %>
+<% end %>
+<%
+  form = local_assigns[:form]
+  field = local_assigns[:field]
+  label_text = local_assigns[:label] || field.to_s.humanize
+  input_type = local_assigns[:type] || :text
+  input_value = local_assigns[:value]
+  input_placeholder = local_assigns[:placeholder]
+  input_required = local_assigns[:required] || false
+  input_step = local_assigns[:step]
+  input_min = local_assigns[:min]
+  input_max = local_assigns[:max]
+  input_class = local_assigns[:class] || ""
+  wrapper_class = local_assigns[:wrapper_class] || ""
+  hint = local_assigns[:hint]
+  html_attrs = local_assigns[:html_attrs] || {}
+
+  base_input_class = "input-base input-md w-full #{input_class}"
+%>
+<div class="<%= wrapper_class %>">
+  <%= form.label field, label_text, class: "block text-sm font-medium text-slate-700 mb-1" + (input_required ? " required" : "") %>
+  <%
+    text_options = {
+      placeholder: input_placeholder,
+      required: input_required,
+      class: base_input_class
+    }
+    text_options[:value] = input_value unless input_value.nil?
+
+    number_attrs = html_attrs.dup
+    unless number_attrs.key?("x-bind:required") || number_attrs.key?("x-model")
+      number_attrs[:required] = input_required if input_required
+    end
+    number_options = {
+      step: input_step,
+      min: input_min,
+      max: input_max,
+      placeholder: input_placeholder,
+      class: base_input_class
+    }
+    number_options[:value] = input_value unless input_value.nil?
+    number_options.merge!(number_attrs)
+
+    date_attrs = html_attrs.dup
+    unless date_attrs.key?("x-bind:required")
+      date_attrs[:required] = input_required
+    end
+    date_options = {
+      class: base_input_class
+    }
+    date_options[:value] = input_value unless input_value.nil?
+    date_options.merge!(date_attrs)
+
+    url_options = text_options.dup
+  %>
+  <% case input_type %>
+  <% when :text %>
+    <%= form.text_field field, **text_options %>
+  <% when :number %>
+    <%= form.number_field field, **number_options %>
+  <% when :date %>
+    <%= form.date_field field, **date_options %>
+  <% when :email %>
+    <%= form.email_field field, **text_options %>
+  <% when :url %>
+    <%= form.url_field field, **url_options %>
+  <% else %>
+    <%= form.text_field field, **text_options %>
+  <% end %>
+  <% if hint %>
+    <p class="text-xs text-slate-500 mt-1"><%= hint %></p>
+  <% end %>
+</div>

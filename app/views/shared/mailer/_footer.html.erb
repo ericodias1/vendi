@@ -1,0 +1,39 @@
+<% if false %>
+  Mailer Footer component
+  Usage:
+    <%= render 'shared/mailer/footer', disclaimer: "Se você não solicitou..." %>
+    Or with block:
+    <%= render 'shared/mailer/footer' do %>
+      Texto customizado
+    <% end %>
+<% end %>
+<%
+  disclaimer = local_assigns[:disclaimer]
+  support_link = local_assigns[:support_link]
+  support_url = local_assigns[:support_url] || "#"
+  footer_class = local_assigns[:class] || ""
+%>
+<div style="text-align: center; <%= footer_class %>">
+  <% if block_given? %>
+    <div style="padding: 0 16px;">
+      <%= yield %>
+    </div>
+  <% else %>
+    <div style="padding: 0 16px;">
+      <% if disclaimer.present? %>
+        <p style="color: rgba(13, 28, 13, 0.5); font-size: 14px; font-weight: 400; line-height: 1.5; font-style: italic; margin: 0 0 16px 0;">
+          <%= disclaimer %>
+        </p>
+      <% end %>
+      
+      <% if support_link.present? %>
+        <div style="padding-top: 8px;">
+          <a href="<%= support_url %>" style="color: #10b981; font-weight: 700; font-size: 14px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="material-symbols-outlined" style="font-size: 18px;">help</span>
+            <%= support_link %>
+          </a>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

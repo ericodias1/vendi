@@ -1,0 +1,32 @@
+<% if false %>
+  Filter Chips component
+  Usage:
+    <%= render 'shared/ui/filter_chips', 
+        filters: [
+          { key: nil, label: "Todos", path: backoffice_products_path },
+          { key: "low_stock", label: "Estoque baixo", path: backoffice_products_path(filter: "low_stock") }
+        ],
+        active_filter: params[:filter] %>
+<% end %>
+<%
+  filters = local_assigns[:filters] || []
+  active_filter = local_assigns[:active_filter]
+%>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+  <% filters.each do |filter| %>
+    <%= link_to filter[:path], 
+        class: "flex h-9 shrink-0 items-center justify-center rounded-xl px-5 text-sm transition-all #{active_filter == filter[:key] ? 'bg-primary text-white font-semibold shadow-sm shadow-primary/20' : 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark text-gray-600 dark:text-gray-300 font-medium'}" do %>
+      <%= filter[:label] %>
+    <% end %>
+  <% end %>
+</div>
+
+<style>
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

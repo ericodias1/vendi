@@ -4,6 +4,7 @@ class Account < ApplicationRecord
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true
   validates :timezone, presence: true
+  validates :whatsapp, presence: true
 
   has_one :account_config, dependent: :destroy
   has_many :users, dependent: :destroy

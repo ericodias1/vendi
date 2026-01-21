@@ -27,32 +27,25 @@ As cores específicas do Vendi Gestão devem ser adicionadas ao sistema de cores
 /* Adicionar em colors.css dentro de :root ou @theme */
 
 /* === VENDI GESTÃO - CORES PRIMÁRIAS === */
---color-vendi-green-50: #ECFDF5;
---color-vendi-green-100: #D1FAE5;
---color-vendi-green-200: #A7F3D0;
---color-vendi-green-300: #6EE7B7;
---color-vendi-green-400: #34D399;
---color-vendi-green-500: #00D863;  /* Primary Green */
---color-vendi-green-600: #00B854;  /* Primary Green Dark (hover) */
---color-vendi-green-700: #059669;
---color-vendi-green-800: #065F46;
---color-vendi-green-900: #064E3B;
---color-vendi-green-950: #022C22;
+--color-primary: #10b981;  /* Primary - emerald-500 */
+--color-primary-dark: #059669;  /* Primary Dark - emerald-600 */
 
-/* Variantes para uso em backgrounds e badges */
---color-vendi-green-light: #B3F5D1;  /* Para badges */
---color-vendi-soft-green: #D5F5E3;   /* Backgrounds de alertas */
---color-vendi-mint-green: #E8F9F0;   /* Backgrounds muito suaves */
+/* Variantes para uso em backgrounds e badges (derivadas de primary) */
+--color-primary-light: #D1FAE5;  /* Para badges - mais elegante */
+--color-primary-soft: #ECFDF5;   /* Backgrounds de alertas */
 
 /* === VENDI GESTÃO - CORES DE ALERTA === */
 --color-vendi-warning-orange: #FF8C42;
 --color-vendi-warning-light: #FFF4EC; /* Background de alertas laranja */
 
+/* === BACKGROUNDS === */
+--color-background-light: #f8fafc; /* Background Light - slate-50 */
+--color-sidebar-bg: #ffffff; /* Sidebar Background */
+
 /* Integração com sistema existente */
-/* Para usar como cor primária do app Vendi Gestão */
---color-brand-500: var(--color-vendi-green-500);
---color-brand-600: var(--color-vendi-green-600);
---color-brand-700: var(--color-vendi-green-700);
+--color-brand-500: var(--color-primary);
+--color-brand-600: var(--color-primary-dark);
+--color-brand-700: #047857;
 ```
 
 ### 1.2 Cores de Status
@@ -79,16 +72,29 @@ As cores devem estar disponíveis como classes Tailwind. Adicionar em `@theme` d
 
 ```css
 @theme {
-  --color-vendi-green-500: var(--color-vendi-green-500);
-  --color-vendi-green-600: var(--color-vendi-green-600);
-  /* ... outras cores ... */
+  /* Variáveis principais */
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-soft: var(--color-primary-soft);
+  
+  /* Backgrounds */
+  --color-background-light: var(--color-bg-layout);
+  --color-sidebar-bg: var(--color-sidebar-bg);
+  
+  /* Alertas */
+  --color-vendi-warning-orange: var(--color-vendi-warning-orange);
+  --color-vendi-warning-light: var(--color-vendi-warning-light);
 }
 ```
 
 **Uso:**
 ```erb
-<div class="bg-vendi-green-500 text-white">Verde primário</div>
-<div class="bg-vendi-green-light text-vendi-green-700">Badge verde</div>
+<div class="bg-primary text-white">Verde primário</div>
+<div class="bg-primary-dark text-white">Verde escuro (hover)</div>
+<div class="bg-primary-light text-primary-dark">Badge verde</div>
+<div class="bg-sidebar-bg">Background da sidebar</div>
+<div class="bg-background-light">Background do layout</div>
 ```
 
 ---
@@ -114,8 +120,8 @@ O projeto já possui um sistema de tipografia robusto (`app/javascript/styleshee
 <%= render 'shared/ui/heading', text: "Produtos em Destaque", size: :md %>
 
 <!-- Com descrição -->
-<%= render 'shared/ui/heading', 
-    text: "Dashboard", 
+<%= render 'shared/ui/heading',
+    text: "Dashboard",
     size: :xl,
     description: "Acompanhe suas vendas e estoque em tempo real" %>
 ```
@@ -133,13 +139,13 @@ O projeto já possui um sistema de tipografia robusto (`app/javascript/styleshee
 
 ```erb
 <!-- Body Text Regular -->
-<p class="text-md text-gray-700">Texto do corpo</p>
+<p class="text-md text-slate-700">Texto do corpo</p>
 
 <!-- Body Text Small -->
-<p class="text-sm text-gray-600">Texto menor</p>
+<p class="text-sm text-slate-600">Texto menor</p>
 
 <!-- Body Text Large -->
-<p class="text-lg text-gray-900">Texto maior</p>
+<p class="text-lg text-slate-900">Texto maior</p>
 ```
 
 ### 2.4 Labels
@@ -158,14 +164,14 @@ O projeto já possui um sistema de tipografia robusto (`app/javascript/styleshee
 module VendiHelper
   def price_display(amount, size: :regular)
     return "—" if amount.nil?
-    
+
     size_classes = {
       large: "text-3xl font-bold",
       regular: "text-lg font-bold",
       small: "text-sm font-semibold"
     }
-    
-    content_tag :span, 
+
+    content_tag :span,
       number_to_currency(amount, unit: "R$ ", separator: ",", delimiter: "."),
       class: size_classes[size],
       style: "color: var(--color-vendi-green-500);"
@@ -214,7 +220,7 @@ end
 # app/controllers/vendi/products_controller.rb
 def create
   @product = Vendi::Product.new(product_params)
-  
+
   if @product.save
     redirect_to vendi_products_path, notice: "Produto criado com sucesso!"
   else
@@ -247,8 +253,8 @@ end
 **O componente toast já existe em `app/views/shared/ui/_toast.html.erb`:**
 
 ```erb
-<%= render 'shared/ui/toast', 
-    type: :success, 
+<%= render 'shared/ui/toast',
+    type: :success,
     message: "Operação realizada com sucesso!",
     duration: 5000 %>
 ```
@@ -270,7 +276,7 @@ end
 <!-- app/views/layouts/admin.html.erb -->
 <div class="flex h-screen overflow-hidden" data-controller="sidebar">
   <!-- Sidebar Overlay (mobile only) -->
-  <div class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" 
+  <div class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
        data-sidebar-target="overlay"
        data-action="click->sidebar#close"></div>
 
@@ -296,7 +302,7 @@ end
 
 ```erb
 <!-- app/views/admin/shared/_sidebar.html.erb -->
-<aside class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out" 
+<aside class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out"
        data-sidebar-target="sidebar">
   <!-- Conteúdo da sidebar -->
 </aside>
@@ -313,11 +319,11 @@ end
 
 ```erb
 <!-- app/views/admin/shared/_topbar.html.erb -->
-<div class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+<div class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
   <div class="flex items-center gap-4">
     <!-- Mobile Menu Toggle -->
-    <button type="button" 
-            class="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
+    <button type="button"
+            class="md:hidden p-2 rounded-md text-slate-700 hover:bg-slate-100"
             data-action="click->sidebar#toggle"
             aria-label="Toggle menu">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,7 +369,7 @@ export default class extends Controller {
         document.body.style.overflow = ''
       }
     }
-    
+
     if (this.hasOverlayTarget) {
       if (this.openValue) {
         this.overlayTarget.classList.remove('hidden')
@@ -404,9 +410,9 @@ export default class extends Controller {
 
 #### Primary Button (Verde)
 ```erb
-<%= render 'shared/ui/button', 
-    text: "Salvar produto", 
-    variant: :primary, 
+<%= render 'shared/ui/button',
+    text: "Salvar produto",
+    variant: :primary,
     size: :lg,
     type: :submit,
     form: f %>
@@ -417,29 +423,29 @@ export default class extends Controller {
 ```css
 /* Em components.css ou arquivo específico do Vendi */
 .vendi .btn-primary {
-  background-color: var(--color-vendi-green-500) !important;
-  border-color: var(--color-vendi-green-500) !important;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
 }
 
 .vendi .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-vendi-green-600) !important;
-  border-color: var(--color-vendi-green-600) !important;
+  background-color: var(--color-primary-dark) !important;
+  border-color: var(--color-primary-dark) !important;
 }
 ```
 
 #### Outline Button (Verde)
 ```erb
-<%= render 'shared/ui/button', 
-    text: "Editar produto", 
-    variant: :secondary, 
+<%= render 'shared/ui/button',
+    text: "Editar produto",
+    variant: :secondary,
     size: :md %>
 ```
 
 #### Icon Button / FAB
 ```erb
-<%= render 'shared/ui/button', 
-    text: "", 
-    variant: :primary, 
+<%= render 'shared/ui/button',
+    text: "",
+    variant: :primary,
     size: :lg,
     href: new_vendi_sale_path,
     class: "fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-xl" do %>
@@ -456,10 +462,10 @@ export default class extends Controller {
 ```erb
 <%= render 'shared/ui/card', class: "mb-4" do %>
   <div class="flex items-center gap-4">
-    <div class="w-20 h-20 rounded-xl bg-gray-100 flex-shrink-0"></div>
+    <div class="w-20 h-20 rounded-xl bg-slate-100 shrink-0"></div>
     <div class="flex-1">
       <%= render 'shared/ui/heading', text: "Nome do Produto", size: :md %>
-      <p class="text-sm text-gray-500">Variações: 4</p>
+      <p class="text-sm text-slate-500">Variações: 4</p>
       <%= render 'shared/ui/badge', text: "EM ESTOQUE", variant: :success %>
     </div>
   </div>
@@ -479,25 +485,25 @@ Criar partial `app/views/vendi/shared/_product_card.html.erb`:
 
 <%= render 'shared/ui/card', class: "mb-3 hover:shadow-md transition-shadow cursor-pointer" do %>
   <div class="flex items-center gap-4">
-    <div class="w-20 h-20 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden">
+    <div class="w-20 h-20 rounded-xl bg-slate-100 shrink-0 overflow-hidden">
       <% if product.image.present? %>
         <%= image_tag product.image, alt: product.name, class: "w-full h-full object-cover" %>
       <% else %>
         <div class="w-full h-full flex items-center justify-center">
-          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
         </div>
       <% end %>
     </div>
-    
+
     <div class="flex-1 min-w-0">
       <%= render 'shared/ui/heading', text: product.name, size: :md, class: "truncate" %>
-      <p class="text-sm text-gray-500 mb-2">Variações: <%= product.variants.count %></p>
+      <p class="text-sm text-slate-500 mb-2">Variações: <%= product.variants.count %></p>
       <%= render 'shared/ui/badge', text: stock_status_label(product), variant: stock_status_variant(product) %>
     </div>
-    
-    <%= link_to vendi_product_path(product), class: "flex-shrink-0 text-gray-400 hover:text-gray-600" do %>
+
+    <%= link_to vendi_product_path(product), class: "shrink-0 text-slate-400 hover:text-slate-600" do %>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
@@ -516,7 +522,7 @@ module VendiHelper
     return :warning if total_stock <= 3
     :success
   end
-  
+
   def stock_status_label(product)
     total_stock = product.total_stock
     return "SEM ESTOQUE" if total_stock <= 0
@@ -532,10 +538,10 @@ end
 
 #### Text Input (com form)
 ```erb
-<%= render 'shared/ui/form_input', 
-    form: f, 
-    field: :name, 
-    label: "Nome do Produto", 
+<%= render 'shared/ui/form_input',
+    form: f,
+    field: :name,
+    label: "Nome do Produto",
     type: :text,
     required: true,
     placeholder: "Ex: Vestido Floral" %>
@@ -544,26 +550,26 @@ end
 #### Search Input
 ```erb
 <div class="relative mb-5">
-  <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+  <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
   </div>
-  <%= render 'shared/ui/form_input', 
-      form: f, 
-      field: :search, 
+  <%= render 'shared/ui/form_input',
+      form: f,
+      field: :search,
       type: :text,
       placeholder: "Buscar por nome...",
-      class: "pl-12 bg-gray-100 border-0" %>
+      class: "pl-12 bg-slate-100 border-0" %>
 </div>
 ```
 
 #### Number Input
 ```erb
-<%= render 'shared/ui/form_input', 
-    form: f, 
-    field: :price, 
-    label: "Preço", 
+<%= render 'shared/ui/form_input',
+    form: f,
+    field: :price,
+    label: "Preço",
     type: :number,
     step: 0.01,
     placeholder: "79,90" %>
@@ -578,38 +584,38 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["value", "input"]
-  static values = { 
+  static values = {
     min: { type: Number, default: 0 },
     max: { type: Number, default: 999 },
     step: { type: Number, default: 1 }
   }
-  
+
   connect() {
     if (this.hasInputTarget) {
       const currentValue = parseInt(this.inputTarget.value) || this.minValue
       this.update(currentValue)
     }
   }
-  
+
   increment() {
     const current = this.currentValue()
     const next = Math.min(current + this.stepValue, this.maxValue)
     this.update(next)
   }
-  
+
   decrement() {
     const current = this.currentValue()
     const next = Math.max(current - this.stepValue, this.minValue)
     this.update(next)
   }
-  
+
   currentValue() {
     if (this.hasInputTarget) {
       return parseInt(this.inputTarget.value) || this.minValue
     }
     return parseInt(this.valueTarget.textContent) || this.minValue
   }
-  
+
   update(value) {
     if (this.hasValueTarget) {
       this.valueTarget.textContent = value
@@ -628,51 +634,51 @@ export default class extends Controller {
 <% if false %>
   Stepper component for quantity selection
   Usage:
-    <%= render 'vendi/shared/stepper', 
-        form: f, 
-        field: :quantity, 
+    <%= render 'vendi/shared/stepper',
+        form: f,
+        field: :quantity,
         value: 1,
         min: 0,
         max: 999 %>
 <% end %>
 
-<% 
+<%
   form = local_assigns[:form]
   field = local_assigns[:field]
   initial_value = local_assigns[:value] || 1
   min = local_assigns[:min] || 0
   max = local_assigns[:max] || 999
   step = local_assigns[:step] || 1
-  
+
   input_id = form ? "#{form.object_name}_#{field}" : "stepper_#{field}"
 %>
 
-<div data-controller="vendi--stepper" 
+<div data-controller="vendi--stepper"
      data-vendi--stepper-min-value="<%= min %>"
      data-vendi--stepper-max-value="<%= max %>"
      data-vendi--stepper-step-value="<%= step %>"
-     class="inline-flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-full">
+     class="inline-flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-full">
   <button type="button"
           data-action="click->vendi--stepper#decrement"
           class="w-8 h-8 rounded-full border-0 bg-transparent text-vendi-green-500 text-xl font-semibold flex items-center justify-center hover:bg-vendi-green-50 transition-colors">
     −
   </button>
-  
+
   <% if form %>
-    <%= form.hidden_field field, 
+    <%= form.hidden_field field,
         value: initial_value,
         data: { "vendi--stepper-target": "input" } %>
   <% else %>
-    <%= hidden_field_tag field, initial_value, 
+    <%= hidden_field_tag field, initial_value,
         id: input_id,
         data: { "vendi--stepper-target": "input" } %>
   <% end %>
-  
-  <span data-vendi--stepper-target="value" 
-        class="text-lg font-semibold text-gray-900 min-w-[40px] text-center">
+
+  <span data-vendi--stepper-target="value"
+        class="text-lg font-semibold text-slate-900 min-w-[40px] text-center">
     <%= initial_value %>
   </span>
-  
+
   <button type="button"
           data-action="click->vendi--stepper#increment"
           class="w-8 h-8 rounded-full border-0 bg-transparent text-vendi-green-500 text-xl font-semibold flex items-center justify-center hover:bg-vendi-green-50 transition-colors">
@@ -709,52 +715,52 @@ export default class extends Controller {
 <% if false %>
   Alert component for Vendi Gestão
   Usage:
-    <%= render 'vendi/shared/alert', 
+    <%= render 'vendi/shared/alert',
         variant: :warning,
         title: "Estoque baixo",
         description: "3 itens precisam de atenção" %>
 <% end %>
 
-<% 
+<%
   variant = local_assigns[:variant] || :info
   title = local_assigns[:title]
   description = local_assigns[:description]
   dismissible = local_assigns[:dismissible] || false
-  
+
   variant_classes = {
     warning: {
       bg: "bg-orange-50",
       border: "border-orange-200",
       icon_bg: "bg-orange-500",
-      title_color: "text-gray-900",
-      desc_color: "text-gray-600"
+      title_color: "text-slate-900",
+      desc_color: "text-slate-600"
     },
     info: {
       bg: "bg-blue-50",
       border: "border-blue-200",
       icon_bg: "bg-blue-500",
-      title_color: "text-gray-900",
-      desc_color: "text-gray-600"
+      title_color: "text-slate-900",
+      desc_color: "text-slate-600"
     },
     success: {
-      bg: "bg-vendi-green-50",
-      border: "border-vendi-green-200",
-      icon_bg: "bg-vendi-green-500",
-      title_color: "text-gray-900",
-      desc_color: "text-gray-600"
+      bg: "bg-primary-soft",
+      border: "border-primary-light",
+      icon_bg: "bg-primary",
+      title_color: "text-slate-900",
+      desc_color: "text-slate-600"
     }
   }
-  
+
   styles = variant_classes[variant] || variant_classes[:info]
 %>
 
 <div class="<%= styles[:bg] %> <%= styles[:border] %> border rounded-2xl p-5 flex items-center gap-3 mb-5">
-  <div class="<%= styles[:icon_bg] %> w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+  <div class="<%= styles[:icon_bg] %> w-12 h-12 rounded-xl flex items-center justify-center shrink-0">
     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
     </svg>
   </div>
-  
+
   <div class="flex-1">
     <% if title.present? %>
       <%= render 'shared/ui/heading', text: title, size: :md, class: "mb-1" %>
@@ -763,11 +769,11 @@ export default class extends Controller {
       <p class="<%= styles[:desc_color] %> text-sm"><%= description %></p>
     <% end %>
   </div>
-  
+
   <% if dismissible %>
-    <button type="button" 
+    <button type="button"
             data-action="click->vendi--alert#dismiss"
-            class="flex-shrink-0 w-8 h-8 rounded-lg border-0 bg-transparent text-gray-400 hover:text-gray-600">
+            class="shrink-0 w-8 h-8 rounded-lg border-0 bg-transparent text-slate-400 hover:text-slate-600">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
@@ -780,12 +786,12 @@ export default class extends Controller {
 
 ```erb
 <div class="bg-vendi-mint-green rounded-2xl p-5 flex items-start gap-3 mb-5">
-  <svg class="w-6 h-6 text-vendi-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg class="w-6 h-6 text-vendi-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
   </svg>
   <div class="flex-1">
-    <p class="text-sm font-semibold text-gray-700 mb-1">Dica</p>
-    <p class="text-sm text-gray-600">Ative os alertas para ser notificado quando o estoque estiver baixo.</p>
+    <p class="text-sm font-semibold text-slate-700 mb-1">Dica</p>
+    <p class="text-sm text-slate-600">Ative os alertas para ser notificado quando o estoque estiver baixo.</p>
   </div>
 </div>
 ```
@@ -795,23 +801,23 @@ export default class extends Controller {
 **Filter Pills com Alpine.js:**
 
 ```erb
-<div x-data="{ activeFilter: 'all' }" 
+<div x-data="{ activeFilter: 'all' }"
      class="flex gap-3 overflow-x-auto pb-2 mb-5">
   <button type="button"
           @click="activeFilter = 'all'"
-          :class="activeFilter === 'all' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-gray-600'"
+          :class="activeFilter === 'all' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-slate-600'"
           class="px-5 py-2.5 rounded-full border-0 text-sm font-medium whitespace-nowrap transition-all">
     Todos
   </button>
   <button type="button"
           @click="activeFilter = 'low'"
-          :class="activeFilter === 'low' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-gray-600'"
+          :class="activeFilter === 'low' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-slate-600'"
           class="px-5 py-2.5 rounded-full border-0 text-sm font-medium whitespace-nowrap transition-all">
     Estoque baixo
   </button>
   <button type="button"
           @click="activeFilter = 'popular'"
-          :class="activeFilter === 'popular' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-gray-600'"
+          :class="activeFilter === 'popular' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-slate-600'"
           class="px-5 py-2.5 rounded-full border-0 text-sm font-medium whitespace-nowrap transition-all">
     Mais vendidos
   </button>
@@ -821,23 +827,23 @@ export default class extends Controller {
 **Period Tabs:**
 
 ```erb
-<div x-data="{ activePeriod: 'today' }" 
+<div x-data="{ activePeriod: 'today' }"
      class="flex gap-2 mb-5">
   <button type="button"
           @click="activePeriod = 'today'"
-          :class="activePeriod === 'today' ? 'bg-vendi-green-500 text-white' : 'bg-white text-gray-600'"
+          :class="activePeriod === 'today' ? 'bg-vendi-green-500 text-white' : 'bg-white text-slate-600'"
           class="px-5 py-2 rounded-full border-0 text-sm font-medium transition-all">
     Hoje
   </button>
   <button type="button"
           @click="activePeriod = 'week'"
-          :class="activePeriod === 'week' ? 'bg-vendi-green-500 text-white' : 'bg-white text-gray-600'"
+          :class="activePeriod === 'week' ? 'bg-vendi-green-500 text-white' : 'bg-white text-slate-600'"
           class="px-5 py-2 rounded-full border-0 text-sm font-medium transition-all">
     7 dias
   </button>
   <button type="button"
           @click="activePeriod = 'month'"
-          :class="activePeriod === 'month' ? 'bg-vendi-green-500 text-white' : 'bg-white text-gray-600'"
+          :class="activePeriod === 'month' ? 'bg-vendi-green-500 text-white' : 'bg-white text-slate-600'"
           class="px-5 py-2 rounded-full border-0 text-sm font-medium transition-all">
     Mês
   </button>
@@ -852,15 +858,15 @@ export default class extends Controller {
 <% if false %>
   Size Selector component
   Usage:
-    <%= render 'vendi/shared/size_selector', 
-        form: f, 
+    <%= render 'vendi/shared/size_selector',
+        form: f,
         field: :size,
         sizes: ["P", "M", "G", "2", "4", "6"],
         selected: @selected_size,
         disabled_sizes: @disabled_sizes %>
 <% end %>
 
-<% 
+<%
   form = local_assigns[:form]
   field = local_assigns[:field]
   sizes = local_assigns[:sizes] || []
@@ -874,9 +880,9 @@ export default class extends Controller {
   <% sizes.each do |size| %>
     <% size_id = "#{field}_#{size}" %>
     <% is_disabled = disabled_sizes.include?(size) %>
-    
+
     <% if form %>
-      <%= form.radio_button field, size, 
+      <%= form.radio_button field, size,
           checked: selected == size,
           disabled: is_disabled,
           id: size_id,
@@ -889,9 +895,9 @@ export default class extends Controller {
           class: "hidden",
           data: { "x-model": model_name } %>
     <% end %>
-    
+
     <label for="<%= size_id %>"
-           :class="selected === '<%= size %>' ? 'border-vendi-green-500 bg-vendi-green-500 text-white' : 'border-gray-200 bg-white text-gray-700 hover:border-vendi-green-500 hover:bg-vendi-green-50'"
+           :class="selected === '<%= size %>' ? 'border-vendi-green-500 bg-vendi-green-500 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-vendi-green-500 hover:bg-vendi-green-50'"
            :class="{ 'opacity-30 cursor-not-allowed': <%= is_disabled %> }"
            class="w-12 h-12 rounded-xl border-2 flex items-center justify-center text-base font-semibold cursor-pointer transition-all">
       <%= size %>
@@ -908,13 +914,13 @@ export default class extends Controller {
 <% if false %>
   Toggle Switch component
   Usage:
-    <%= render 'vendi/shared/toggle', 
-        form: f, 
+    <%= render 'vendi/shared/toggle',
+        form: f,
         field: :enable_alerts,
         label: "Ativar alertas de estoque baixo" %>
 <% end %>
 
-<% 
+<%
   form = local_assigns[:form]
   field = local_assigns[:field]
   label = local_assigns[:label]
@@ -924,17 +930,17 @@ export default class extends Controller {
 
 <div class="flex items-center justify-between">
   <% if label.present? %>
-    <label for="<%= toggle_id %>" class="text-sm font-medium text-gray-900">
+    <label for="<%= toggle_id %>" class="text-sm font-medium text-slate-900">
       <%= label %>
     </label>
   <% end %>
-  
+
   <div x-data="{ checked: <%= checked %> }"
        class="relative inline-flex h-8 w-13 cursor-pointer rounded-full transition-colors"
-       :class="checked ? 'bg-vendi-green-500' : 'bg-gray-200'"
+       :class="checked ? 'bg-vendi-green-500' : 'bg-slate-200'"
        @click="checked = !checked">
     <% if form %>
-      <%= form.check_box field, 
+      <%= form.check_box field,
           { checked: checked, id: toggle_id, class: "hidden" },
           "1",
           "0",
@@ -945,7 +951,7 @@ export default class extends Controller {
           class: "hidden",
           data: { "x-model": "checked" } %>
     <% end %>
-    
+
     <span class="inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform translate-x-1 translate-y-1"
           :class="checked ? 'translate-x-5' : 'translate-x-1'"></span>
   </div>
@@ -955,7 +961,7 @@ export default class extends Controller {
 ### 5.10 Progress Bar
 
 ```erb
-<div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+<div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
   <div class="h-full bg-vendi-green-500 rounded-full transition-all duration-300"
        style="width: <%= percentage %>%"></div>
 </div>
@@ -976,14 +982,14 @@ export default class extends Controller {
     step: { type: Number, default: 50 },
     current: { type: Number, default: 500 }
   }
-  
+
   connect() {
     this.boundHandleMove = this.handleMove.bind(this)
     this.boundHandleUp = this.handleUp.bind(this)
     this.updatePosition()
     this.updateValue()
   }
-  
+
   mousedown(event) {
     event.preventDefault()
     this.isDragging = true
@@ -991,32 +997,32 @@ export default class extends Controller {
     document.addEventListener('mousemove', this.boundHandleMove)
     document.addEventListener('mouseup', this.boundHandleUp)
   }
-  
+
   handleMove(event) {
     if (!this.isDragging) return
-    
+
     const rect = this.trackTarget.getBoundingClientRect()
     const x = event.clientX - rect.left
     const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100))
     const value = Math.round((percentage / 100) * (this.maxValue - this.minValue) + this.minValue)
     const steppedValue = Math.round(value / this.stepValue) * this.stepValue
-    
+
     this.currentValue = Math.max(this.minValue, Math.min(this.maxValue, steppedValue))
     this.updatePosition()
     this.updateValue()
   }
-  
+
   handleUp() {
     this.isDragging = false
     document.removeEventListener('mousemove', this.boundHandleMove)
     document.removeEventListener('mouseup', this.boundHandleUp)
   }
-  
+
   updatePosition() {
     const percentage = ((this.currentValue - this.minValue) / (this.maxValue - this.minValue)) * 100
     this.thumbTarget.style.left = `${percentage}%`
   }
-  
+
   updateValue() {
     if (this.hasValueTarget) {
       this.valueTarget.textContent = this.formatValue(this.currentValue)
@@ -1026,7 +1032,7 @@ export default class extends Controller {
       this.inputTarget.dispatchEvent(new Event('change', { bubbles: true }))
     }
   }
-  
+
   formatValue(value) {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -1042,8 +1048,8 @@ export default class extends Controller {
 <% if false %>
   Slider component for daily goal
   Usage:
-    <%= render 'vendi/shared/slider', 
-        form: f, 
+    <%= render 'vendi/shared/slider',
+        form: f,
         field: :daily_goal,
         value: 1500,
         min: 0,
@@ -1051,7 +1057,7 @@ export default class extends Controller {
         step: 50 %>
 <% end %>
 
-<% 
+<%
   form = local_assigns[:form]
   field = local_assigns[:field]
   value = local_assigns[:value] || 500
@@ -1059,7 +1065,7 @@ export default class extends Controller {
   max = local_assigns[:max] || 1000
   step = local_assigns[:step] || 50
   label = local_assigns[:label] || "Meta diária"
-  
+
   slider_id = form ? "#{form.object_name}_#{field}" : "slider_#{field}"
 %>
 
@@ -1067,29 +1073,29 @@ export default class extends Controller {
   <div class="flex items-center gap-2 mb-1">
     <span class="text-sm font-medium text-white"><%= label %></span>
   </div>
-  
+
   <div data-controller="vendi--slider"
        data-vendi--slider-min-value="<%= min %>"
        data-vendi--slider-max-value="<%= max %>"
        data-vendi--slider-step-value="<%= step %>"
        data-vendi--slider-current-value="<%= value %>"
        class="mb-2">
-    
+
     <% if form %>
-      <%= form.hidden_field field, 
+      <%= form.hidden_field field,
           value: value,
           data: { "vendi--slider-target": "input" } %>
     <% else %>
-      <%= hidden_field_tag field, value, 
+      <%= hidden_field_tag field, value,
           id: slider_id,
           data: { "vendi--slider-target": "input" } %>
     <% end %>
-    
+
     <div class="text-3xl font-bold text-white mb-4"
          data-vendi--slider-target="value">
       R$ <%= number_with_precision(value, precision: 2, delimiter: '.', separator: ',') %>
     </div>
-    
+
     <div class="relative h-2 bg-white/30 rounded-full mb-2"
          data-vendi--slider-target="track"
          data-action="mousedown->vendi--slider#mousedown">
@@ -1097,7 +1103,7 @@ export default class extends Controller {
            style="left: <%= ((value - min) / (max - min) * 100) %>%"
            data-vendi--slider-target="thumb"></div>
     </div>
-    
+
     <div class="flex justify-between text-xs font-medium text-white/80 uppercase">
       <span>R$ <%= number_with_precision(min, precision: 0) %></span>
       <span>R$ <%= number_with_precision(max, precision: 0) %></span>
@@ -1179,21 +1185,21 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
 ### 8.1 Tela de Boas-Vindas
 
 ```erb
-<div class="min-h-screen flex flex-col items-center justify-center px-5 bg-gray-50">
+<div class="min-h-screen flex flex-col items-center justify-center px-5 bg-slate-50">
   <!-- Logo -->
   <div class="w-24 h-24 rounded-full bg-vendi-green-500 flex items-center justify-center mb-6">
     <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
     </svg>
   </div>
-  
+
   <!-- Título -->
-  <%= render 'shared/ui/heading', 
-      text: "Bem-vindo ao Vendi Gestão", 
+  <%= render 'shared/ui/heading',
+      text: "Bem-vindo ao Vendi Gestão",
       size: :xl,
       description: "Registre sua primeira venda em menos de 3 minutos.",
       class: "text-center mb-8" %>
-  
+
   <!-- Cards de ação -->
   <div class="w-full max-w-md space-y-4 mb-8">
     <%= render 'shared/ui/card', class: "cursor-pointer hover:shadow-md transition-shadow" do %>
@@ -1209,16 +1215,16 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
       </div>
     <% end %>
   </div>
-  
+
   <!-- Botão principal -->
-  <%= render 'shared/ui/button', 
-      text: "Começar", 
-      variant: :primary, 
+  <%= render 'shared/ui/button',
+      text: "Começar",
+      variant: :primary,
       size: :lg,
       href: vendi_setup_path,
       class: "w-full max-w-md" %>
-  
-  <p class="text-xs text-gray-500 mt-6 text-center">Feito para lojas pequenas. Simples e rápido.</p>
+
+  <p class="text-xs text-slate-500 mt-6 text-center">Feito para lojas pequenas. Simples e rápido.</p>
 </div>
 ```
 
@@ -1230,32 +1236,32 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
   <div class="mb-6">
     <div class="flex items-center justify-between mb-2">
       <div>
-        <%= render 'shared/ui/heading', 
-            text: "Bom dia, #{@store.name} 👋", 
+        <%= render 'shared/ui/heading',
+            text: "Bom dia, #{@store.name} 👋",
             size: :xl,
             description: l(Date.current, format: :short) %>
       </div>
-      <button class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </button>
     </div>
     <%= render 'shared/ui/badge', text: "META DIÁRIA: #{price_display(@daily_goal)}", variant: :success %>
   </div>
-  
+
   <!-- Vendas Hoje -->
   <%= render 'shared/ui/card', class: "mb-5" do %>
     <div class="text-center py-8">
       <p class="text-4xl font-bold" style="color: var(--color-vendi-green-500);">
         <%= price_display(@today_sales, size: :large) %>
       </p>
-      <p class="text-sm text-gray-500 mt-2">
+      <p class="text-sm text-slate-500 mt-2">
         <%= @today_sales_count %> vendas • Ticket médio: <%= price_display(@avg_ticket) %>
       </p>
     </div>
   <% end %>
-  
+
   <!-- Alerta de Estoque -->
   <% if @low_stock_items.any? %>
     <%= render 'vendi/shared/alert',
@@ -1263,7 +1269,7 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
         title: "Estoque baixo",
         description: "#{@low_stock_items.count} itens precisam de atenção" %>
   <% end %>
-  
+
   <!-- Empty State ou Lista -->
   <% if @today_sales.empty? %>
     <%= render 'shared/ui/empty_card',
@@ -1297,7 +1303,7 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
 ```ruby
 def create
   @product = Vendi::Product.new(product_params)
-  
+
   if @product.save
     respond_to do |format|
       format.turbo_stream
@@ -1320,13 +1326,13 @@ end
 
 **Form com Turbo:**
 ```erb
-<%= form_with model: @product, 
-    url: vendi_products_path, 
+<%= form_with model: @product,
+    url: vendi_products_path,
     local: false,
     data: { turbo_frame: "_top" } do |f| %>
   <!-- Campos do formulário -->
   <%= render 'shared/ui/form_input', form: f, field: :name, label: "Nome" %>
-  
+
   <%= render 'shared/ui/button', text: "Salvar", type: :submit, variant: :primary, form: f %>
 <% end %>
 ```
@@ -1365,26 +1371,26 @@ export default class extends Controller {
 module VendiHelper
   def price_display(amount, size: :regular)
     return "—" if amount.nil?
-    
+
     size_classes = {
       large: "text-3xl font-bold",
       regular: "text-lg font-bold",
       small: "text-sm font-semibold"
     }
-    
-    content_tag :span, 
+
+    content_tag :span,
       number_to_currency(amount, unit: "R$ ", separator: ",", delimiter: "."),
       class: size_classes[size],
       style: "color: var(--color-vendi-green-500);"
   end
-  
+
   def stock_status_variant(product)
     total_stock = product.total_stock
     return :error if total_stock <= 0
     return :warning if total_stock <= 3
     :success
   end
-  
+
   def stock_status_label(product)
     total_stock = product.total_stock
     return "SEM ESTOQUE" if total_stock <= 0

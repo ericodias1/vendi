@@ -1,0 +1,39 @@
+<% if false %>
+  Form select component (works with form_with)
+  Usage:
+    <%= render 'shared/ui/form_select', form: f, field: :category, label: "Category", options: [['Option 1', 'value1'], ['Option 2', 'value2']] %>
+    <%= render 'shared/ui/form_select', form: f, field: :status, label: "Status", options: status_options, required: true %>
+<% end %>
+<%
+  form = local_assigns[:form]
+  field = local_assigns[:field]
+  label_text = local_assigns[:label] || field.to_s.humanize
+  options = local_assigns[:options] || []
+  input_required = local_assigns[:required] || false
+  input_class = local_assigns[:class] || ""
+  wrapper_class = local_assigns[:wrapper_class] || ""
+  hint = local_assigns[:hint]
+  prompt = local_assigns[:prompt]
+  error = local_assigns[:error] || (form.object&.errors[field]&.first if form&.object)
+
+  base_input_class = "input-base input-md w-full #{input_class}"
+  label_class = "block text-sm font-medium text-slate-700 mb-1" + (input_required ? " required" : "")
+  error_class = error ? "border-red-300" : ""
+  error_text_class = "text-xs text-red-600 mt-1"
+%>
+<div class="<%= wrapper_class %>">
+  <%= form.label field, label_text, class: label_class %>
+  <%= form.select field,
+      options_for_select(options, form.object&.send(field)),
+      { prompt: prompt },
+      {
+        required: input_required,
+        class: "#{base_input_class} #{error_class}"
+      } %>
+  <% if hint %>
+    <p class="text-xs text-slate-500 mt-1"><%= hint %></p>
+  <% end %>
+  <% if error %>
+    <p class="<%= error_text_class %>"><%= error %></p>
+  <% end %>
+</div>

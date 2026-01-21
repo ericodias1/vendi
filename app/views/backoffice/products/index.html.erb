@@ -1,0 +1,66 @@
+<!-- Header -->
+<div class="mb-6">
+  <div class="mb-4 flex items-center justify-between">
+    <%= render 'shared/ui/heading',
+        text: "Produtos",
+        size: :xl %>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="flex gap-3 mb-4">
+    <%= form_with url: backoffice_products_path, method: :get, local: true, class: "flex flex-col w-full" do |f| %>
+      <div class="flex w-full h-12 items-center bg-white dark:bg-surface-dark rounded-xl px-4 shadow-sm border border-gray-100 dark:border-gray-800">
+        <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 mr-2">search</span>
+        <%= f.text_field :search, 
+            value: params[:search],
+            placeholder: "Buscar por nome...",
+            class: "flex-1 bg-transparent border-none focus:ring-0 text-base placeholder:text-gray-400 dark:placeholder:text-gray-500 p-0" %>
+      </div>
+    <% end %>
+    <!-- Desktop Button (top right) -->
+    <%= render 'shared/ui/button',
+        text: "",
+        variant: :primary,
+        size: :md,
+        href: new_backoffice_product_path,
+        class: "hidden md:flex items-center gap-2 shrink-0" do %>
+      <span class="material-symbols-outlined">add_circle</span>
+      <span>Novo produto</span>
+    <% end %>
+  </div>
+
+  <!-- Chips / Filters -->
+  <%= render 'shared/ui/filter_chips',
+      filters: [
+        { key: nil, label: "Todos", path: backoffice_products_path },
+        { key: "low_stock", label: "Estoque baixo", path: backoffice_products_path(filter: "low_stock") },
+        { key: "most_sold", label: "Mais vendidos", path: "#" }
+      ],
+      active_filter: params[:filter] %>
+</div>
+
+<!-- Product List -->
+<% if @products.any? %>
+  <div class="space-y-3 pb-32">
+    <% @products.each do |product| %>
+      <%= render 'shared/ui/product_card', product: product %>
+    <% end %>
+  </div>
+<% else %>
+  <%= render 'shared/ui/empty_card',
+      title: "Nenhum produto encontrado",
+      description: "Cadastre seu primeiro produto para começar a gerenciar seu estoque.",
+      cta_text: "Novo produto",
+      cta_path: new_backoffice_product_path %>
+<% end %>
+
+<!-- Mobile Floating Action Button (bottom center) -->
+<%= render 'shared/ui/button',
+    text: "",
+    variant: :primary,
+    size: :lg,
+    href: new_backoffice_product_path,
+    class: "fixed bottom-24 left-0 right-0 flex justify-center px-4 z-40 max-w-md mx-auto w-full md:!hidden" do %>
+  <span class="material-symbols-outlined">add_circle</span>
+  <span>Novo produto</span>
+<% end %>

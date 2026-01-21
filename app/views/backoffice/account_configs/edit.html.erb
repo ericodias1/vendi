@@ -1,0 +1,127 @@
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
+  <div class="flex items-center gap-4">
+    <%= render 'shared/ui/back_link', path: backoffice_account_config_path, class: "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-2 rounded-full transition-colors" %>
+    <%= render 'shared/ui/heading',
+        text: "Editar configurações",
+        size: :lg %>
+  </div>
+</header>
+
+<main class="max-w-2xl mx-auto pb-32">
+  <%= form_with model: [@account_config], url: backoffice_account_config_path, local: true, data: { controller: "account-config-form" } do |f| %>
+    <!-- Info Card -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+          Selecione os tamanhos e cores que estarão disponíveis ao cadastrar produtos.
+        </p>
+      </div>
+    </section>
+
+    <!-- Sizes Section -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <%= render 'shared/ui/heading',
+              text: "Tamanhos",
+              size: :md %>
+          <div class="flex items-center gap-2">
+            <button type="button" 
+                    class="text-sm text-primary hover:text-primary-dark font-medium"
+                    data-action="click->account-config-form#selectAllSizes">
+              Selecionar todos
+            </button>
+            <span class="text-zinc-400">|</span>
+            <button type="button" 
+                    class="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 font-medium"
+                    data-action="click->account-config-form#deselectAllSizes">
+              Limpar
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap gap-2">
+          <% ProductVariations::SIZES.each_with_index do |size, index| %>
+            <label class="cursor-pointer">
+              <%= check_box_tag "account_config[enabled_sizes][]", 
+                  size, 
+                  @account_config.enabled_sizes_list.include?(size),
+                  id: "size_#{index}",
+                  class: "hidden",
+                  data: { 
+                    account_config_form_target: "sizeCheckbox",
+                    action: "change->account-config-form#updateSizeCount"
+                  } %>
+              <div class="size-chip px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2 <%= @account_config.enabled_sizes_list.include?(size) ? 'bg-primary text-white border-primary' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-transparent hover:border-primary/50' %>"
+                   data-action="click->account-config-form#toggleSize">
+                <%= size %>
+              </div>
+            </label>
+          <% end %>
+        </div>
+        <p class="text-xs text-zinc-500 mt-3">
+          <span data-account-config-form-target="sizeCount">0</span> tamanhos selecionados
+        </p>
+      </div>
+    </section>
+
+    <!-- Colors Section -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <%= render 'shared/ui/heading',
+              text: "Cores",
+              size: :md %>
+          <div class="flex items-center gap-2">
+            <button type="button" 
+                    class="text-sm text-primary hover:text-primary-dark font-medium"
+                    data-action="click->account-config-form#selectAllColors">
+              Selecionar todas
+            </button>
+            <span class="text-zinc-400">|</span>
+            <button type="button" 
+                    class="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 font-medium"
+                    data-action="click->account-config-form#deselectAllColors">
+              Limpar
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap gap-2">
+          <% ProductVariations::COLORS.each_with_index do |color, index| %>
+            <label class="cursor-pointer">
+              <%= check_box_tag "account_config[enabled_colors][]", 
+                  color, 
+                  @account_config.enabled_colors_list.include?(color),
+                  id: "color_#{index}",
+                  class: "hidden",
+                  data: { 
+                    account_config_form_target: "colorCheckbox",
+                    action: "change->account-config-form#updateColorCount"
+                  } %>
+              <div class="color-chip px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2 <%= @account_config.enabled_colors_list.include?(color) ? 'bg-primary text-white border-primary' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-transparent hover:border-primary/50' %>"
+                   data-action="click->account-config-form#toggleColor">
+                <%= color %>
+              </div>
+            </label>
+          <% end %>
+        </div>
+        <p class="text-xs text-zinc-500 mt-3">
+          <span data-account-config-form-target="colorCount">0</span> cores selecionadas
+        </p>
+      </div>
+    </section>
+
+    <!-- Fixed Footer -->
+    <div class="fixed-footer">
+      <%= render 'shared/ui/button',
+          text: "Salvar configurações",
+          variant: :primary,
+          size: :lg,
+          type: :submit,
+          form: f,
+          class: "w-full" %>
+    </div>
+  <% end %>
+</main>

@@ -1,0 +1,76 @@
+<% if false %>
+  Auth Input component
+  Usage:
+    <%= render 'shared/auth/input', form: f, field: :email, type: :email, placeholder: "seu@email.com" %>
+    <%= render 'shared/auth/input', form: f, field: :password, type: :password, show_toggle: true %>
+    <%= render 'shared/auth/input', form: f, field: :whatsapp, type: :phone, placeholder: "(11) 99999-9999" %>
+<% end %>
+<%
+  form = local_assigns[:form]
+  field = local_assigns[:field]
+  input_type = local_assigns[:type] || :text
+  placeholder = local_assigns[:placeholder]
+  required = local_assigns[:required] != false
+  show_toggle = local_assigns[:show_toggle] == true && input_type == :password
+  phone_mask = local_assigns[:phone_mask] == true || input_type == :phone
+  input_class = local_assigns[:class] || ""
+  wrapper_class = local_assigns[:wrapper_class] || ""
+  minlength = local_assigns[:minlength]
+  
+  error = form.object&.errors[field]&.first if form&.object
+  error_class = error ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : ""
+  base_input_class = "w-full rounded-lg border border-slate-200 bg-slate-50 text-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 h-14 px-4 text-base placeholder:text-slate-400 #{error_class} #{input_class}"
+  
+%>
+<div class="flex flex-col gap-2 <%= wrapper_class %>" <%= "data-controller='phone-mask'".html_safe if phone_mask %>>
+  <% if show_toggle %>
+    <div class="relative flex items-center" data-controller="password-toggle">
+      <%= form.password_field field,
+          placeholder: placeholder,
+          required: required,
+          minlength: minlength,
+          class: base_input_class + " pr-12",
+          data: { "password-toggle-target": "input" } %>
+      <button type="button" 
+              class="absolute right-4 text-slate-400 flex items-center justify-center"
+              data-action="click->password-toggle#toggle"
+              aria-label="Mostrar senha">
+        <span class="material-symbols-outlined" data-password-toggle-target="icon">visibility</span>
+      </button>
+    </div>
+  <% else %>
+    <% case input_type %>
+    <% when :email %>
+      <%= form.email_field field,
+          placeholder: placeholder,
+          required: required,
+          class: base_input_class %>
+    <% when :password %>
+      <%= form.password_field field,
+          placeholder: placeholder,
+          required: required,
+          minlength: minlength,
+          class: base_input_class %>
+    <% when :phone %>
+      <%= form.text_field field,
+          placeholder: placeholder,
+          required: required,
+          maxlength: 15,
+          class: base_input_class,
+          data: { "phone-mask-target": "input", action: "input->phone-mask#format" } %>
+    <% when :text %>
+      <%= form.text_field field,
+          placeholder: placeholder,
+          required: required,
+          class: base_input_class %>
+    <% else %>
+      <%= form.text_field field,
+          placeholder: placeholder,
+          required: required,
+          class: base_input_class %>
+    <% end %>
+  <% end %>
+  <% if error %>
+    <p class="text-xs text-red-600 mt-1"><%= error %></p>
+  <% end %>
+</div>
