@@ -7,13 +7,11 @@
   product = local_assigns[:product]
   decorated_product = decorate(product)
   product_path = local_assigns[:path] || backoffice_product_path(product)
-  image_url = product_image_url(product, size: :small) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect fill='%23e5e7eb' width='64' height='64'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='24' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3Eapparel%3C/text%3E%3C/svg%3E"
 %>
 <%= link_to product_path, class: "bg-white dark:bg-surface-dark p-3 rounded-xl flex items-center justify-between shadow-sm border border-gray-100 dark:border-gray-800 group active:scale-[0.98] transition-transform" do %>
   <div class="flex items-center gap-3">
-    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-16" style="background-image: url('<%= image_url %>');">
-    </div>
-    <div class="flex flex-col">
+    <%= render 'shared/ui/product_avatar', product: product, size: :small %>
+    <div class="flex-1">
       <p class="text-base font-semibold leading-tight mb-1 text-slate-900 dark:text-white"><%= product.name %></p>
       <% if product.size.present? || product.color.present? %>
         <p class="text-gray-500 dark:text-gray-400 text-xs mb-2"><%= decorated_product.display_variation %></p>

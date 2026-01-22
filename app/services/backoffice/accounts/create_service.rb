@@ -46,7 +46,7 @@ module Backoffice
           pix_enabled: true,
           card_enabled: true,
           cash_enabled: true,
-          credit_enabled: false,
+          fiado_enabled: false,
           require_customer: false,
           auto_send_payment_link: false
         )

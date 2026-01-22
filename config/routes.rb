@@ -32,7 +32,29 @@ Rails.application.routes.draw do
         get :low_stock
       end
     end
-    resources :sales, only: [:index, :show, :new, :create, :edit, :update, :destroy]
+    resources :sales, only: [:index, :show, :new, :create, :destroy] do
+      resources :items, only: [:create, :update, :destroy], controller: "sales/items"
+      member do
+        patch :complete
+        post :send_payment_link
+      end
+      
+      # Steps como nested resources
+      resource :products, only: [:edit, :update], controller: "sales/products"
+      resource :details, only: [:edit], controller: "sales/details" do
+        member do
+          put :update_payment
+          put :update_discount
+          put :update_customer
+        end
+      end
+      resource :finalize, only: [:edit, :update], controller: "sales/finalize"
+    end
+    resources :customers, only: [:index, :create] do
+      collection do
+        get :search
+      end
+    end
   end
 
   # Defines the root path route ("/")

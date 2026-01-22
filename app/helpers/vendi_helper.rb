@@ -33,9 +33,10 @@ module VendiHelper
   def payment_method_badge(method)
     method_labels = {
       'pix' => 'PIX',
-      'card' => 'CARTÃO',
+      'credit_card' => 'CARTÃO DE CRÉDITO',
+      'debit_card' => 'CARTÃO DE DÉBITO',
       'cash' => 'DINHEIRO',
-      'credit' => 'FIADO'
+      'fiado' => 'FIADO'
     }
 
     label = method_labels[method.to_s.downcase] || method.to_s.upcase

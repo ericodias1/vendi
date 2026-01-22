@@ -1,0 +1,103 @@
+<%
+  products = local_assigns[:products] || []
+  recent_products = local_assigns[:recent_products] || []
+  sale = local_assigns[:sale]
+%>
+
+<div data-controller="sale-form" data-sale-form-step-value="1">
+  <%= render 'shared/ui/step_header', 
+      title: "Registrar venda", 
+      current_step: 1, 
+      total_steps: 3,
+      back_path: backoffice_sales_path %>
+
+  <main class="flex-1 pb-32">
+    <!-- SearchBar -->
+    <div class="px-4 py-2">
+      <%= form_with url: edit_backoffice_sale_products_path(sale), method: :get, local: true, data: { turbo_frame: "_top" } do |f| %>
+        <%= render 'shared/ui/search_input', 
+            form: f, 
+            field: :search, 
+            placeholder: "Buscar produto...",
+            hint: "Ex: vestido, conjunto, body" %>
+      <% end %>
+    </div>
+
+    <!-- Recentes (Chips) -->
+    <% if recent_products.any? %>
+      <div class="mt-4">
+        <div class="flex items-center justify-between px-4 mb-3">
+          <%= render 'shared/ui/heading', text: "Recentes", size: :md, class: "mb-0" %>
+        </div>
+        <div class="flex gap-2 overflow-x-auto px-4 no-scrollbar pb-2">
+          <% recent_products.each do |product| %>
+            <%= form_with url: backoffice_sale_items_path(sale), method: :post, local: false, data: { turbo_frame: "_top" }, class: "inline-block" do |f| %>
+              <%= f.hidden_field :product_id, value: product.id %>
+              <%= f.hidden_field :quantity, value: 1 %>
+              <%= f.hidden_field :unit_price, value: product.base_price || 0 %>
+              <%= render 'shared/ui/chip', text: product.name, variant: :primary, class: "cursor-pointer hover:bg-primary/20 transition-colors" %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Itens Selecionados -->
+    <div class="px-4 mt-4">
+      <div id="sale_items_section">
+        <% if sale.sale_items.any? %>
+          <%= render 'shared/ui/heading', text: "Itens Selecionados", size: :md, class: "mb-3" %>
+          <div id="sale_items_list">
+            <% sale.sale_items.each do |item| %>
+              <%= render 'backoffice/sales/items/sale_item', item: item, sale: sale %>
+            <% end %>
+          </div>
+        <% else %>
+          <div id="sale_items_list" class="hidden"></div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Product List -->
+    <div class="px-4 mt-6 space-y-4">
+      <%= render 'shared/ui/heading', text: "Produtos", size: :md, class: "mb-2" %>
+      <% if products.any? %>
+        <% products.each do |product| %>
+          <%= render 'backoffice/sales/steps/product_item', product: product, sale: sale %>
+        <% end %>
+      <% else %>
+        <!-- Empty State / Search Action -->
+        <div class="bg-primary/5 border border-dashed border-primary/30 rounded-xl p-6 flex flex-col items-center text-center">
+          <svg class="w-12 h-12 text-primary/50 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <p class="text-gray-600 dark:text-gray-300 font-medium mb-4">Produto não encontrado?</p>
+          <%= render 'shared/ui/button', 
+              text: "Criar produto rápido", 
+              href: new_backoffice_product_path,
+              variant: :secondary,
+              size: :sm %>
+        </div>
+      <% end %>
+    </div>
+  </main>
+
+  <!-- Bottom Action Button -->
+  <div class="fixed-footer">
+    <%= render 'backoffice/sales/steps/sale_summary', sale: sale %>
+    <%= render 'shared/ui/button', 
+        href: edit_backoffice_sale_details_path(sale),
+        variant: :primary,
+        size: :lg,
+        width: "w-full",
+        class: sale.sale_items.empty? ? 'opacity-50 cursor-not-allowed pointer-events-none' : '',
+        disabled: sale.sale_items.empty? do %>
+      Continuar
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    <% end %>
+    <!-- iOS Home Indicator Spacing -->
+    <div class="h-4"></div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<% if customers.any? %>
+  <div class="space-y-2 pt-1">
+    <% customers.each do |customer| %>
+      <button type="button"
+              data-action="click->sale-form#selectCustomer"
+              data-customer-id="<%= customer.id %>"
+              data-customer-name="<%= customer.name %>"
+              class="w-full text-left bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl p-3 transition-colors">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <p class="text-[#0e1b12] dark:text-white font-semibold text-sm truncate"><%= customer.name %></p>
+            <% if customer.phone.present? %>
+              <p class="text-gray-500 dark:text-gray-400 text-xs mt-0.5"><%= customer.phone %></p>
+            <% end %>
+          </div>
+          <span class="material-symbols-outlined text-primary text-xl ml-2">chevron_right</span>
+        </div>
+      </button>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center py-8">
+    <p class="text-gray-500 dark:text-gray-400 text-sm">Nenhum cliente encontrado</p>
+  </div>
+<% end %>

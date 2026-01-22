@@ -28,7 +28,7 @@ class AccountConfig < ApplicationRecord
     self.pix_enabled ||= true
     self.card_enabled ||= true
     self.cash_enabled ||= true
-    self.credit_enabled ||= false
+    self.fiado_enabled ||= false
     self.require_customer ||= false
     self.auto_send_payment_link ||= false
     self.additional_settings ||= {}

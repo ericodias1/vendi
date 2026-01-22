@@ -2,55 +2,68 @@
 
 module Backoffice
   class SalesController < BaseController
-    before_action :set_sale, only: [:show, :edit, :update, :destroy]
+    before_action :set_sale, only: [:show, :destroy, :complete, :send_payment_link]
 
     def index
-      @sales = current_account.sales
-                              .search(params[:search])
-                              .order(created_at: :desc)
+      @active_period = params[:period] || 'today'
       
-      # Filtrar por período
-      case params[:period]
-      when 'today'
-        @sales = @sales.where('created_at >= ?', Date.current.beginning_of_day)
-        @active_period = 'today'
-      when 'week'
-        @sales = @sales.where('created_at >= ?', 7.days.ago.beginning_of_day)
-        @active_period = 'week'
-      when 'month'
-        @sales = @sales.where('created_at >= ?', Date.current.beginning_of_month)
-        @active_period = 'month'
-      else
-        @active_period = 'today'
-        @sales = @sales.where('created_at >= ?', Date.current.beginning_of_day)
-      end
+      # Vendas finalizadas (excluindo drafts)
+      @sales = current_account.sales
+                              .includes(:customer, :payment, :sale_items)
+                              .search(params[:search])
+                              .by_period(@active_period)
+                              .recent
+      
+      # Drafts (separados)
+      @drafts = current_account.sales.with_drafts
+                               .draft
+                               .where(user: current_user)
+                               .includes(:sale_items)
+                               .order(created_at: :desc)
+                               .limit(10)
     end
 
     def show
+      # Permitir visualizar drafts (caso esteja editando)
+      @sale = current_account.sales.with_drafts.includes(:sale_items, :payment, :customer).find(params[:id])
     end
 
     def new
-      @sale = current_account.sales.build(user: current_user)
+      # Sempre criar novo draft
+      @sale = current_account.sales.with_drafts.create!(
+        user: current_user,
+        status: "draft"
+      )
+
+      redirect_to edit_backoffice_sale_products_path(@sale)
     end
 
-    def create
-      @sale = current_account.sales.build(sale_params.merge(user: current_user))
 
-      if @sale.save
-        redirect_to backoffice_sales_path, notice: "Venda criada com sucesso"
+    def complete
+      @sale.complete!
+      redirect_to backoffice_sale_path(@sale), notice: "Pagamento confirmado com sucesso!"
+    rescue StandardError => e
+      redirect_to backoffice_sale_path(@sale), alert: "Erro ao confirmar pagamento: #{e.message}"
+    end
+
+    def destroy
+      if @sale.can_cancel? || @sale.draft?
+        @sale.cancel!(reason: params[:cancellation_reason], user: current_user) unless @sale.cancelled?
+        redirect_to backoffice_sales_path, notice: "Venda cancelada com sucesso"
       else
-        render :new, status: :unprocessable_entity
+        redirect_to backoffice_sale_path(@sale), alert: "Não é possível cancelar esta venda"
       end
+    end
+
+    def send_payment_link
+      # TODO: Implementar envio de link de pagamento via WhatsApp
+      redirect_to backoffice_sale_path(@sale), notice: "Link de pagamento enviado!"
     end
 
     private
 
     def set_sale
-      @sale = Sale.find(params[:id])
-    end
-
-    def sale_params
-      params.require(:sale).permit(:customer_id, :status, :subtotal, :total_amount, :observations)
+      @sale = current_account.sales.with_drafts.find(params[:id])
     end
   end
 end

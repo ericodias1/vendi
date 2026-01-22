@@ -1,0 +1,20 @@
+<%= turbo_stream.update "sale_items_section" do %>
+  <% if @sale.sale_items.any? %>
+    <h3 class="text-sm font-bold uppercase tracking-wider text-[#4e9767] mb-3">Itens Selecionados</h3>
+    <div id="sale_items_list">
+      <% @sale.sale_items.each do |item| %>
+        <%= render 'backoffice/sales/items/sale_item', item: item, sale: @sale %>
+      <% end %>
+    </div>
+  <% else %>
+    <div id="sale_items_list" class="hidden"></div>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace "sale_summary" do %>
+  <%= render 'backoffice/sales/steps/sale_summary', sale: @sale %>
+<% end %>
+
+<%= turbo_stream.append "toast-container" do %>
+  <%= render 'shared/ui/toast', type: :info, message: "Produto removido do carrinho" %>
+<% end %>

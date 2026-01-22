@@ -32,9 +32,9 @@
   <!-- Chips / Filters -->
   <%= render 'shared/ui/filter_chips',
       filters: [
-        { key: nil, label: "Todos", path: backoffice_products_path },
-        { key: "low_stock", label: "Estoque baixo", path: backoffice_products_path(filter: "low_stock") },
-        { key: "most_sold", label: "Mais vendidos", path: "#" }
+        { key: nil, label: "Todos", path: backoffice_products_path(search: params[:search]) },
+        { key: "low_stock", label: "Estoque baixo", path: backoffice_products_path(filter: "low_stock", search: params[:search]) },
+        { key: "most_sold", label: "Mais vendidos", path: backoffice_products_path(filter: "most_sold", search: params[:search]) }
       ],
       active_filter: params[:filter] %>
 </div>
@@ -46,6 +46,29 @@
       <%= render 'shared/ui/product_card', product: product %>
     <% end %>
   </div>
+  
+  <!-- Paginação -->
+  <% if @total_count > @per_page %>
+    <div class="flex items-center justify-center gap-2 py-6">
+      <% if @page > 1 %>
+        <%= link_to backoffice_products_path(filter: params[:filter], search: params[:search], page: @page - 1),
+            class: "px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors" do %>
+          Anterior
+        <% end %>
+      <% end %>
+      
+      <span class="px-4 py-2 text-sm text-zinc-600 dark:text-zinc-400">
+        Página <%= @page %> de <%= (@total_count.to_f / @per_page).ceil %>
+      </span>
+      
+      <% if @page < (@total_count.to_f / @per_page).ceil %>
+        <%= link_to backoffice_products_path(filter: params[:filter], search: params[:search], page: @page + 1),
+            class: "px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors" do %>
+          Próxima
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
 <% else %>
   <%= render 'shared/ui/empty_card',
       title: "Nenhum produto encontrado",

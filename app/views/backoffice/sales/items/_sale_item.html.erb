@@ -1,0 +1,83 @@
+<%
+  item = local_assigns[:item]
+  product = item.product
+  sale_obj = local_assigns[:sale] || @sale
+%>
+
+<div id="sale_item_<%= item.id %>" class="mb-3 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-4">
+  <div class="flex gap-4">
+    <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
+      <% if product.images.attached? %>
+        <%= image_tag product.images.first, alt: product.name, class: "w-full h-full object-cover" %>
+      <% else %>
+        <div class="w-full h-full flex items-center justify-center">
+          <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      <% end %>
+    </div>
+    <div class="flex-1">
+      <div class="flex justify-between items-start">
+        <h4 class="font-bold text-[#0e1b12] dark:text-white flex-1"><%= product.name %></h4>
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-primary" style="color: var(--color-vendi-green-500);">
+            <%= number_to_currency(item.unit_price, unit: "R$ ", separator: ",", delimiter: ".") %>
+          </span>
+          <% sale_obj = local_assigns[:sale] || @sale %>
+          <%= form_with url: backoffice_sale_item_path(sale_obj, item), method: :delete, local: false, data: { turbo_frame: "_top", turbo_confirm: "Remover este item da venda?" } do |f| %>
+            <button type="submit" 
+                    class="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                    title="Remover item">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          <% end %>
+        </div>
+      </div>
+      <% if product.sku.present? %>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Ref: <%= product.sku %></p>
+      <% end %>
+      
+      <!-- Size Pills -->
+      <% if product.size.present? %>
+        <div class="flex gap-2 mt-3">
+          <span class="h-8 px-2 rounded-lg flex items-center justify-center text-xs font-bold bg-primary/20 text-primary border border-primary/30">
+            <%= "Tam #{product.size}" %>
+          </span>
+        </div>
+      <% end %>
+      
+      <!-- Alerta de estoque baixo -->
+      <% if product.low_stock? %>
+        <div class="flex items-center gap-1 mt-1 text-[#f59e0b]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span class="text-xs font-semibold">Baixo estoque (<%= product.stock_quantity %> un)</span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Stepper de Quantidade -->
+  <div class="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700">
+    <span class="text-xs font-medium text-gray-400 uppercase tracking-tight">Quantidade</span>
+    <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-900 rounded-full px-4 py-1 border border-gray-100 dark:border-gray-700">
+      <%= form_with url: backoffice_sale_item_path(sale_obj, item), method: :patch, local: false, data: { turbo_frame: "_top" } do |f| %>
+        <%= f.hidden_field :quantity, value: [item.quantity - 1, 1].max, id: "quantity_#{item.id}_decrement" %>
+        <button type="submit" 
+                class="text-primary font-bold text-xl leading-none" 
+                style="color: var(--color-vendi-green-500);">－</button>
+      <% end %>
+      <span class="text-base font-bold min-w-[20px] text-center" id="item_quantity_<%= item.id %>"><%= item.quantity %></span>
+      <%= form_with url: backoffice_sale_item_path(sale_obj, item), method: :patch, local: false, data: { turbo_frame: "_top" } do |f| %>
+        <%= f.hidden_field :quantity, value: item.quantity + 1, id: "quantity_#{item.id}_increment" %>
+        <button type="submit" 
+                class="text-primary font-bold text-xl leading-none" 
+                style="color: var(--color-vendi-green-500);">＋</button>
+      <% end %>
+    </div>
+  </div>
+</div>

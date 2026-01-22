@@ -6,11 +6,11 @@
 <%
   product = local_assigns[:product]
   decorated_product = decorate(product)
-  image_url = product_image_url(product, size: :large) || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\' viewBox=\'0 0 400 400\'%3E%3Crect fill=\'%23e5e7eb\' width=\'400\' height=\'400\'/%3E%3Ctext fill=\'%239ca3af\' font-family=\'sans-serif\' font-size=\'48\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3Eapparel%3C/text%3E%3C/svg%3E'
 %>
 <div class="@container">
   <div class="flex flex-col items-stretch justify-start rounded-xl @xl:flex-row @xl:items-start shadow-sm bg-white dark:bg-[#1a2e1f] overflow-hidden">
-    <div class="w-full bg-center bg-no-repeat aspect-square bg-cover" style="background-image: url('<%= image_url %>');">
+    <div class="w-full aspect-square">
+      <%= render 'shared/ui/product_avatar', product: product, size: :large, class: "w-full h-full rounded-none" %>
     </div>
     <div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-1 py-5 px-5">
       <p class="text-primary text-sm font-semibold uppercase tracking-wider"><%= product.name %></p>

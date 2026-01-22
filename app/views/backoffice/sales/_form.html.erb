@@ -1,0 +1,16 @@
+<% if @step == 1 %>
+  <!-- Step 1: Selecionar Produtos -->
+  <%= render 'backoffice/sales/steps/products', 
+      products: @products, 
+      recent_products: @recent_products,
+      sale: @sale %>
+<% elsif @step == 2 %>
+  <!-- Step 2: Forma de Pagamento -->
+  <%= render 'backoffice/sales/steps/details',
+      sale: @sale,
+      account_config: @account_config %>
+<% elsif @step == 3 %>
+  <!-- Step 3: Confirmação -->
+  <%= render 'backoffice/sales/steps/finalize',
+      sale: @sale %>
+<% end %>

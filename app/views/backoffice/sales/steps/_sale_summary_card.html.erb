@@ -1,0 +1,79 @@
+<%
+  sale = local_assigns[:sale]
+  subtotal = local_assigns[:subtotal] || sale.subtotal || sale.sale_items.sum(&:subtotal)
+%>
+
+<!-- Summary Card -->
+<div class="p-4">
+  <div class="bg-white dark:bg-[#1a2e20] p-4 rounded-xl flex items-center justify-between shadow-sm border border-gray-100 dark:border-gray-800">
+    <div class="flex flex-col gap-1">
+      <p class="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">Resumo do Pedido</p>
+      <p class="text-[#0e1b12] dark:text-white text-lg font-bold leading-tight">Itens: <%= sale.sale_items.sum(&:quantity) %></p>
+      <%
+        # Criar resumo dos produtos com variações
+        # Formato: "Nome Tamanho" ou "Nome cor" ou "Nome Tamanho, cor"
+        summary_parts = []
+        sale.sale_items.each do |item|
+          parts = [item.product_name]
+          
+          # Adicionar tamanho se tiver
+          if item.product_size.present?
+            parts << item.product_size
+          end
+          
+          # Adicionar cor se tiver
+          if item.product_color.present?
+            parts << item.product_color
+          end
+          
+          # Juntar: "Nome M" ou "Nome vermelho" ou "Nome M, vermelho"
+          summary_parts << parts.join(" ")
+        end
+        
+        # Limitar a exibição para não ficar muito longo
+        max_items_to_show = 3
+        items_to_show = summary_parts.first(max_items_to_show)
+        remaining_items = summary_parts.count - max_items_to_show
+        
+        summary_text = items_to_show.join(", ")
+        if remaining_items > 0
+          summary_text += " + #{remaining_items} #{remaining_items == 1 ? 'item' : 'itens'}"
+        end
+      %>
+      <p class="text-gray-600 dark:text-gray-400 text-sm truncate" title="<%= summary_parts.join(', ') %>"><%= summary_text %></p>
+      <p class="text-primary text-sm font-semibold" style="color: var(--color-vendi-green-500);">Subtotal: <%= number_to_currency(subtotal, unit: "R$ ", separator: ",", delimiter: ".") %></p>
+    </div>
+    <div class="relative w-20 h-20 shrink-0">
+      <% 
+        # Pegar produtos únicos da venda (máximo 3 para não ficar poluído)
+        products = sale.sale_items.map(&:product).uniq.first(3)
+        total_products = sale.sale_items.map(&:product).uniq.count
+        remaining_count = total_products - products.count
+      %>
+      <% if products.any? %>
+        <% products.each_with_index do |product, index| %>
+          <div class="absolute rounded-lg overflow-hidden border-2 border-white dark:border-[#1a2e20] shadow-md bg-white"
+               style="width: <%= 64 - (index * 4) %>px; height: <%= 64 - (index * 4) %>px; top: <%= index * 6 %>px; left: <%= index * 6 %>px; z-index: <%= 10 - index %>;">
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first, alt: product.name, class: "w-full h-full object-cover" %>
+            <% else %>
+              <div class="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                <span class="material-symbols-outlined text-gray-400" style="font-size: <%= 24 - (index * 2) %>px;">inventory_2</span>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        <% if remaining_count > 0 %>
+          <div class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow-lg border-2 border-white dark:border-[#1a2e20]"
+               style="z-index: 20; color: var(--color-vendi-green-500); background-color: var(--color-vendi-green-500);">
+            +<%= remaining_count %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="w-full h-full bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-gray-400 text-3xl">inventory_2</span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

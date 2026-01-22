@@ -21,6 +21,11 @@
 
     <%= vite_client_tag %>
     <%= vite_javascript_tag 'application', 'data-turbo-track': 'reload' %>
+    
+    <!-- Alpine.js x-cloak para evitar flash de conteúdo não renderizado -->
+    <style>
+      [x-cloak] { display: none !important; }
+    </style>
   </head>
 
   <body class="min-h-screen" data-controller="sidebar">

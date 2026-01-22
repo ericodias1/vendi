@@ -1,0 +1,42 @@
+<% if false %>
+  Product Avatar component
+  Usage:
+    <%= render 'shared/ui/product_avatar', 
+        product: @product,
+        size: :small,  # :small, :medium, :large
+        class: "custom-class" %>
+<% end %>
+<%
+  product = local_assigns[:product]
+  size = local_assigns[:size] || :small
+  custom_class = local_assigns[:class] || ""
+  
+  # Tamanhos do avatar
+  size_classes = {
+    small: "size-16",
+    medium: "size-24",
+    large: "size-32"
+  }
+  
+  icon_sizes = {
+    small: "text-2xl",
+    medium: "text-3xl",
+    large: "text-4xl"
+  }
+  
+  size_class = size_classes[size] || size_classes[:small]
+  icon_size = icon_sizes[size] || icon_sizes[:small]
+  
+  # Verificar se produto tem imagem
+  image_url = product_image_url(product, size: size)
+  has_image = image_url.present?
+%>
+<% if has_image %>
+  <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg <%= size_class %> <%= custom_class %>" style="background-image: url('<%= image_url %>');">
+  </div>
+<% else %>
+  <!-- Avatar/Placeholder para produto sem imagem -->
+  <div class="flex items-center justify-center aspect-square rounded-lg <%= size_class %> bg-gradient-to-br from-primary/20 to-primary/10 dark:from-primary/30 dark:to-primary/20 border border-primary/20 dark:border-primary/30 <%= custom_class %>">
+    <span class="material-symbols-outlined text-primary <%= icon_size %>">inventory_2</span>
+  </div>
+<% end %>

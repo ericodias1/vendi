@@ -1,0 +1,16 @@
+<% if false %>
+  Stepper component
+  Usage:
+    <%= render 'shared/ui/stepper', current_step: 1, total_steps: 3 %>
+    <%= render 'shared/ui/stepper', current_step: 2, total_steps: 3, class: "mb-4" %>
+<% end %>
+<%
+  current_step = local_assigns[:current_step] || 1
+  total_steps = local_assigns[:total_steps] || 3
+  stepper_class = local_assigns[:class] || ""
+%>
+<div class="flex w-full flex-row items-center justify-center gap-2 py-4 <%= stepper_class %>">
+  <% (1..total_steps).each do |step| %>
+    <div class="h-1.5 <%= step <= current_step ? 'w-8 bg-primary' : 'w-2 bg-[#d0e7d7] dark:bg-gray-700' %> rounded-full"></div>
+  <% end %>
+</div>

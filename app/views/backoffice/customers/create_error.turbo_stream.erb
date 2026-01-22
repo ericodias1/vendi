@@ -1,0 +1,3 @@
+<%= turbo_stream.append "flash_messages" do %>
+  <%= render "shared/ui/toast", type: :error, message: "Erro ao cadastrar cliente. Verifique os campos." %>
+<% end %>

@@ -1,0 +1,50 @@
+<% if false %>
+  Phone Input component
+  Usage:
+    <%= render 'shared/ui/phone_input', form: f, field: :phone, label: "Telefone", placeholder: "(11) 98888-7777" %>
+    <%= render 'shared/ui/phone_input', form: f, field: :whatsapp, label: "WhatsApp", required: false, hint: "Opcional" %>
+<% end %>
+<%
+  form = local_assigns[:form]
+  field = local_assigns[:field]
+  hide_label = local_assigns[:hide_label] == true
+  label_text = local_assigns[:label] || field.to_s.humanize
+  placeholder = local_assigns[:placeholder] || "(11) 98888-7777"
+  required = local_assigns[:required] != false
+  hint = local_assigns[:hint]
+  input_class = local_assigns[:class] || ""
+  wrapper_class = local_assigns[:wrapper_class] || ""
+  show_icon = local_assigns[:show_icon] != false
+  
+  error = form.object&.errors[field]&.first if form&.object
+  error_class = error ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : ""
+  base_input_class = "w-full bg-gray-50 dark:bg-[#112116] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all text-base text-[#0e1b12] dark:text-white placeholder:text-gray-400 #{error_class} #{input_class}"
+  base_input_class += " pr-12" if show_icon
+%>
+<div class="flex flex-col gap-1.5 <%= wrapper_class %>" data-controller="phone-mask">
+  <% unless hide_label %>
+    <%= form.label field, label_text, class: "text-sm font-semibold text-gray-600 dark:text-gray-400 ml-1" %>
+  <% end %>
+  <div class="relative">
+    <%= form.text_field field,
+        placeholder: placeholder,
+        required: required,
+        maxlength: 15,
+        class: base_input_class,
+        data: { 
+          "phone-mask-target": "input", 
+          action: "input->phone-mask#format" 
+        } %>
+    <% if show_icon %>
+      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+        <span class="material-symbols-outlined text-gray-400 text-xl">chat</span>
+      </div>
+    <% end %>
+  </div>
+  <% if hint %>
+    <p class="text-xs text-gray-500 dark:text-gray-400 ml-1"><%= hint %></p>
+  <% end %>
+  <% if error %>
+    <p class="text-xs text-red-600 ml-1"><%= error %></p>
+  <% end %>
+</div>

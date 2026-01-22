@@ -1,0 +1,28 @@
+<% if false %>
+  Step Header component
+  Usage:
+    <%= render 'shared/ui/step_header', 
+        title: "Registrar venda", 
+        current_step: 1, 
+        total_steps: 3,
+        back_path: backoffice_sales_path %>
+<% end %>
+<%
+  title = local_assigns[:title] || ""
+  current_step = local_assigns[:current_step] || 1
+  total_steps = local_assigns[:total_steps] || 3
+  back_path = local_assigns[:back_path] || :back
+  header_class = local_assigns[:class] || ""
+%>
+<header class="sticky -top-6 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-6 pb-2 <%= header_class %>">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <%= render 'shared/ui/back_link', path: back_path, only_icon: true, class: "text-[#0e1b12] dark:text-white cursor-pointer" %>
+      <%= render 'shared/ui/heading', text: title, size: :lg, class: "mb-0" %>
+    </div>
+    <span class="text-sm font-semibold text-[#4e9767] bg-primary/10 px-3 py-1 rounded-full">
+      <%= current_step %>/<%= total_steps %>
+    </span>
+  </div>
+  <%= render 'shared/ui/stepper', current_step: current_step, total_steps: total_steps %>
+</header>

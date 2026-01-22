@@ -1,0 +1,19 @@
+<%= turbo_stream.update "customer_search_results" do %>
+  <% if @customers.present? %>
+    <%= render "customer_results", customers: @customers %>
+  <% else %>
+    <div class="text-center py-4">
+      <p class="text-gray-500 dark:text-gray-400 text-sm">Cliente cadastrado com sucesso!</p>
+    </div>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.append "flash_messages" do %>
+  <%= render "shared/ui/toast", type: :success, message: "Cliente cadastrado com sucesso!" %>
+<% end %>
+
+<script>
+  window.dispatchEvent(new CustomEvent('customer:created', {
+    detail: <%= { customer_id: @customer.id, customer_name: @customer.name }.to_json.html_safe %>
+  }));
+</script>

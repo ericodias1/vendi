@@ -78,7 +78,7 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 
 ## 📦 Fase 2: Produtos e Estoque (Semanas 4-6)
 
-**Objetivo:** Implementar gestão completa de produtos com variações e controle de estoque.
+**Objetivo:** Implementar gestão completa de produtos e controle de estoque.
 
 ### Tarefas
 
@@ -86,51 +86,46 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [x] Criar model `Product` (migration, validações, relacionamentos)
 - [x] Implementar soft delete em Product (Discard)
 - [x] Criar concern `Searchable` para busca
-- [x] Criar scopes úteis (ativos, recentes)
-- [ ] Criar model `ProductVariant` (tamanho e/ou cor)
-- [ ] Criar model `StockMovement` (histórico de movimentações)
-- [ ] Implementar métodos de cálculo de estoque disponível
+- [x] Criar scopes úteis (ativos, recentes, estoque baixo, sem estoque)
+- [x] Adicionar campos de estoque diretamente no Product (stock_quantity, size, color)
+- [x] Criar model `StockMovement` (histórico de movimentações - referencia Product diretamente)
+- [x] Implementar métodos de cálculo de estoque disponível (available_quantity, low_stock?, out_of_stock?)
 
 #### 2.2 CRUD de Produtos
-- [x] Criar `ProductsController` (index, show, new, create - básico)
+- [x] Criar `ProductsController` (index, show, new, create, edit, update, destroy)
 - [x] Implementar busca de produtos (Searchable concern)
-- [ ] Criar service `Backoffice::Products::CreateService` se necessário
-- [ ] Criar service `Backoffice::Products::UpdateService` se necessário
-- [ ] Criar service `Backoffice::Products::DestroyService` se necessário
-- [ ] Criar views: index, show, new, edit
-- [ ] Implementar filtros (todos, estoque baixo, mais vendidos)
-- [ ] Implementar paginação
+- [x] Criar views: index, show, new, edit
+- [x] Implementar filtros (todos, estoque baixo, mais vendidos)
+- [x] Implementar paginação
 
 #### 2.3 Cadastro de Produtos
-- [ ] Criar formulário de cadastro (foto, nome, preço)
-- [ ] Implementar upload de múltiplas imagens (Active Storage)
-- [ ] Implementar seleção de variações (tamanho e/ou cor)
-- [ ] Criar interface para adicionar tamanhos
-- [ ] Criar interface para adicionar cores
-- [ ] Implementar criação de combinações (tamanho + cor)
-- [ ] Implementar toggle "Informar estoque agora"
-- [ ] Validações client-side e server-side
+- [x] Criar formulário de cadastro (foto, nome, preço)
+- [x] Implementar upload de múltiplas imagens (Active Storage)
+- [x] Implementar campos opcionais (tamanho, cor) diretamente no produto
+- [x] Implementar campo de estoque inicial (stock_quantity)
+- [x] Implementar toggle "Informar estoque agora" (mostra/oculta campo de estoque, padrão: 1)
+- [x] Validações client-side e server-side
 
 #### 2.4 Detalhe do Produto
-- [ ] Criar view de detalhe com galeria de imagens
-- [ ] Mostrar todas as variações com estoque
-- [ ] Implementar badges de status (OK, BAIXO, SEM ESTOQUE)
-- [ ] Criar botões de ação (Ajustar estoque, Editar)
-- [ ] Implementar menu de três pontos (Ativar/Desativar, Excluir)
+- [x] Criar view de detalhe com galeria de imagens
+- [x] Mostrar informações do produto (nome, preço, tamanho, cor, estoque)
+- [x] Implementar badges de status (OK, BAIXO, SEM ESTOQUE)
+- [x] Criar botões de ação (Ajustar estoque, Editar)
+- [x] Implementar menu de três pontos (Editar, Excluir) - Ativar/Desativar removido do MVP
 
 #### 2.5 Ajuste de Estoque
-- [ ] Criar `Products::StockAdjustmentsController`
-- [ ] Criar view de ajuste com steppers
-- [ ] Implementar atualização de quantidades
-- [ ] Criar `StockMovement` para auditoria
-- [ ] Implementar validações e feedback visual
+- [x] Criar `Products::StockAdjustmentsController`
+- [x] Criar view de ajuste com steppers
+- [x] Implementar atualização de quantidades
+- [x] Criar `StockMovement` para auditoria (referencia Product diretamente)
+- [x] Implementar validações e feedback visual
 
 #### 2.6 Alertas de Estoque Baixo
-- [ ] Criar rota e view `/products/low_stock`
-- [ ] Implementar query para produtos com estoque baixo
-- [ ] Criar cards de alerta organizados por severidade
-- [ ] Implementar link direto para ajuste de estoque
-- [ ] Criar sistema de notificações para estoque baixo
+- [x] Criar rota e view `/products/low_stock` (usa mesma view index com filtro)
+- [x] Implementar query para produtos com estoque baixo (scope `with_low_stock`)
+- [x] Criar cards de alerta (usando `_product_card` com badges de status)
+- [x] Implementar link direto para ajuste de estoque (via card → show → ajustar estoque)
+- [ ] Criar sistema de notificações para estoque baixo (model Notification ainda não existe)
 
 **Estimativa:** 3 semanas
 **Prioridade:** Crítica
@@ -148,9 +143,9 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [x] Criar model `Customer` (migration, validações)
 - [x] Criar enums para status (draft, pending_payment, paid, cancelled)
 - [x] Implementar cálculo de totais (subtotal, desconto, total - campos básicos)
-- [ ] Criar model `SaleItem` (com snapshot do produto)
-- [ ] Criar model `Payment` (migration, validações)
 - [ ] Implementar geração automática de número da venda
+- [ ] Criar model `Payment` (migration, validações) - se necessário para futuro
+- [ ] Definir estrutura de armazenamento de itens da venda (JSON ou tabela separada)
 
 #### 3.2 Lista de Vendas
 - [x] Criar `SalesController` (index, show, new, create - básico)
@@ -162,9 +157,9 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 
 #### 3.3 Detalhe da Venda
 - [ ] Criar view de detalhe completa
-- [ ] Mostrar todos os itens com snapshot
-- [ ] Mostrar resumo financeiro
-- [ ] Mostrar informações de pagamento
+- [ ] Mostrar todos os produtos vendidos (via StockMovements relacionados)
+- [ ] Mostrar resumo financeiro (subtotal, desconto, total)
+- [ ] Mostrar informações de pagamento (método, status)
 - [ ] Mostrar informações do cliente (se houver)
 - [ ] Implementar ações (Confirmar pagamento, Reenviar link, Cancelar)
 
@@ -172,10 +167,10 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [ ] Criar rota `/sales/new?step=1`
 - [ ] Implementar barra de busca de produtos
 - [ ] Criar chips de produtos recentes
-- [ ] Criar lista de produtos com seleção de variação
+- [ ] Criar lista de produtos (sem seleção de variação - produto é único)
 - [ ] Implementar stepper de quantidade
 - [ ] Criar resumo sticky no bottom (carrinho)
-- [ ] Implementar validação de estoque disponível
+- [ ] Implementar validação de estoque disponível (verifica stock_quantity do Product)
 - [ ] Salvar dados temporários na sessão
 
 #### 3.5 Nova Venda - Passo 2: Forma de Pagamento
@@ -194,9 +189,9 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [ ] Mostrar resumo completo da venda
 - [ ] Implementar opções de finalização (link WhatsApp ou pagamento em mãos)
 - [ ] Criar service `Sales::CreateService`
-- [ ] Implementar criação de Sale, SaleItems e Payment
-- [ ] Implementar decremento de estoque
-- [ ] Criar StockMovements para auditoria
+- [ ] Implementar criação de Sale (sem SaleItems - produtos são diretos na Sale)
+- [ ] Implementar decremento de estoque (atualiza stock_quantity do Product)
+- [ ] Criar StockMovements para auditoria (referencia Product diretamente)
 - [ ] Implementar geração de token de link de pagamento
 - [ ] Verificar alertas de estoque baixo
 - [ ] Verificar metas diárias
@@ -363,11 +358,11 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 
 Para um lançamento inicial, as fases críticas são:
 
-- ✅ **Fase 0:** Setup e Infraestrutura (parcialmente completo - falta componentes UI e testes)
-- ✅ **Fase 1:** Modelagem e Autenticação (autenticação completa, falta layouts responsivos avançados)
-- ⚠️ **Fase 2:** Produtos e Estoque (models criados, falta CRUD completo e variações)
+- ✅ **Fase 0:** Setup e Infraestrutura (completo - componentes UI criados)
+- ✅ **Fase 1:** Modelagem e Autenticação (completo - autenticação e layouts responsivos)
+- ⚠️ **Fase 2:** Produtos e Estoque (models criados, estrutura simplificada - falta CRUD completo)
 - ⚠️ **Fase 3:** Vendas (estrutura básica criada, falta fluxo completo)
-- ⚠️ **Fase 4:** Dashboard básico (controller e view básicos criados)
+- ⚠️ **Fase 4:** Dashboard básico (controller e view básicos criados, falta métricas reais)
 
 **Estimativa MVP:** 12 semanas
 
@@ -415,8 +410,9 @@ Funcionalidades que podem ser adiadas para pós-MVP:
 2. **Multi-Account:** Toda query deve filtrar por `account_id`
 3. **Services:** Lógica complexa sempre em services, não em controllers
 4. **Validações:** Validações tanto client-side quanto server-side
-5. **Auditoria:** Sempre criar `StockMovement` para rastreabilidade
-6. **Snapshot:** Dados de produto em vendas devem ser snapshot (não referência)
+5. **Auditoria:** Sempre criar `StockMovement` para rastreabilidade (referencia Product diretamente)
+6. **Estrutura Simplificada:** Produtos não têm mais variações separadas - estoque, tamanho e cor são campos diretos do Product
+7. **Estoque Direto:** StockMovement referencia Product diretamente (não ProductVariant)
 
 ---
 
@@ -430,8 +426,8 @@ Funcionalidades que podem ser adiadas para pós-MVP:
 
 ---
 
-**Última atualização:** 2025-01-20
-**Versão:** 1.1
+**Última atualização:** 2025-01-21
+**Versão:** 1.2
 
 ## 📊 Progresso Atual
 
@@ -439,19 +435,28 @@ Funcionalidades que podem ser adiadas para pós-MVP:
 - Setup completo do projeto Rails 8
 - Configuração de banco de dados (PostgreSQL + Solid Cache/Queue/Cable)
 - Estrutura base de arquitetura (Service, BaseController, Policies, Concerns)
-- Models principais criados (Account, AccountConfig, User, Product, Sale, Customer)
+- Models principais criados (Account, AccountConfig, User, Product, Sale, Customer, StockMovement)
+- **Mudança estrutural:** ProductVariant removido - estoque agora está diretamente no Product
+- **Mudança estrutural:** StockMovement referencia Product diretamente (não ProductVariant)
+- Product com campos diretos: stock_quantity, size, color
 - Migrations com índices e constraints
-- Controllers básicos (Dashboard, Products, Sales)
+- Controllers básicos (Dashboard, Products, Sales, Products::StockAdjustments)
 - Rotas configuradas no namespace backoffice
 - Layout backoffice básico
 - Autenticação completa (SessionsController, views de login e registro)
 - Recuperação de senha (PasswordResetsController, mailer)
+- Componentes UI base (shared/ui: heading, button, card, badge, toast, back_link, form_input, etc)
+- View de detalhe do produto (show.html.erb)
+- View de ajuste de estoque (stock_adjustments/edit.html.erb)
+- Sistema de navegação responsiva (sidebar desktop, bottom nav mobile)
 
 ### 🚧 Em Progresso
-- CRUD completo de produtos e vendas
-- Componentes UI reutilizáveis
+- CRUD completo de produtos (falta edit, update, destroy)
+- Views de vendas (lista, detalhe, nova venda multi-step)
+- Dashboard com métricas reais
 
 ### 📝 Próximos Passos
-1. Implementar CRUD completo de produtos com views
-2. Criar componentes UI base (shared/ui)
-3. Implementar sistema de navegação responsiva
+1. Completar CRUD de produtos (edit, update, destroy)
+2. Implementar fluxo completo de vendas (3 passos)
+3. Implementar dashboard com métricas reais (vendas do dia, ticket médio, estoque baixo)
+4. Criar sistema de notificações

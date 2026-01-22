@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_21_171010) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_171010) do
     t.decimal "daily_goal", precision: 10, scale: 2, default: "0.0"
     t.text "enabled_colors", default: [], array: true
     t.text "enabled_sizes", default: [], array: true
+    t.boolean "fiado_enabled"
     t.decimal "monthly_goal", precision: 10, scale: 2
     t.boolean "pix_enabled", default: true
     t.boolean "require_customer", default: false
@@ -106,6 +107,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_171010) do
     t.index ["deleted_at"], name: "index_customers_on_deleted_at"
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "card_last_digits"
+    t.datetime "created_at", null: false
+    t.integer "installments"
+    t.jsonb "metadata", default: {}
+    t.string "method", null: false
+    t.datetime "paid_at"
+    t.text "pix_code"
+    t.bigint "sale_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["method"], name: "index_payments_on_method"
+    t.index ["sale_id"], name: "index_payments_on_sale_id", unique: true
+    t.index ["status"], name: "index_payments_on_status"
+  end
+
   create_table "products", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.boolean "active", default: true, null: false
@@ -131,6 +149,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_171010) do
     t.index ["account_id"], name: "index_products_on_account_id"
     t.index ["active"], name: "index_products_on_active"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
+  end
+
+  create_table "sale_items", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.decimal "discount_amount", precision: 10, scale: 2, default: "0.0"
+    t.string "product_color"
+    t.bigint "product_id", null: false
+    t.string "product_name", null: false
+    t.string "product_size"
+    t.string "product_sku"
+    t.integer "quantity", default: 1, null: false
+    t.bigint "sale_id", null: false
+    t.decimal "subtotal", precision: 10, scale: 2, null: false
+    t.decimal "total_amount", precision: 10, scale: 2, null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_sale_items_on_product_id"
+    t.index ["sale_id"], name: "index_sale_items_on_sale_id"
   end
 
   create_table "sales", force: :cascade do |t|
@@ -200,7 +236,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_171010) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "customers", "accounts"
+  add_foreign_key "payments", "sales"
   add_foreign_key "products", "accounts"
+  add_foreign_key "sale_items", "products"
+  add_foreign_key "sale_items", "sales"
   add_foreign_key "sales", "accounts"
   add_foreign_key "sales", "customers"
   add_foreign_key "sales", "users"

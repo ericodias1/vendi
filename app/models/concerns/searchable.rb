@@ -6,22 +6,26 @@ module Searchable
   included do
     scope :search, ->(term) {
       return all if term.blank?
-      return all if searchable_columns.blank?
+      
+      columns = searchable_columns
+      return all if columns.blank?
 
       search_term = "%#{term.strip}%"
-      conditions = searchable_columns.map { |col|
+      conditions = columns.map { |col|
         "#{table_name}.#{col} ILIKE ?"
       }.join(" OR ")
 
-      where(conditions, *([search_term] * searchable_columns.count))
+      where(conditions, *([search_term] * columns.count))
     }
   end
 
   class_methods do
-    attr_accessor :searchable_columns
-
     def searchable_columns(*columns)
-      @searchable_columns = columns.map(&:to_s)
+      if columns.any?
+        @searchable_columns = columns.map(&:to_s)
+      else
+        @searchable_columns || []
+      end
     end
   end
 end

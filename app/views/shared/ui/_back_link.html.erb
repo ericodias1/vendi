@@ -8,9 +8,9 @@
 <%
   path = local_assigns[:path] || local_assigns[:url] || :back
   text = local_assigns[:text] || local_assigns[:label] || "Voltar"
-  link_class = local_assigns[:class] || "inline-flex items-center text-sm text-slate-600 hover:text-slate-900 mb-4"
+  link_class = local_assigns[:class] || "flex space-x-2 items-center text-sm text-slate-600 hover:text-slate-900"
 %>
 <%= link_to path, class: link_class do %>
   <i class="material-symbols-outlined">arrow_back</i>
-  <%= text unless local_assigns[:only_icon] %>
+  <%= content_tag(:span, text, class: "") unless local_assigns[:only_icon] %>
 <% end %>

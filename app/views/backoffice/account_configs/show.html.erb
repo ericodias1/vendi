@@ -1,7 +1,7 @@
 <!-- Header -->
 <header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
   <div class="flex items-center gap-4">
-    <%= render 'shared/ui/back_link', path: backoffice_root_path, class: "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-2 rounded-full transition-colors" %>
+    <%= render 'shared/ui/back_link', path: backoffice_root_path, only_icon: true %>
     <%= render 'shared/ui/heading',
         text: "Configurações",
         size: :lg %>

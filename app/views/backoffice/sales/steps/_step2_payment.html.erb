@@ -1,0 +1,374 @@
+<%
+  sale = local_assigns[:sale]
+  account_config = local_assigns[:account_config]
+  
+  # Calcular subtotal e total
+  subtotal = sale.subtotal || sale.sale_items.sum(&:subtotal)
+  discount = sale.discount_amount || 0
+  total = sale.total_amount || (subtotal - discount)
+%>
+
+<div data-controller="sale-form" 
+     data-sale-form-step-value="2" 
+     data-sale-form-subtotal-value="<%= subtotal %>"
+     data-sale-update-url="<%= backoffice_sale_path(sale) %>"
+     data-saved-payment-method="<%= sale.payment&.method %>">
+  <%= render 'shared/ui/step_header', 
+      title: "Pagamento", 
+      current_step: 2, 
+      total_steps: 3,
+      back_path: edit_backoffice_sale_products_path(sale),
+      class: "border-b border-gray-200 dark:border-gray-800" %>
+
+  <main class="flex-1 overflow-y-auto pb-32"
+        x-data="discountCalculator({
+          subtotal: <%= subtotal %>,
+          discountEnabled: <%= (sale.discount_amount.to_f > 0 || sale.discount_percentage.present?).to_s %>,
+          discountType: '<%= sale.discount_percentage.present? ? 'percentage' : 'fixed' %>',
+          discountValue: <%= sale.discount_percentage || sale.discount_amount.to_f || 0 %>
+        })">
+    <%= render 'backoffice/sales/steps/sale_summary_card', sale: sale, subtotal: subtotal %>
+
+    <!-- Payment Grid Section -->
+    <div class="px-4 py-2">
+      <%= render 'shared/ui/heading', text: "Forma de Pagamento", size: :md, class: "mb-3" %>
+      <div class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-8 gap-3" data-sale-form-target="paymentGrid">
+        <!-- Pix -->
+        <% if account_config&.pix_enabled %>
+          <button type="button"
+                  data-action="click->sale-form#selectPayment"
+                  data-payment-method="pix"
+                  class="relative <%= sale.payment&.method == 'pix' ? 'bg-primary/20 border-primary' : 'bg-primary/10 border-transparent' %> border-2 flex flex-col items-center justify-center p-4 aspect-square rounded-xl transition-all hover:border-primary/30"
+                  data-sale-form-target="paymentButton">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 rounded-full mb-2 flex items-center">
+              <span class="material-symbols-outlined text-gray-600 dark:text-gray-400 text-3xl">qr_code_scanner</span>
+            </div>
+            <p class="text-[#0e1b12] dark:text-white text-sm font-bold">Pix</p>
+          </button>
+        <% end %>
+
+        <!-- Cartão de Crédito -->
+        <% if account_config&.card_enabled %>
+          <button type="button"
+                  data-action="click->sale-form#selectPayment"
+                  data-payment-method="credit_card"
+                  class="relative bg-white dark:bg-[#1a2e20] border-2 border-transparent flex flex-col items-center justify-center p-4 aspect-square rounded-xl shadow-sm hover:border-gray-200 dark:hover:border-gray-700 transition-all"
+                  data-sale-form-target="paymentButton">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 rounded-full mb-2 flex items-center">
+              <span class="material-symbols-outlined text-gray-600 dark:text-gray-400 text-3xl">credit_card</span>
+            </div>
+            <p class="text-[#0e1b12] dark:text-white text-sm font-bold">Crédito</p>
+          </button>
+        <% end %>
+
+        <!-- Cartão de Débito -->
+        <% if account_config&.card_enabled %>
+          <button type="button"
+                  data-action="click->sale-form#selectPayment"
+                  data-payment-method="debit_card"
+                  class="relative bg-white dark:bg-[#1a2e20] border-2 border-transparent flex flex-col items-center justify-center p-4 aspect-square rounded-xl shadow-sm hover:border-gray-200 dark:hover:border-gray-700 transition-all"
+                  data-sale-form-target="paymentButton">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 rounded-full mb-2 flex items-center">
+              <span class="material-symbols-outlined text-gray-600 dark:text-gray-400 text-3xl">account_balance_wallet</span>
+            </div>
+            <p class="text-[#0e1b12] dark:text-white text-sm font-bold">Débito</p>
+          </button>
+        <% end %>
+
+        <!-- Dinheiro -->
+        <% if account_config&.cash_enabled %>
+          <button type="button"
+                  data-action="click->sale-form#selectPayment"
+                  data-payment-method="cash"
+                  class="relative bg-white dark:bg-[#1a2e20] border-2 border-transparent flex flex-col items-center justify-center p-4 aspect-square rounded-xl shadow-sm hover:border-gray-200 dark:hover:border-gray-700 transition-all"
+                  data-sale-form-target="paymentButton">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 rounded-full mb-2 flex items-center">
+              <span class="material-symbols-outlined text-gray-600 dark:text-gray-400 text-3xl">payments</span>
+            </div>
+            <p class="text-[#0e1b12] dark:text-white text-sm font-bold">Dinheiro</p>
+          </button>
+        <% end %>
+
+        <!-- Fiado -->
+        <% if account_config&.fiado_enabled %>
+          <button type="button"
+                  data-action="click->sale-form#selectPayment"
+                  data-payment-method="fiado"
+                  class="relative bg-white dark:bg-[#1a2e20] border-2 border-transparent flex flex-col items-center justify-center p-4 aspect-square rounded-xl shadow-sm hover:border-gray-200 dark:hover:border-gray-700 transition-all"
+                  data-sale-form-target="paymentButton">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 rounded-full mb-2 flex items-center">
+              <span class="material-symbols-outlined text-gray-600 dark:text-gray-400 text-3xl">receipt_long</span>
+            </div>
+            <p class="text-[#0e1b12] dark:text-white text-sm font-bold">Fiado</p>
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Form para salvar desconto -->
+    <%= form_with model: sale, url: update_discount_backoffice_sale_details_path(sale), method: :put, local: false, data: { turbo_frame: "_top", turbo_action: "replace" }, id: "discount-form", style: "display: none;" do |f| %>
+      <%= f.hidden_field :discount_amount, value: "" %>
+      <%= f.hidden_field :discount_percentage, value: "" %>
+    <% end %>
+
+    <!-- Optional Fields Section -->
+    <div class="mt-4 px-4 space-y-4">
+      <%= render 'shared/ui/heading', text: "Opções Adicionais", size: :md, class: "mb-1" %>
+      
+      <!-- ListItem: Aplicar Desconto -->
+      <div class="flex flex-col bg-white dark:bg-[#1a2e20] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="flex items-center gap-4 px-4 min-h-[64px]">
+          <div class="flex items-center gap-4 flex-1">
+            <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10" style="color: var(--color-vendi-green-500);">
+              <span class="material-symbols-outlined text-xl">local_offer</span>
+            </div>
+            <p class="text-[#0e1b12] dark:text-white text-base font-semibold truncate">Aplicar desconto</p>
+          </div>
+          <div class="shrink-0">
+            <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
+                   :class="discountEnabled ? 'justify-end bg-primary' : ''">
+              <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+              <input type="checkbox" 
+                     x-model="discountEnabled"
+                     @change="saveDiscount()"
+                     class="invisible absolute peer" />
+            </label>
+          </div>
+        </div>
+        
+        <!-- Campos de Desconto (expansível) -->
+        <div x-show="discountEnabled" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="px-4 pb-5 pt-1 space-y-4">
+          <!-- Radio Buttons: Tipo de Desconto -->
+          <div class="flex gap-2">
+            <button type="button"
+                    @click="discountType = 'percentage'; saveDiscount()"
+                    class="flex-1 py-3 px-4 rounded-xl border-2 text-sm font-bold flex items-center justify-center gap-2 transition-all"
+                    :class="discountType === 'percentage' 
+                      ? 'border-primary bg-primary/5 text-primary' 
+                      : 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400'">
+              <span class="material-symbols-outlined text-sm">percent</span>
+              Porcentagem
+            </button>
+            <button type="button"
+                    @click="discountType = 'fixed'; saveDiscount()"
+                    class="flex-1 py-3 px-4 rounded-xl border-2 text-sm font-bold flex items-center justify-center gap-2 transition-all"
+                    :class="discountType === 'fixed' 
+                      ? 'border-primary bg-primary/5 text-primary' 
+                      : 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400'">
+              <span class="material-symbols-outlined text-sm">attach_money</span>
+              Valor Fixo
+            </button>
+          </div>
+          
+          <!-- Input de Desconto -->
+          <div class="relative">
+            <input type="text"
+                   :placeholder="discountType === 'fixed' ? 'R$ 0,00' : '0%'"
+                   class="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-4 px-4 text-xl font-bold text-[#0e1b12] dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-primary/50"
+                   x-ref="discountInput"
+                   :value="discountType === 'fixed' ? formatCurrency(discountValue) : (discountValue ? discountValue + '%' : '')"
+                   @input="
+                     let rawValue = $event.target.value.replace(/[^0-9,]/g, '').replace(',', '.');
+                     discountValue = rawValue ? parseFloat(rawValue) || 0 : 0;
+                     saveDiscount();
+                   "
+                   @blur="
+                     if (discountType === 'fixed') {
+                       $refs.discountInput.value = formatCurrency(discountValue);
+                     } else {
+                       $refs.discountInput.value = discountValue ? discountValue + '%' : '';
+                     }
+                   " />
+          </div>
+          
+          <!-- Mensagem de Erro -->
+          <p x-show="discountError" 
+             x-text="discountError"
+             class="text-sm text-red-500 font-medium"></p>
+        </div>
+      </div>
+
+      <!-- ListItem: Adicionar Cliente -->
+      <%
+        customer_json_str = if sale.customer_id.present?
+          { id: sale.customer_id, name: (sale.customer&.name || '') }.to_json
+        else
+          nil
+        end
+      %>
+      <div x-data='{
+        customerEnabled: <%= sale.customer_id.present? ? 'true' : 'false' %>,
+        selectedCustomer: <%= customer_json_str ? "JSON.parse(#{customer_json_str.to_json})" : 'null' %>,
+        showCustomerModal: false,
+        removeCustomer() {
+          selectedCustomer = null;
+          const form = document.getElementById("customer-form-sale");
+          if (form) {
+            form.querySelector("#sale_customer_id").value = "";
+            form.requestSubmit();
+          }
+        }
+      }'
+      x-effect="if (!customerEnabled && selectedCustomer) { removeCustomer(); }"
+      @customer:created.window="
+        const eventData = JSON.parse($event.detail);
+        selectedCustomer = { id: eventData.customer_id, name: eventData.customer_name };
+        customerEnabled = true;
+        showCustomerModal = false;
+        // Salvar cliente na venda
+        const form = document.getElementById('customer-form-sale');
+        if (form) {
+          form.querySelector('#sale_customer_id').value = eventData.customer_id;
+          form.requestSubmit();
+        }
+      "
+      @customer:selected.window="
+        const eventData = JSON.parse($event.detail);
+        selectedCustomer = { id: eventData.customer_id, name: eventData.customer_name };
+        customerEnabled = true;
+      ">
+        <div class="flex flex-col bg-white dark:bg-[#1a2e20] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+          <div class="flex items-center gap-4 px-4 min-h-[64px]">
+            <div class="flex items-center gap-4 flex-1">
+              <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10" style="color: var(--color-vendi-green-500);">
+                <span class="material-symbols-outlined text-xl">person_add</span>
+              </div>
+              <p class="text-[#0e1b12] dark:text-white text-base font-semibold truncate">Adicionar cliente</p>
+            </div>
+            <div class="shrink-0">
+              <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
+                     :class="customerEnabled ? 'justify-end bg-primary' : ''">
+                <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+                <input type="checkbox" 
+                       x-model="customerEnabled"
+                       class="invisible absolute peer" />
+              </label>
+            </div>
+          </div>
+          
+          <!-- Campos de Cliente (expansível) -->
+          <div x-show="customerEnabled" 
+               x-transition:enter="transition ease-out duration-200"
+               x-transition:enter-start="opacity-0 -translate-y-2"
+               x-transition:enter-end="opacity-100 translate-y-0"
+               class="px-4 pb-5 pt-1 space-y-3">
+            
+            <!-- Cliente Selecionado -->
+            <div x-show="selectedCustomer" 
+                 class="bg-primary/10 border-2 border-primary rounded-xl p-3 flex items-center justify-between">
+              <div class="flex-1 min-w-0">
+                <p class="text-[#0e1b12] dark:text-white font-semibold text-sm truncate" x-text="selectedCustomer?.name"></p>
+              </div>
+              <button type="button"
+                      @click="
+                        selectedCustomer = null;
+                        customerEnabled = false;
+                        // Remover cliente da venda no backend
+                        const form = document.getElementById('customer-form-sale');
+                        if (form) {
+                          form.querySelector('#sale_customer_id').value = '';
+                          form.requestSubmit();
+                        }
+                      "
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 ml-2">
+                <span class="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+            
+            <!-- Busca de Cliente -->
+            <div x-show="!selectedCustomer">
+              <%= form_with url: search_backoffice_customers_path,
+                            method: :get,
+                            local: false,
+                            data: { turbo_frame: "customer_search_results" },
+                            class: "relative" do |f| %>
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                <%= f.text_field :q,
+                                placeholder: "Buscar cliente por nome ou celular",
+                                value: params[:q],
+                                class: "w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-primary text-[#0e1b12] dark:text-white",
+                                autocomplete: "off",
+                                "x-on:input.debounce.300ms": "$event.target.form.requestSubmit()" %>
+              <% end %>
+              
+              <!-- Turbo Frame para resultados -->
+              <%= turbo_frame_tag "customer_search_results", class: "mt-4" do %>
+                <div class="text-center py-4">
+                  <p class="text-gray-500 dark:text-gray-400 text-sm">Digite para buscar clientes</p>
+                </div>
+              <% end %>
+              
+              <!-- Botão Novo Cliente -->
+              <button type="button"
+                      @click="showCustomerModal = true"
+                      class="flex items-center gap-2 text-primary font-bold text-sm px-1 mt-2">
+                <span class="material-symbols-outlined">add</span>
+                Novo cliente
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal de Cadastro -->
+        <%= render 'backoffice/sales/steps/customer_modal' %>
+        
+        <!-- Form hidden para salvar cliente na venda -->
+        <%= form_with model: sale, 
+                      url: update_customer_backoffice_sale_details_path(sale), 
+                      method: :put, 
+                      local: false, 
+                      data: { turbo_frame: "_top" }, 
+                      id: "customer-form-sale", 
+                      style: "display: none;" do |f| %>
+          <%= f.hidden_field :customer_id, value: sale.customer_id %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Total Prominent Card -->
+    <div class="p-4 mt-6">
+      <div class="bg-white dark:bg-[#1a2e20] p-6 rounded-2xl border-2 border-primary/20 shadow-lg">
+        <div class="flex flex-col gap-2">
+          <!-- Subtotal -->
+          <div class="flex justify-between items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+            <span>Subtotal</span>
+            <span x-text="formatCurrency(subtotal)"></span>
+          </div>
+          
+          <!-- Desconto (mostrar apenas se houver) -->
+          <div x-show="discountEnabled && discountAmount > 0" 
+               class="flex justify-between items-center text-sm font-medium text-red-500">
+            <span>Desconto</span>
+            <span x-text="'- ' + formatCurrency(discountAmount)"></span>
+          </div>
+          
+          <!-- Divisor (mostrar apenas se houver desconto) -->
+          <div x-show="discountEnabled && discountAmount > 0" 
+               class="h-px bg-gray-100 dark:bg-gray-800 my-1"></div>
+          
+          <!-- Total -->
+          <div class="flex justify-between items-end">
+            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Valor Total a Pagar</p>
+            <h2 class="text-primary text-3xl font-extrabold tracking-tight" style="color: var(--color-vendi-green-500);" x-text="formatCurrency(total)"></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Fixed Footer Button -->
+  <footer class="fixed-footer">
+    <a href="<%= edit_backoffice_sale_finalize_path(sale) %>"
+       data-sale-form-target="continueButton"
+       class="btn-base btn-lg btn-primary w-full transition-all opacity-50 cursor-not-allowed pointer-events-none flex items-center justify-center gap-2">
+      Continuar
+      <span class="material-symbols-outlined text-xl">arrow_forward</span>
+    </a>
+    <!-- Safe area for iOS -->
+    <div class="h-6"></div>
+  </footer>
+</div>

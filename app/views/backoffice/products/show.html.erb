@@ -1,24 +1,24 @@
 <!-- TopAppBar -->
 <header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md mb-4">
   <div class="flex items-center p-4 justify-between">
-    <%= render 'shared/ui/back_link', path: backoffice_products_path, class: "flex size-12 shrink-0 items-center justify-start cursor-pointer" %>
+    <%= render 'shared/ui/back_link', path: backoffice_products_path, class: "flex size-12 space-x-2 shrink-0 items-center justify-start cursor-pointer" %>
     <%= render 'shared/ui/heading',
         text: @product.name,
         size: :lg,
         class: "flex-1 text-center" %>
-    <div 
+    <div
       class="flex w-12 items-center justify-end relative"
       data-controller="dropdown">
-      <button 
+      <button
         type="button"
         class="flex items-center justify-center rounded-full size-12 bg-transparent text-[#0e1b12] dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
         data-action="click->dropdown#toggle"
         data-dropdown-target="button">
         <span class="material-symbols-outlined">more_vert</span>
       </button>
-      
+
       <!-- Dropdown Menu -->
-      <div 
+      <div
         class="hidden absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800 py-2 z-50"
         data-dropdown-target="menu">
         <%= link_to edit_backoffice_product_stock_adjustment_path(@product),
@@ -34,7 +34,7 @@
         <% unless @product.has_sales? %>
           <%= link_to backoffice_product_path(@product),
               method: :delete,
-              data: { 
+              data: {
                 confirm: "Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.",
                 turbo_method: :delete
               },
@@ -72,8 +72,8 @@
             </p>
           </div>
           <div class="shrink-0">
-            <%= render 'shared/ui/badge', 
-                text: decorate(@product).stock_badge_text, 
+            <%= render 'shared/ui/badge',
+                text: decorate(@product).stock_badge_text,
                 variant: decorate(@product).stock_badge_variant,
                 class: "text-xs font-bold uppercase tracking-wider" %>
           </div>

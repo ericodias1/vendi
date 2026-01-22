@@ -1,0 +1,25 @@
+<% if false %>
+  Chip component
+  Usage:
+    <%= render 'shared/ui/chip', text: "Produto", variant: :primary %>
+    <%= render 'shared/ui/chip', text: "Categoria", variant: :secondary, size: :sm %>
+<% end %>
+<%
+  text = local_assigns[:text] || ""
+  variant = local_assigns[:variant] || :primary
+  size = local_assigns[:size] || :md
+  chip_class = local_assigns[:class] || ""
+  
+  variant_classes = {
+    primary: "bg-primary/10 border-primary/20 text-[#0e1b12] dark:text-white",
+    secondary: "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
+  }
+  
+  size_classes = {
+    sm: "px-3 py-1 text-xs",
+    md: "px-4 py-2 text-sm"
+  }
+%>
+<span class="flex-none <%= variant_classes[variant] %> <%= size_classes[size] %> border rounded-full font-semibold whitespace-nowrap <%= chip_class %>">
+  <%= text %>
+</span>
