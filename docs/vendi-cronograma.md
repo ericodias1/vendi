@@ -63,6 +63,8 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [x] Criar controllers de autenticação (sessions)
 - [x] Criar views de login e registro
 - [x] Implementar recuperação de senha
+- [x] Implementar área admin para gestão de contas (criação/edição e impersonação de `Account`)
+- [x] Implementar área admin para gestão de usuários de backoffice (CRUD de `User` por conta)
 
 #### 1.3 Layouts Responsivos
 - [x] Criar layout backoffice básico
@@ -279,24 +281,24 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 ### Tarefas
 
 #### 5.1 Onboarding
-- [ ] Criar `OnboardingController`
-- [ ] Criar tela de boas-vindas (Passo 0)
-- [ ] Criar Passo 1: Configurar a Conta (nome, WhatsApp, tipo, alertas)
-- [ ] Criar Passo 2: Personalizar (metas, estoque baixo, formas de pagamento)
-- [ ] Implementar salvamento de cada passo
-- [ ] Marcar onboarding como completo
-- [ ] Redirecionar para dashboard após conclusão
+- [x] Criar `OnboardingController`
+- [x] Criar tela de boas-vindas (Passo 0)
+- [x] Criar Passo 1: Configurar a Conta (nome, WhatsApp, tipo, alertas)
+- [x] Criar Passo 2: Personalizar (metas, estoque baixo, formas de pagamento)
+- [x] Implementar salvamento de cada passo
+- [x] Marcar onboarding como completo
+- [x] Redirecionar para dashboard após conclusão
 
 #### 5.2 Configurações
-- [ ] Criar `SettingsController`
-- [ ] Criar view de configurações organizada em seções
-- [ ] Implementar edição de dados da conta (nome, WhatsApp, logo)
-- [ ] Implementar edição de metas (diária, semanal, mensal)
-- [ ] Implementar configuração de alertas (toggle, threshold)
-- [ ] Implementar configuração de formas de pagamento (toggles)
-- [ ] Implementar preferências (exigir cliente, enviar link automático)
-- [ ] Criar service `Settings::UpdateService`
-- [ ] Implementar validações
+- [x] Usar `AccountConfigsController` como tela de configurações da conta
+- [x] Criar view de configurações organizada em seções
+- [x] Implementar edição de dados da conta (nome, WhatsApp, logo) via Onboarding/Admin de Contas
+- [x] Implementar edição de metas (diária, semanal, mensal)
+- [x] Implementar configuração de alertas (toggle, threshold)
+- [x] Implementar configuração de formas de pagamento (toggles)
+- [x] Implementar preferências (exigir cliente, enviar link automático)
+- [ ] (Opcional) Criar service `Settings::UpdateService` caso a lógica de atualização fique mais complexa
+- [x] Implementar validações nos models (`Account` e `AccountConfig`)
 
 #### 5.3 Notificações
 - [ ] Criar model `Notification` (migration, validações)
