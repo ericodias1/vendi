@@ -14,8 +14,137 @@
     <section class="px-4 mb-6">
       <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
         <p class="text-sm text-zinc-600 dark:text-zinc-400">
-          Selecione os tamanhos e cores que estarão disponíveis ao cadastrar produtos.
+          Ajuste as preferências da sua conta: metas, alertas, formas de pagamento,
+          obrigatoriedade de cliente e variações de produto.
         </p>
+      </div>
+    </section>
+
+    <!-- Goals Section -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <%= render 'shared/ui/heading',
+              text: "Metas",
+              size: :md %>
+        </div>
+
+        <div class="space-y-3">
+          <%= render 'shared/ui/form_input',
+              form: f,
+              field: :daily_goal,
+              label: "Meta diária (R$)",
+              type: :number,
+              step: 0.01,
+              min: 0,
+              placeholder: "0,00" %>
+
+          <%= render 'shared/ui/form_input',
+              form: f,
+              field: :weekly_goal,
+              label: "Meta semanal (R$) (opcional)",
+              type: :number,
+              step: 0.01,
+              min: 0,
+              placeholder: "0,00" %>
+
+          <%= render 'shared/ui/form_input',
+              form: f,
+              field: :monthly_goal,
+              label: "Meta mensal (R$) (opcional)",
+              type: :number,
+              step: 0.01,
+              min: 0,
+              placeholder: "0,00" %>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stock Alerts Section -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <%= render 'shared/ui/heading',
+              text: "Alertas de estoque",
+              size: :md %>
+        </div>
+
+        <%= render 'shared/ui/toggle',
+            form: f,
+            field: :stock_alerts_enabled,
+            label: "Ativar alertas de estoque baixo",
+            hint: "Você será avisado quando o estoque estiver abaixo do limite escolhido." %>
+
+        <%= render 'shared/ui/form_input',
+            form: f,
+            field: :stock_alert_threshold,
+            label: "Quantidade mínima para alerta",
+            type: :number,
+            step: 1,
+            min: 1,
+            placeholder: "3" %>
+      </div>
+    </section>
+
+    <!-- Payment Methods Section -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <%= render 'shared/ui/heading',
+              text: "Formas de pagamento",
+              size: :md %>
+        </div>
+
+        <div class="space-y-3">
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :pix_enabled,
+              label: "PIX",
+              hint: "Mostrar PIX como forma de pagamento na venda." %>
+
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :card_enabled,
+              label: "Cartão",
+              hint: "Mostrar cartão (crédito/débito) como forma de pagamento." %>
+
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :cash_enabled,
+              label: "Dinheiro",
+              hint: "Mostrar dinheiro como forma de pagamento." %>
+
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :fiado_enabled,
+              label: "Fiado",
+              hint: "Permitir vendas fiado (cliente obrigatório)." %>
+        </div>
+      </div>
+    </section>
+
+    <!-- Preferences Section -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <%= render 'shared/ui/heading',
+              text: "Preferências de venda",
+              size: :md %>
+        </div>
+
+        <div class="space-y-3">
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :require_customer,
+              label: "Exigir cliente em toda venda",
+              hint: "Quando ativo, toda venda precisa ter um cliente selecionado." %>
+
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :auto_send_payment_link,
+              label: "Enviar link de pagamento automaticamente",
+              hint: "Quando possível, envia o link de pagamento por WhatsApp automaticamente." %>
+        </div>
       </div>
     </section>
 

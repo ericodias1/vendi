@@ -13,52 +13,194 @@
   <section class="px-4 mb-6">
     <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
       <p class="text-sm text-zinc-600 dark:text-zinc-400">
-        Configure quais tamanhos e cores estarão disponíveis ao cadastrar produtos. 
-        Isso facilita o cadastro e previne erros de digitação.
+        Ajuste as principais preferências da sua conta: metas, alertas, formas de pagamento,
+        obrigatoriedade de cliente e variações de produto.
       </p>
     </div>
   </section>
 
-  <!-- Sizes Section -->
+  <!-- Goals Section -->
   <section class="px-4 mb-6">
     <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
       <div class="flex items-center justify-between mb-4">
         <%= render 'shared/ui/heading',
-            text: "Tamanhos",
+            text: "Metas",
             size: :md %>
-        <span class="text-sm text-zinc-500">
-          <%= @account_config.enabled_sizes_list.count %> selecionados
-        </span>
       </div>
-      
-      <div class="flex flex-wrap gap-2 mb-4">
-        <% ProductVariations::SIZES.each do |size| %>
-          <div class="px-3 py-1.5 rounded-full text-sm font-medium <%= @account_config.enabled_sizes_list.include?(size) ? 'bg-primary text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400' %>">
-            <%= size %>
-          </div>
+
+      <dl class="space-y-2 text-sm text-zinc-700 dark:text-zinc-200">
+        <div class="flex items-center justify-between">
+          <dt class="text-zinc-500 dark:text-zinc-400">Meta diária</dt>
+          <dd class="font-medium">
+            <%= number_to_currency(@account_config.daily_goal || 0, unit: "R$ ", separator: ",", delimiter: ".") %>
+          </dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-zinc-500 dark:text-zinc-400">Meta semanal</dt>
+          <dd class="font-medium">
+            <% if @account_config.weekly_goal.present? %>
+              <%= number_to_currency(@account_config.weekly_goal, unit: "R$ ", separator: ",", delimiter: ".") %>
+            <% else %>
+              <span class="text-zinc-400 dark:text-zinc-500">Não definida</span>
+            <% end %>
+          </dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-zinc-500 dark:text-zinc-400">Meta mensal</dt>
+          <dd class="font-medium">
+            <% if @account_config.monthly_goal.present? %>
+              <%= number_to_currency(@account_config.monthly_goal, unit: "R$ ", separator: ",", delimiter: ".") %>
+            <% else %>
+              <span class="text-zinc-400 dark:text-zinc-500">Não definida</span>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Stock Alerts Section -->
+  <section class="px-4 mb-6">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-4">
+        <%= render 'shared/ui/heading',
+            text: "Alertas de estoque",
+            size: :md %>
+        <% if @account_config.stock_alerts_enabled %>
+          <%= render 'shared/ui/badge', text: "Ativado", variant: :success %>
+        <% else %>
+          <%= render 'shared/ui/badge', text: "Desativado", variant: :warning %>
         <% end %>
+      </div>
+
+      <p class="text-sm text-zinc-600 dark:text-zinc-400">
+        Quantidade mínima para considerar estoque baixo:
+        <span class="font-medium text-zinc-900 dark:text-zinc-100">
+          <%= @account_config.stock_alert_threshold || 0 %> unidades
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Payment Methods Section -->
+  <section class="px-4 mb-6">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-4">
+        <%= render 'shared/ui/heading',
+            text: "Formas de pagamento",
+            size: :md %>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-zinc-600 dark:text-zinc-300">PIX</span>
+          <% if @account_config.pix_enabled %>
+            <%= render 'shared/ui/badge', text: "Ativo", variant: :success %>
+          <% else %>
+            <%= render 'shared/ui/badge', text: "Inativo", variant: :error %>
+          <% end %>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-zinc-600 dark:text-zinc-300">Cartão</span>
+          <% if @account_config.card_enabled %>
+            <%= render 'shared/ui/badge', text: "Ativo", variant: :success %>
+          <% else %>
+            <%= render 'shared/ui/badge', text: "Inativo", variant: :error %>
+          <% end %>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-zinc-600 dark:text-zinc-300">Dinheiro</span>
+          <% if @account_config.cash_enabled %>
+            <%= render 'shared/ui/badge', text: "Ativo", variant: :success %>
+          <% else %>
+            <%= render 'shared/ui/badge', text: "Inativo", variant: :error %>
+          <% end %>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-zinc-600 dark:text-zinc-300">Fiado</span>
+          <% if @account_config.fiado_enabled %>
+            <%= render 'shared/ui/badge', text: "Ativo", variant: :success %>
+          <% else %>
+            <%= render 'shared/ui/badge', text: "Inativo", variant: :error %>
+          <% end %>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Colors Section -->
+  <!-- Preferences Section -->
   <section class="px-4 mb-6">
     <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
       <div class="flex items-center justify-between mb-4">
         <%= render 'shared/ui/heading',
-            text: "Cores",
+            text: "Preferências de venda",
             size: :md %>
-        <span class="text-sm text-zinc-500">
-          <%= @account_config.enabled_colors_list.count %> selecionadas
-        </span>
       </div>
-      
-      <div class="flex flex-wrap gap-2">
-        <% ProductVariations::COLORS.each do |color| %>
-          <div class="px-3 py-1.5 rounded-full text-sm font-medium <%= @account_config.enabled_colors_list.include?(color) ? 'bg-primary text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400' %>">
-            <%= color %>
-          </div>
-        <% end %>
+
+      <ul class="space-y-2 text-sm text-zinc-700 dark:text-zinc-200">
+        <li class="flex items-center justify-between">
+          <span>Exigir cliente em toda venda</span>
+          <% if @account_config.require_customer %>
+            <span class="text-emerald-600 dark:text-emerald-400 font-medium">Sim</span>
+          <% else %>
+            <span class="text-zinc-400 dark:text-zinc-500">Não</span>
+          <% end %>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Enviar link de pagamento automaticamente</span>
+          <% if @account_config.auto_send_payment_link %>
+            <span class="text-emerald-600 dark:text-emerald-400 font-medium">Sim</span>
+          <% else %>
+            <span class="text-zinc-400 dark:text-zinc-500">Não</span>
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Variations Section -->
+  <section class="px-4 mb-6">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-4">
+        <%= render 'shared/ui/heading',
+            text: "Variações de produto",
+            size: :md %>
+      </div>
+
+      <!-- Sizes -->
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Tamanhos disponíveis</p>
+          <span class="text-xs text-zinc-500">
+            <%= @account_config.enabled_sizes_list.count %> selecionados
+          </span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <% ProductVariations::SIZES.each do |size| %>
+            <div class="px-3 py-1.5 rounded-full text-sm font-medium <%= @account_config.enabled_sizes_list.include?(size) ? 'bg-primary text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400' %>">
+              <%= size %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Colors -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Cores disponíveis</p>
+          <span class="text-xs text-zinc-500">
+            <%= @account_config.enabled_colors_list.count %> selecionadas
+          </span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <% ProductVariations::COLORS.each do |color| %>
+            <div class="px-3 py-1.5 rounded-full text-sm font-medium <%= @account_config.enabled_colors_list.include?(color) ? 'bg-primary text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400' %>">
+              <%= color %>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
   </section>

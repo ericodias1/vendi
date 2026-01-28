@@ -1,0 +1,43 @@
+<div class="max-w-3xl mx-auto space-y-6">
+  <%= render "shared/ui/heading",
+             text: @account.name,
+             size: :xl,
+             description: "Detalhes da conta selecionada." %>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+      <div>
+        <p class="text-slate-500 mb-1">Nome da conta</p>
+        <p class="font-semibold text-slate-900"><%= @account.name %></p>
+      </div>
+      <div>
+        <p class="text-slate-500 mb-1">Slug</p>
+        <p class="font-mono text-xs text-slate-800"><%= @account.slug %></p>
+      </div>
+      <div>
+        <p class="text-slate-500 mb-1">WhatsApp</p>
+        <p class="font-semibold text-slate-900"><%= @account.whatsapp.presence || "—" %></p>
+      </div>
+      <div>
+        <p class="text-slate-500 mb-1">Timezone</p>
+        <p class="font-semibold text-slate-900"><%= @account.timezone %></p>
+      </div>
+    </div>
+
+    <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+      <%= render "shared/ui/button",
+                 text: "Voltar para lista",
+                 variant: :secondary,
+                 size: :md,
+                 href: backoffice_accounts_path %>
+
+      <%= render "shared/ui/button",
+                 text: "Entrar na conta",
+                 variant: :primary,
+                 size: :md,
+                 href: impersonate_backoffice_account_path(@account),
+                 method: :post %>
+    </div>
+  </div>
+</div>
+

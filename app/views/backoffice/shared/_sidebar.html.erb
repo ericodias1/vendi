@@ -35,12 +35,36 @@
     </button>
   </div>
 
+  <% if current_account.present? %>
+    <div class="px-6 py-3 border-b border-slate-200 bg-slate-50/60">
+      <p class="text-[11px] font-semibold tracking-wide text-slate-400 uppercase mb-1">
+        Conta atual
+      </p>
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-sm font-semibold text-slate-900 truncate">
+          <%= current_account.name %>
+        </p>
+        <% if impersonating_account? %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+            Admin
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Navigation -->
   <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
     <% sidebar_menu_items.each do |item| %>
-      <%= link_to item[:path], class: sidebar_item_classes(item, current_path) do %>
-        <%= sidebar_icon(item[:icon]) %>
-        <span><%= item[:label] %></span>
+      <% if item[:divider] %>
+        <div class="mt-4 mb-1 px-3 text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+          <%= item[:label] %>
+        </div>
+      <% else %>
+        <%= link_to item[:path], class: sidebar_item_classes(item, current_path) do %>
+          <%= sidebar_icon(item[:icon]) %>
+          <span><%= item[:label] %></span>
+        <% end %>
       <% end %>
     <% end %>
   </nav>

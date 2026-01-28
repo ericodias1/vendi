@@ -1,0 +1,42 @@
+<% if false %>
+  Report Card component
+  Usage:
+    <%= render 'backoffice/reports/shared/report_card',
+        report: { name: "Resumo do Dia", description: "...", icon: "bar_chart", path: "...", available: true } %>
+<% end %>
+
+<%
+  report = local_assigns[:report]
+  available = report[:available] != false
+  path = available ? report[:path] : "#"
+%>
+
+<%= link_to path,
+    class: "block #{available ? 'cursor-pointer hover:shadow-md transition-shadow' : 'cursor-not-allowed opacity-60'}",
+    data: available ? {} : { disabled: true } do %>
+  <%= render 'shared/ui/card', class: "h-full" do %>
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-2xl text-primary">
+          <%= report[:icon] %>
+        </span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <%= render 'shared/ui/heading', text: report[:name], size: :md, class: "mb-0" %>
+          <% unless available %>
+            <%= render 'shared/ui/badge', text: "EM BREVE", variant: :info, class: "ml-auto" %>
+          <% end %>
+        </div>
+        <p class="text-sm text-slate-600">
+          <%= report[:description] %>
+        </p>
+      </div>
+      <% if available %>
+        <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

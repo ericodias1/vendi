@@ -1,0 +1,51 @@
+<% if false %>
+  Steps component - Display numbered instruction steps
+  Usage:
+    <%= render 'shared/ui/steps',
+        title: "Como funciona",
+        steps: [
+          { title: "Baixe o modelo", description: "Obtenha o arquivo CSV padrão com as colunas necessárias." },
+          { title: "Preencha com seus itens", description: "Siga as instruções de cada coluna para evitar erros." },
+          { title: "Envie o arquivo", description: "Arraste para a zona de upload e confirme a importação." }
+        ] %>
+    
+    Or with custom wrapper class:
+    <%= render 'shared/ui/steps',
+        title: "Como funciona",
+        steps: [],
+        wrapper_class: "mb-6",
+        show_condition: "importType === 'csv'" %>
+<% end %>
+<%
+  title = local_assigns[:title] || "Como funciona"
+  steps = local_assigns[:steps] || []
+  wrapper_class = local_assigns[:wrapper_class] || "mb-6"
+  show_condition = local_assigns[:show_condition]
+  title_size = local_assigns[:title_size] || :lg
+  number_bg = local_assigns[:number_bg] || "bg-primary"
+%>
+
+<div class="<%= wrapper_class %>" <%= "x-show=\"#{show_condition}\"".html_safe if show_condition.present? %>>
+  <%= render 'shared/ui/heading',
+      text: title,
+      size: title_size,
+      class: "mb-4" %>
+  
+  <div class="space-y-4">
+    <% steps.each_with_index do |step, index| %>
+      <div class="flex gap-4">
+        <div class="w-8 h-8 rounded-full <%= number_bg %> text-white flex items-center justify-center shrink-0 font-bold text-sm">
+          <%= index + 1 %>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-slate-900 dark:text-slate-100 mb-1"><%= step[:title] %></p>
+          <% if step[:description].present? %>
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+              <%= step[:description] %>
+            </p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="max-w-5xl mx-auto space-y-6">
+  <%= render "shared/ui/heading",
+             text: "Usuários da conta",
+             size: :xl,
+             description: "Gerencie os usuários que acessam o backoffice desta conta." %>
+
+  <div class="flex justify-end">
+    <%= render "shared/ui/button",
+               text: "Novo usuário",
+               variant: :primary,
+               size: :md,
+               href: new_backoffice_user_path %>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100">
+    <% if @users.any? %>
+      <% @users.each do |user| %>
+        <div class="px-5 py-4 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-slate-900 truncate">
+              <%= user.name.presence || user.email %>
+            </p>
+            <p class="text-xs text-slate-500 truncate">
+              <%= user.email %>
+            </p>
+            <p class="text-xs text-slate-500 mt-1">
+              Papel: <%= user.role %> • Status: <%= user.active? ? "Ativo" : "Inativo" %>
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <%= render "shared/ui/button",
+                       text: "Editar",
+                       variant: :secondary,
+                       size: :sm,
+                       href: edit_backoffice_user_path(user) %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="px-5 py-6">
+        <%= render "shared/ui/empty_card",
+                   title: "Nenhum usuário cadastrado",
+                   description: "Cadastre o primeiro usuário para esta conta.",
+                   cta_text: "Novo usuário",
+                   cta_path: new_backoffice_user_path %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

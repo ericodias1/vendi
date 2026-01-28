@@ -1,0 +1,53 @@
+<%
+  form = local_assigns[:form]
+%>
+
+<div class="space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :name,
+               label: "Nome da conta",
+               type: :text,
+               required: true,
+               placeholder: "Ex: Universo Kids" %>
+
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :whatsapp,
+               label: "WhatsApp",
+               type: :text,
+               placeholder: "Ex: (11) 99999-9999" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :slug,
+               label: "Slug",
+               type: :text,
+               placeholder: "universo-kids" %>
+
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :store_type,
+               label: "Tipo de loja",
+               type: :text,
+               placeholder: "Roupa infantil" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :timezone,
+               label: "Timezone",
+               type: :text,
+               placeholder: "America/Sao_Paulo" %>
+
+    <div class="flex items-center gap-3 mt-2">
+      <%= form.check_box :active, class: "rounded border-slate-300 text-primary focus:ring-primary" %>
+      <label class="text-sm text-slate-700" for="account_active">Conta ativa</label>
+    </div>
+  </div>
+</div>
+

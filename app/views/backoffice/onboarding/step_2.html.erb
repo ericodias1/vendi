@@ -1,0 +1,111 @@
+<div class="max-w-2xl mx-auto pb-24">
+  <%= render 'shared/ui/heading',
+      text: "Personalizar",
+      size: :xl,
+      description: "Defina metas, alertas e formas de pagamento." %>
+
+  <div class="mt-6">
+    <%= form_with model: @account_config, url: complete_step_2_backoffice_onboarding_path, method: :post, local: true do |f| %>
+      <!-- Card 1: Daily Goal Slider -->
+      <div class="ios-shadow bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-100 dark:border-gray-800 mb-4"
+           data-controller="daily-goal-slider">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-primary">
+            <span class="material-symbols-outlined">trending_up</span>
+          </div>
+          <div>
+            <p class="text-[#0e121b] dark:text-white text-base font-bold leading-tight">Meta diária de vendas</p>
+            <p class="text-gray-500 dark:text-gray-400 text-xs">Quanto planeja vender hoje? Você pode alterar depois. Este número servirá como meta para o relatório diário.</p>
+          </div>
+        </div>
+
+        <div class="@container">
+          <div class="relative flex w-full flex-col items-start justify-between gap-4">
+            <div class="flex w-full items-center justify-between">
+              <p class="text-primary text-2xl font-bold leading-normal" data-daily-goal-slider-target="value"></p>
+            </div>
+
+            <div class="flex h-6 w-full items-center gap-4">
+              <!-- Wrapper sem overflow para o thumb não ser cortado -->
+              <div class="relative flex-1 h-6">
+                <!-- Track (com overflow só para o fill) -->
+                <div class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                  <div class="h-full rounded-full bg-primary" style="width: 0%;" data-daily-goal-slider-target="fill"></div>
+                </div>
+
+                <!-- Thumb (sempre acima, cor primária) -->
+                <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-6 rounded-full bg-primary border-4 border-white shadow-md z-20"
+                     style="left: 0%;"
+                     data-daily-goal-slider-target="thumb"></div>
+
+                <!-- Native range invisível por cima (captura drag/click) -->
+                <%= f.range_field :daily_goal,
+                    min: 0,
+                    max: 5000,
+                    step: 100,
+                    value: (@account_config.daily_goal.to_i.positive? ? @account_config.daily_goal.to_i : 1500),
+                    class: "absolute inset-0 w-full h-6 opacity-0 cursor-pointer z-30",
+                    data: { "daily-goal-slider-target": "range", action: "input->daily-goal-slider#update change->daily-goal-slider#update" } %>
+              </div>
+            </div>
+
+            <div class="flex justify-between w-full text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+              <span>R$ 0</span>
+              <span>R$ 5.000+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%= render 'shared/ui/card', class: "mb-4" do %>
+        <%= render 'shared/ui/heading', text: "Estoque baixo", size: :lg, class: "mb-2" %>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Quando avisar que um produto está com estoque baixo?
+        </p>
+
+        <div class="flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-[#0e1b12] dark:text-white">Quantidade mínima</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Você pode alterar isso depois.</p>
+          </div>
+
+          <div class="shrink-0">
+            <%= render 'shared/ui/stock_stepper',
+                form: f,
+                variant_id: "stock_alert_threshold",
+                input_id: "stock_alert_threshold",
+                current_value: (@account_config.stock_alert_threshold.to_i.positive? ? @account_config.stock_alert_threshold.to_i : 5),
+                field_name: :stock_alert_threshold,
+                min: 1,
+                max: 10 %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= render 'shared/ui/card', class: "mb-6" do %>
+        <%= render 'shared/ui/heading', text: "Formas de pagamento", size: :lg, class: "mb-2" %>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Marque as formas que você aceita na sua loja. Você pode alterar depois.
+        </p>
+
+        <div class="space-y-3">
+          <%= render 'shared/ui/toggle', form: f, field: :pix_enabled, label: "PIX" %>
+          <%= render 'shared/ui/toggle', form: f, field: :card_enabled, label: "Cartão" %>
+          <%= render 'shared/ui/toggle', form: f, field: :cash_enabled, label: "Dinheiro" %>
+          <%= render 'shared/ui/toggle', form: f, field: :fiado_enabled, label: "Fiado" %>
+        </div>
+      <% end %>
+
+      <div class="fixed-footer">
+        <%= render 'shared/ui/button',
+            text: "Finalizar configuração",
+            variant: :primary,
+            size: :lg,
+            type: :submit,
+            form: f,
+            class: "w-full" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

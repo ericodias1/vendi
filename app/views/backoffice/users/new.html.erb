@@ -1,0 +1,30 @@
+<div class="max-w-3xl mx-auto space-y-6">
+  <%= render "shared/ui/heading",
+             text: "Novo usuário",
+             size: :xl,
+             description: "Crie um novo usuário para acessar o backoffice desta conta." %>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-6">
+    <%= form_with model: @user,
+                  url: backoffice_users_path,
+                  local: true do |f| %>
+      <%= render "backoffice/users/form", form: f %>
+
+      <div class="mt-6 flex items-center justify-between">
+        <%= render "shared/ui/button",
+                   text: "Cancelar",
+                   variant: :secondary,
+                   size: :md,
+                   href: backoffice_users_path %>
+
+        <%= render "shared/ui/button",
+                   text: "Criar usuário",
+                   variant: :primary,
+                   size: :md,
+                   type: :submit,
+                   form: f %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

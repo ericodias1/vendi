@@ -15,8 +15,13 @@ class User < ApplicationRecord
 
   after_initialize :set_defaults, if: :new_record?
 
+  def admin?
+    self[:admin] == true
+  end
+
   def super_admin?
-    false # Para futuro, se necessário
+    # Usuários marcados como admin têm poderes de super admin no backoffice
+    respond_to?(:admin?) && admin?
   end
 
   def generate_password_reset_token!

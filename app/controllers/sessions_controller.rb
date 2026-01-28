@@ -22,6 +22,7 @@ class SessionsController < ApplicationController
 
   def destroy
     session[:user_id] = nil
+    session.delete(:impersonated_account_id)
     redirect_to login_path, notice: "Você saiu com sucesso"
   end
 end

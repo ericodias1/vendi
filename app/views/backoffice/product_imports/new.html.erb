@@ -1,0 +1,198 @@
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
+  <div class="flex items-center gap-4">
+    <%= render 'shared/ui/back_link', path: backoffice_products_path, only_icon: true %>
+    <%= render 'shared/ui/heading',
+        text: "Importar produtos",
+        size: :lg %>
+  </div>
+</header>
+
+<main class="max-w-2xl mx-auto pb-32 px-4" x-data="productImportWithSettings()">
+  <%= form_with url: backoffice_product_imports_path, method: :post, local: true, multipart: true do |f| %>
+    <!-- Escolha do tipo de importação -->
+    <div class="mb-6">
+      <%= render 'shared/ui/heading',
+          text: "Como você quer importar?",
+          size: :lg,
+          class: "mb-4" %>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- Opção CSV -->
+        <button type="button"
+                @click="importType = 'csv'"
+                :class="importType === 'csv' ? 'border-primary bg-primary-soft' : 'border-slate-200 bg-white'"
+                class="p-6 rounded-2xl border-2 transition-all text-left hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0">
+              <span class="text-white font-bold text-sm">CSV</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-1">Importar via CSV</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">
+                Use nossa planilha padrão
+              </p>
+            </div>
+            <div x-show="importType === 'csv'" class="shrink-0">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+        </button>
+
+        <!-- Opção XML -->
+        <button type="button"
+                @click="importType = 'xml'"
+                :class="importType === 'xml' ? 'border-primary bg-primary-soft' : 'border-slate-200 bg-white'"
+                class="p-6 rounded-2xl border-2 transition-all text-left hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-slate-700 dark:bg-slate-600 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-1">Importar via XML</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">
+                Nota fiscal eletrônica
+              </p>
+            </div>
+            <div x-show="importType === 'xml'" class="shrink-0">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form CSV -->
+    <div x-show="importType === 'csv'" x-transition>
+      <%= render 'import_form',
+          form: f,
+          type: "csv",
+          icon: '<span class="text-white font-bold text-sm">CSV</span>',
+          icon_bg: "bg-primary",
+          title: "Importar via CSV",
+          description: "Utilize nossa planilha padrão para importar seus dados em massa de forma rápida.",
+          download_link: {
+            url: '/modelo-importacao-produtos.csv',
+            download: 'modelo-importacao-produtos.csv',
+            text: 'Download do modelo CSV'
+          },
+          upload_type: "drag-drop",
+          file_field_name: :file,
+          accept: '.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel',
+          formats_text: ".csv, .xlsx" %>
+    </div>
+
+    <!-- Form XML -->
+    <div x-show="importType === 'xml'" x-transition>
+      <%= render 'import_form',
+          form: f,
+          type: "xml",
+          icon: '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>',
+          icon_bg: "bg-slate-700 dark:bg-slate-600",
+          title: "Importar via XML (Nota Fiscal)",
+          description: "Acelere o cadastro importando diretamente da sua nota fiscal eletrônica.",
+          upload_type: "button",
+          file_field_name: :xml_file,
+          accept: '.xml',
+          formats_text: ".xml" %>
+    </div>
+
+    <!-- Campo hidden para source_type -->
+    <%= hidden_field_tag :source_type, "", value: "", "x-model": "importType" %>
+
+    <!-- Configurações de Importação -->
+    <%= render 'shared/ui/card' do %>
+      <%= render 'shared/ui/heading',
+          text: "Configurações de importação",
+          size: :md,
+          class: "mb-4" %>
+      
+      <div class="space-y-4">
+        <!-- Gerar SKUs automaticamente -->
+        <div class="flex items-start gap-3 group">
+          <div class="flex-1">
+            <p class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors">
+              Gerar SKUs automaticamente
+            </p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Se o produto não tiver SKU, será gerado automaticamente
+            </p>
+          </div>
+          <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
+                 :class="autoGenerateSku ? 'justify-end bg-primary' : 'justify-start'">
+            <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+            <%= check_box_tag :auto_generate_sku, "1", false, class: "invisible absolute peer", "x-model": "autoGenerateSku" %>
+          </label>
+        </div>
+
+        <!-- Ignorar linhas com erro -->
+        <div class="flex items-start gap-3 group">
+          <div class="flex-1">
+            <p class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors">
+              Ignorar linhas com erro
+            </p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Importa apenas as linhas válidas. Se desmarcado, só importa se tudo estiver correto.
+            </p>
+          </div>
+          <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-all"
+                 :class="ignoreErrors ? 'justify-end bg-primary' : 'justify-start bg-gray-200 dark:bg-gray-700'">
+            <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+            <%= check_box_tag :ignore_errors, "1", true, class: "invisible absolute peer", "x-model": "ignoreErrors" %>
+          </label>
+        </div>
+
+        <!-- Não permitir nomes repetidos -->
+        <div class="flex items-start gap-3 group">
+          <div class="flex-1">
+            <p class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors">
+              Não permitir nomes repetidos
+            </p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Valida nomes duplicados e impede a importação de produtos com o mesmo nome
+            </p>
+          </div>
+          <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-all"
+                 :class="preventDuplicateNames ? 'justify-end bg-primary' : 'justify-start bg-gray-200 dark:bg-gray-700'">
+            <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+            <%= check_box_tag :prevent_duplicate_names, "1", true, class: "invisible absolute peer", "x-model": "preventDuplicateNames" %>
+          </label>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Seção: Como funciona -->
+    <div class="mt-6">
+      <%= render 'shared/ui/steps',
+          title: "Como funciona",
+          steps: [
+            { title: "Baixe o modelo", description: "Obtenha o arquivo CSV padrão com as colunas necessárias." },
+            { title: "Preencha com seus itens", description: "Siga as instruções de cada coluna para evitar erros." },
+            { title: "Envie o arquivo", description: "Arraste para a zona de upload e confirme a importação." }
+          ],
+          show_condition: "importType === 'csv'" %>
+    </div>
+
+    <!-- Botão Continuar -->
+    <div class="sticky bottom-0 bg-background-light dark:bg-background-dark pt-4 pb-6 -mx-4 px-4">
+      <%= render 'shared/ui/button',
+          text: "Continuar",
+          variant: :primary,
+          size: :lg,
+          type: :submit,
+          class: "w-full",
+          disabled: true,
+          ":disabled": "!selectedFile" %>
+      
+      <p class="text-xs text-slate-500 dark:text-slate-400 text-center mt-2" x-show="!selectedFile">
+        Selecione um arquivo para habilitar esta opção
+      </p>
+    </div>
+  <% end %>
+</main>

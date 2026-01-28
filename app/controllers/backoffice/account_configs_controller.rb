@@ -26,6 +26,18 @@ module Backoffice
 
     def account_config_params
       params.require(:account_config).permit(
+        :daily_goal,
+        :weekly_goal,
+        :monthly_goal,
+        :stock_alerts_enabled,
+        :stock_alert_threshold,
+        :high_profit_margin_threshold,
+        :pix_enabled,
+        :card_enabled,
+        :cash_enabled,
+        :fiado_enabled,
+        :require_customer,
+        :auto_send_payment_link,
         enabled_sizes: [],
         enabled_colors: []
       )

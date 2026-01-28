@@ -1,0 +1,50 @@
+<% if false %>
+  Period Filter component
+  Usage:
+    <%= render 'backoffice/reports/shared/period_filter',
+        current_period: "last_7_days",
+        base_path: request.path,
+        periods: [
+          { value: "today", label: "Hoje" },
+          { value: "last_7_days", label: "Últimos 7 dias" },
+          { value: "last_30_days", label: "Últimos 30 dias" },
+          { value: "month", label: "Este mês" }
+        ] %>
+<% end %>
+
+<%
+  current_period = local_assigns[:current_period] || "last_7_days"
+  base_path = local_assigns[:base_path] || request.path
+  periods = local_assigns[:periods] || [
+    { value: "today", label: "Hoje" },
+    { value: "last_7_days", label: "Últimos 7 dias" },
+    { value: "last_30_days", label: "Últimos 30 dias" },
+    { value: "month", label: "Este mês" },
+    { value: "custom", label: "Personalizado" }
+  ]
+  
+  # Converter periods para formato de filter_chips
+  # Se base_path é um helper do Rails (proc), usar url_for, senão construir URL manualmente
+  filters = periods.map do |period|
+    if base_path.is_a?(Proc) || base_path.is_a?(Symbol)
+      # É um helper do Rails
+      path = url_for(base_path.merge(period: period[:value]))
+    else
+      # É uma string, construir URL manualmente
+      separator = base_path.include?('?') ? '&' : '?'
+      path = "#{base_path}#{separator}period=#{period[:value]}"
+    end
+    
+    {
+      key: period[:value],
+      label: period[:label],
+      path: path
+    }
+  end
+%>
+
+<div class="mb-6">
+  <%= render 'shared/ui/filter_chips',
+      filters: filters,
+      active_filter: current_period %>
+</div>

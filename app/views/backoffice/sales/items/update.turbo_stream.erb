@@ -15,6 +15,21 @@
   <%= render 'backoffice/sales/steps/sale_summary', sale: @sale %>
 <% end %>
 
+<%= turbo_stream.update "continue_button" do %>
+  <%= render 'shared/ui/button', 
+      href: edit_backoffice_sale_details_path(@sale),
+      variant: :primary,
+      size: :lg,
+      width: "w-full",
+      class: @sale.sale_items.empty? ? 'opacity-50 cursor-not-allowed pointer-events-none' : '',
+      disabled: @sale.sale_items.empty? do %>
+    Continuar
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+  <% end %>
+<% end %>
+
 <%= turbo_stream.append "toast-container" do %>
   <%= render 'shared/ui/toast', type: :success, message: "Quantidade atualizada!" %>
 <% end %>

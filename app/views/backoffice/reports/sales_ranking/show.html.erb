@@ -1,0 +1,169 @@
+<div class="max-w-7xl mx-auto">
+  <%= render 'backoffice/reports/shared/report_header',
+      title: "Ranking por Critério" %>
+
+  <!-- Filtro de Período -->
+  <%= render 'backoffice/reports/shared/period_filter',
+      current_period: @period,
+      base_path: sales_ranking_backoffice_reports_path(criterion: @criterion, order: @order) %>
+
+  <!-- Filtros: Critério + Ordenação -->
+  <%= render 'shared/ui/card', class: "mb-6" do %>
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4">
+        <div class="w-full">
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Analisar por
+          </p>
+          <%= render 'shared/ui/filter_chips',
+              filters: [
+                { key: "category", label: "Categoria", path: sales_ranking_backoffice_reports_path(criterion: "category", period: @period, order: @order) },
+                { key: "brand", label: "Marca", path: sales_ranking_backoffice_reports_path(criterion: "brand", period: @period, order: @order) },
+                { key: "size", label: "Tamanho", path: sales_ranking_backoffice_reports_path(criterion: "size", period: @period, order: @order) },
+                { key: "color", label: "Cor", path: sales_ranking_backoffice_reports_path(criterion: "color", period: @period, order: @order) },
+                { key: "supplier", label: "Fornecedor", path: sales_ranking_backoffice_reports_path(criterion: "supplier", period: @period, order: @order) },
+                { key: "price_range", label: "Faixa de preço", path: sales_ranking_backoffice_reports_path(criterion: "price_range", period: @period, order: @order) }
+              ],
+              active_filter: @criterion %>
+        </div>
+
+        <div class="w-full">
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Ordenar ranking por
+          </p>
+          <%= render 'shared/ui/filter_chips',
+              filters: [
+                { key: "revenue", label: "Receita", path: sales_ranking_backoffice_reports_path(criterion: @criterion, period: @period, order: "revenue") },
+                { key: "qty", label: "Quantidade", path: sales_ranking_backoffice_reports_path(criterion: @criterion, period: @period, order: "qty") }
+              ],
+              active_filter: @order %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Widgets -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <%= render 'shared/ui/metric_card',
+        label: "TOTAL VENDIDO",
+        value: @widgets[:total_revenue].to_f,
+        value_type: :currency %>
+
+    <%= render 'shared/ui/metric_card',
+        label: "LUCRO TOTAL",
+        value: @widgets[:total_profit].to_f,
+        value_type: :currency %>
+
+    <%= render 'shared/ui/metric_card',
+        label: "MARGEM MÉDIA",
+        value: (@widgets[:avg_margin_pct].present? ? "#{number_with_precision(@widgets[:avg_margin_pct], precision: 1)}%" : "—") %>
+
+    <%= render 'shared/ui/metric_card',
+        label: "CRITÉRIO CAMPEÃO",
+        value: (@widgets[:champion_criterion].presence || "—") %>
+  </div>
+
+  <!-- Tabela de Ranking -->
+  <%= render 'shared/ui/card', class: "mb-6" do %>
+    <%= render 'shared/ui/heading',
+        text: "Ranking",
+        size: :lg,
+        class: "mb-4" %>
+
+    <%
+      criterion_label = case @criterion
+                        when "brand" then "Marca"
+                        when "category" then "Categoria"
+                        when "size" then "Tamanho"
+                        when "color" then "Cor"
+                        when "supplier" then "Fornecedor"
+                        when "price_range" then "Faixa de preço"
+                        else "Critério"
+                        end
+    %>
+
+    <% if @rows.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-200 dark:border-gray-800">
+              <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"><%= criterion_label %></th>
+              <th class="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qtd vendida</th>
+              <th class="text-right py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Receita</th>
+              <th class="text-right py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Custo</th>
+              <th class="text-right py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lucro</th>
+              <th class="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Margem</th>
+              <th class="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estoque atual</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            <% @rows.each do |row| %>
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <td class="py-4 px-4">
+                  <p class="text-sm font-semibold text-[#0e1b12] dark:text-white">
+                    <%= row.criterion_value %>
+                  </p>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <span class="text-sm font-semibold text-[#0e1b12] dark:text-white">
+                    <%= row.qty_sold.to_i %>
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <span class="text-sm font-semibold text-[#0e1b12] dark:text-white">
+                    <%= price_display(row.revenue.to_f) %>
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    <%= price_display(row.cost.to_f) %>
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <span class="text-sm font-bold" style="color: var(--color-vendi-green-500);">
+                    <%= price_display(row.profit.to_f) %>
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <% if row.margin_pct.present? %>
+                    <span class="text-sm font-semibold text-[#0e1b12] dark:text-white">
+                      <%= number_with_precision(row.margin_pct, precision: 1) %>%
+                    </span>
+                  <% else %>
+                    <span class="text-sm text-gray-400 dark:text-gray-500">—</span>
+                  <% end %>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <span class="text-sm font-semibold text-[#0e1b12] dark:text-white">
+                    <%= row.current_stock.to_i %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-3xl text-gray-400">tune</span>
+        </div>
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+          Nenhum dado encontrado
+        </p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Não há vendas pagas no período selecionado para montar o ranking.
+        </p>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= render 'backoffice/reports/shared/info_card',
+      title: "Como funciona este relatório?",
+      items: [
+        "O ranking considera apenas <strong>vendas pagas</strong> no período selecionado",
+        "Tamanho e cor usam a <strong>venda</strong> como referência, para não mudar no histórico",
+        "Marca, categoria e fornecedor vêm do <strong>produto atual</strong>, e podem ter sido alterados depois da venda"
+      ] %>
+</div>
+

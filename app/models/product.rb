@@ -6,6 +6,10 @@ class Product < ApplicationRecord
   has_many :stock_movements, dependent: :destroy
   has_many_attached :images
 
+  before_save :set_parameterized_name, if: :will_save_change_to_name?
+  before_save :set_parameterized_category, if: :will_save_change_to_category?
+  before_save :set_parameterized_supplier, if: :will_save_change_to_supplier?
+
   # Verificar se produto tem vendas atreladas
   def has_sales?
     stock_movements.where(movement_type: 'sale').exists?
@@ -91,6 +95,18 @@ class Product < ApplicationRecord
   end
 
   private
+
+  def set_parameterized_name
+    self.parameterized_name = name&.parameterize
+  end
+
+  def set_parameterized_category
+    self.parameterized_category = category&.parameterize
+  end
+
+  def set_parameterized_supplier
+    self.parameterized_supplier = supplier&.parameterize
+  end
 
   def set_defaults
     if new_record?

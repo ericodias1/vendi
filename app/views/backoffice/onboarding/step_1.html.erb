@@ -1,0 +1,67 @@
+<div class="max-w-2xl mx-auto pb-24">
+  <%= render 'shared/ui/heading',
+      text: "Configurar a loja",
+      size: :xl,
+      description: "Informações básicas para personalizar sua experiência." %>
+
+  <div class="mt-6">
+    <%= form_with model: @account, url: complete_step_1_backoffice_onboarding_path, method: :post, local: true do |f| %>
+      <%= render 'shared/ui/card', class: "mb-4" do %>
+        <%= render 'shared/ui/heading', text: "Dados da loja", size: :lg, class: "mb-4" %>
+
+        <%= render 'shared/ui/form_input',
+            form: f,
+            field: :name,
+            label: "Nome da loja",
+            required: true %>
+
+        <div class="mt-4">
+          <%= render 'shared/ui/phone_input',
+              form: f,
+              field: :whatsapp,
+              label: "WhatsApp",
+              placeholder: "(11) 98888-7777",
+              required: true %>
+        </div>
+
+        <div class="mt-4">
+          <%= render 'shared/ui/form_select',
+              form: f,
+              field: :store_type,
+              label: "Tipo de loja",
+              options: [
+                ["Roupa Infantil", "roupa_infantil"],
+                ["Roupa Adulta", "roupa_adulta"],
+                ["Calçados", "calcados"],
+                ["Acessórios", "acessorios"],
+                ["Outros", "outros"]
+              ],
+              prompt: "Selecione" %>
+        </div>
+      <% end %>
+
+      <%= render 'shared/ui/card', class: "mb-6" do %>
+        <%= render 'shared/ui/heading', text: "Alertas de estoque", size: :lg, class: "mb-2" %>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Ative para receber avisos quando produtos estiverem com estoque baixo.
+        </p>
+
+        <%= render 'shared/ui/toggle',
+            name: "account_config[stock_alerts_enabled]",
+            checked: @account_config.stock_alerts_enabled,
+            label: "Ativar alertas" %>
+      <% end %>
+
+      <div class="fixed-footer">
+        <%= render 'shared/ui/button',
+            text: "Continuar",
+            variant: :primary,
+            size: :lg,
+            type: :submit,
+            form: f,
+            class: "w-full" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

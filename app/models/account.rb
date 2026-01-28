@@ -11,6 +11,7 @@ class Account < ApplicationRecord
   has_many :products, dependent: :destroy
   has_many :sales, dependent: :destroy
   has_many :customers, dependent: :destroy
+  has_many :product_imports, dependent: :destroy
 
   include Discard::Model
   default_scope { kept }

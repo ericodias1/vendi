@@ -24,12 +24,24 @@ Rails.application.routes.draw do
   namespace :backoffice do
     root "dashboard#index"
 
+    resource :onboarding, only: [:show], controller: "onboarding" do
+      collection do
+        post :complete_step_1
+        post :complete_step_2
+      end
+    end
+
     resource :account_config, only: [:show, :edit, :update]
 
     resources :products, except: [] do
       resource :stock_adjustment, only: %i[edit update], controller: "products/stock_adjustments"
       collection do
         get :low_stock
+      end
+    end
+    resources :product_imports, only: [:new, :create, :show, :update] do
+      member do
+        post :process_import
       end
     end
     resources :sales, only: [:index, :show, :new, :create, :destroy] do
@@ -55,6 +67,37 @@ Rails.application.routes.draw do
         get :search
       end
     end
+
+    resources :reports, only: [:index] do
+      collection do
+        # Relatórios individuais
+        get "daily_summary", to: "reports/daily_summary#show", as: :daily_summary
+        get "top_profit", to: "reports/top_profit#show", as: :top_profit
+        get "critical_stock", to: "reports/critical_stock#show", as: :critical_stock
+        get "stagnant_products", to: "reports/stagnant_products#show", as: :stagnant_products
+        get "replenishment_suggestion", to: "reports/replenishment_suggestion#show", as: :replenishment_suggestion
+        get "sales_ranking", to: "reports/sales_ranking#show", as: :sales_ranking
+      end
+
+      # Rotas de exportação (preparar para futuro)
+      # member do
+      #   get :export_csv
+      #   get :export_pdf
+      #   post :send_email
+      # end
+    end
+
+    resources :accounts do
+      member do
+        post :impersonate
+      end
+
+      collection do
+        delete :stop_impersonation
+      end
+    end
+
+    resources :users
   end
 
   # Defines the root path route ("/")

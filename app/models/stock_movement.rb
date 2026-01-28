@@ -15,6 +15,7 @@ class StockMovement < ApplicationRecord
   validates :quantity_after, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   after_initialize :set_defaults, if: :new_record?
+  after_create :update_product_last_sold_at
 
   scope :recent, -> { order(created_at: :desc) }
   scope :by_type, ->(type) { where(movement_type: type) }
@@ -24,6 +25,16 @@ class StockMovement < ApplicationRecord
   def set_defaults
     if new_record?
       self.metadata ||= {}
+    end
+  end
+
+  def update_product_last_sold_at
+    return unless movement_type == "sale"
+    return unless product.present?
+
+    # Atualiza last_sold_at apenas se for mais recente
+    if product.last_sold_at.nil? || created_at > product.last_sold_at
+      product.update_column(:last_sold_at, created_at)
     end
   end
 end

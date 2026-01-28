@@ -13,9 +13,16 @@
     <%= render 'shared/ui/product_avatar', product: product, size: :small %>
     <div class="flex-1">
       <p class="text-base font-semibold leading-tight mb-1 text-slate-900 dark:text-white"><%= product.name %></p>
-      <% if product.size.present? || product.color.present? %>
-        <p class="text-gray-500 dark:text-gray-400 text-xs mb-2"><%= decorated_product.display_variation %></p>
-      <% end %>
+      <div class="flex flex-col gap-1 mb-2">
+        <% if product.size.present? || product.color.present? || product.sku.present? %>
+          <p class="text-gray-500 dark:text-gray-400 text-xs">
+            <%= [decorated_product.display_variation, product.sku].compact.join(" | ") %>
+          </p>
+        <% end %>
+        <% if product.base_price.present? %>
+          <p class="text-sm font-semibold text-slate-900 dark:text-white"><%= decorated_product.formatted_price %></p>
+        <% end %>
+      </div>
       <%= render 'shared/ui/badge', 
           text: decorated_product.stock_badge_text, 
           variant: decorated_product.stock_badge_variant,

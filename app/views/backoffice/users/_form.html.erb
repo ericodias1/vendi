@@ -1,0 +1,58 @@
+<%
+  form = local_assigns[:form]
+%>
+
+<div class="space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :name,
+               label: "Nome",
+               type: :text,
+               required: true %>
+
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :email,
+               label: "E-mail",
+               type: :email,
+               required: true %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :phone,
+               label: "Telefone",
+               type: :text %>
+
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :role,
+               label: "Papel",
+               type: :text,
+               placeholder: "owner ou employee" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :password,
+               label: "Senha",
+               type: :password,
+               placeholder: (form.object.persisted? ? "Deixe em branco para não alterar" : nil) %>
+
+    <%= render "shared/ui/form_input",
+               form: form,
+               field: :password_confirmation,
+               label: "Confirmação de senha",
+               type: :password,
+               placeholder: (form.object.persisted? ? "Deixe em branco para não alterar" : nil) %>
+  </div>
+
+  <div class="flex items-center gap-3 mt-2">
+    <%= form.check_box :active, class: "rounded border-slate-300 text-primary focus:ring-primary" %>
+    <label class="text-sm text-slate-700" for="user_active">Usuário ativo</label>
+  </div>
+</div>
+

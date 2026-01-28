@@ -1,0 +1,48 @@
+<% if false %>
+  Alert Card component
+  Usage:
+    <%= render 'shared/ui/alert_card', 
+        products: @low_stock_products,
+        count: @low_stock_products.count,
+        link_path: low_stock_backoffice_products_path %>
+<% end %>
+<%
+  products = local_assigns[:products] || []
+  count = local_assigns[:count] || products.count
+  link_path = local_assigns[:link_path] || "#"
+  card_class = local_assigns[:class] || ""
+  
+  return if products.empty?
+  
+  first_product = products.first
+%>
+<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 <%= card_class %>">
+  <div class="flex items-start gap-3">
+    <div class="shrink-0">
+      <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+        <span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl">warning</span>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">Alerta de estoque</p>
+      <p class="text-xs text-amber-700 dark:text-amber-300 mb-2">
+        <%= count %> <%= count == 1 ? 'item acabando' : 'itens acabando' %>
+        <% if first_product %>
+          (<%= truncate(first_product.name, length: 20) %>...)
+        <% end %>
+      </p>
+      <% if first_product&.images&.attached? %>
+        <div class="mb-2">
+          <%= image_tag first_product.images.first, 
+              alt: first_product.name, 
+              class: "w-16 h-16 object-cover rounded-lg" %>
+        </div>
+      <% end %>
+      <%= link_to link_path, 
+          class: "inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors" do %>
+        Ver itens
+        <span class="material-symbols-outlined text-sm">chevron_right</span>
+      <% end %>
+    </div>
+  </div>
+</div>

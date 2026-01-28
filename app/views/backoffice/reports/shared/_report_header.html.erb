@@ -1,0 +1,34 @@
+<% if false %>
+  Report Header component
+  Usage:
+    <%= render 'backoffice/reports/shared/report_header',
+        title: "Top Lucro",
+        back_path: backoffice_reports_path,
+        show_actions: true %>
+<% end %>
+
+<%
+  title = local_assigns[:title] || "Relatório"
+  back_path = local_assigns[:back_path] || backoffice_reports_path
+  show_actions = local_assigns.fetch(:show_actions, true)
+%>
+
+<!-- TopAppBar -->
+<header class="sticky -top-6 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md mb-4">
+  <div class="flex items-center justify-between">
+    <%= render 'shared/ui/back_link', 
+        path: back_path, 
+        class: "flex size-12 space-x-2 shrink-0 items-center justify-start cursor-pointer" %>
+    <%= render 'shared/ui/heading',
+        text: title,
+        size: :lg,
+        class: "flex-1 text-center" %>
+    <% if show_actions %>
+      <div class="flex w-12 items-center justify-end relative">
+        <%= render 'backoffice/reports/shared/export_buttons' %>
+      </div>
+    <% else %>
+      <div class="w-12"></div>
+    <% end %>
+  </div>
+</header>

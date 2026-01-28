@@ -1,0 +1,11 @@
+nome,descricao,sku,codigo_fornecedor,preco_base,preco_custo,categoria,marca,cor,tamanho,quantidade_estoque,ativo
+Vestido Floral Infantil,Confortável vestido com estampa floral para meninas,VD-FLOR-001,FORN-1234,89.90,45.00,Vestidos,Marca Kids,Rosa,P,10,sim
+Conjunto Short e Camiseta,Conjunto casual para meninos,CS-SHORT-002,FORN-1235,79.90,35.00,Conjuntos,Marca Kids,Azul,M,15,sim
+Saia Plissada,Perfeita para ocasiões especiais,SP-PLIS-003,FORN-1236,69.90,30.00,Saias,Marca Kids,Branco,G,8,sim
+Blusa Manga Longa,Blusa confortável para o inverno,,FORN-1237,59.90,25.00,Blusas,Marca Kids,Cinza,,20,sim
+Calça Jeans Infantil,Calça jeans resistente e confortável,CJ-JEANS-005,FORN-1238,99.90,50.00,Calças,Marca Kids,Azul Marinho,GG,12,sim
+Boneca de Pelúcia,Boneca macia e fofa para crianças,,FORN-1239,49.90,20.00,Brinquedos,Marca Kids,,,5,sim
+Kit de Acessórios,Kit com vários acessórios para meninas,KIT-ACC-007,FORN-1240,39.90,15.00,Acessórios,Marca Kids,Estampado,,25,sim
+Produto Sem Preço,Produto para teste sem preço definido,TEST-001,FORN-1241,,,Teste,Marca Kids,Verde,M,0,não
+Vestido de Festa,Vestido elegante para ocasiões especiais,VD-FEST-008,FORN-1242,129.90,,Vestidos,Marca Kids,Rosa,G,8,sim
+Conjunto Esportivo,Conjunto para atividades físicas,CE-ESP-009,FORN-1243,89.90,,Conjuntos,Marca Kids,Avermelhado,M,12,sim

@@ -1,0 +1,47 @@
+<% if false %>
+  Export Buttons component
+  Usage:
+    <%= render 'backoffice/reports/shared/export_buttons' %>
+<% end %>
+
+<div class="relative flex items-center gap-2" data-controller="dropdown">
+  <!-- Botão de ações -->
+  <button type="button"
+          class="flex items-center justify-center rounded-full size-12 bg-transparent text-[#0e1b12] dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          data-action="click->dropdown#toggle"
+          data-dropdown-target="button"
+          aria-label="Opções de exportação">
+    <span class="material-symbols-outlined">more_vert</span>
+  </button>
+
+  <!-- Menu dropdown -->
+  <div class="hidden absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800 py-2 z-50"
+       data-dropdown-target="menu">
+    <!-- Exportar CSV -->
+    <button type="button"
+            class="flex items-center gap-3 px-4 py-3 text-sm text-[#0e1b12] dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors w-full"
+            disabled>
+      <span class="material-symbols-outlined text-xl">download</span>
+      <span class="flex-1 text-left">Exportar CSV</span>
+      <%= render 'shared/ui/badge', text: "EM BREVE", variant: :info, class: "text-xs" %>
+    </button>
+
+    <!-- Exportar PDF -->
+    <button type="button"
+            class="flex items-center gap-3 px-4 py-3 text-sm text-[#0e1b12] dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors w-full"
+            disabled>
+      <span class="material-symbols-outlined text-xl">picture_as_pdf</span>
+      <span class="flex-1 text-left">Exportar PDF</span>
+      <%= render 'shared/ui/badge', text: "EM BREVE", variant: :info, class: "text-xs" %>
+    </button>
+
+    <!-- Enviar por Email -->
+    <button type="button"
+            class="flex items-center gap-3 px-4 py-3 text-sm text-[#0e1b12] dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors w-full"
+            disabled>
+      <span class="material-symbols-outlined text-xl">email</span>
+      <span class="flex-1 text-left">Enviar por Email</span>
+      <%= render 'shared/ui/badge', text: "EM BREVE", variant: :info, class: "text-xs" %>
+    </button>
+  </div>
+</div>

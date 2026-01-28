@@ -20,9 +20,9 @@ class ProductDecorator < ApplicationDecorator
     when :out_of_stock
       "Sem estoque"
     when :low_stock
-      "Baixo"
+      "Baixo (#{stock_quantity})"
     else
-      "Em estoque"
+      "Em estoque (#{stock_quantity})"
     end
   end
 

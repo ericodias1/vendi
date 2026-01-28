@@ -1,0 +1,53 @@
+<% if false %>
+  Metric Card component
+  Usage:
+    <%= render 'shared/ui/metric_card', 
+        label: "PEDIDOS", 
+        value: 8, 
+        change: 2,
+        change_type: :positive %>
+    <%= render 'shared/ui/metric_card', 
+        label: "TICKET MÉDIO", 
+        value: 155.06, 
+        change: 8.20,
+        change_type: :positive,
+        value_type: :currency %>
+<% end %>
+<%
+  # Backwards/forward compatibility:
+  # - allow :title as alias for :label
+  # - allow string values (e.g., already formatted text)
+  label = local_assigns[:label] || local_assigns[:title] || ""
+  value = local_assigns[:value]
+  value = 0 if value.nil?
+  change = local_assigns[:change] || 0
+  change_type = local_assigns[:change_type] || (change >= 0 ? :positive : :negative)
+  value_type = local_assigns[:value_type] || :number
+  card_class = local_assigns[:class] || ""
+  
+  # Formatar valor
+  formatted_value =
+    if value_type == :currency
+      number_to_currency(value.to_f, unit: "R$ ", separator: ",", delimiter: ".")
+    elsif value.is_a?(String)
+      value
+    else
+      value.to_i
+    end
+  
+  # Formatar mudança
+  formatted_change = if value_type == :currency
+    change >= 0 ? "+#{number_to_currency(change, unit: "R$ ", separator: ",", delimiter: ".")}" : number_to_currency(change, unit: "R$ ", separator: ",", delimiter: ".")
+  else
+    change >= 0 ? "+#{change.to_i}" : change.to_i.to_s
+  end
+  
+  change_color = change_type == :positive ? "text-green-600" : "text-red-600"
+%>
+<div class="bg-white dark:bg-[#1a2e20] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-4 <%= card_class %>">
+  <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"><%= label %></p>
+  <p class="text-2xl font-bold text-[#0e1b12] dark:text-white mb-1"><%= formatted_value %></p>
+  <% if change != 0 %>
+    <p class="text-xs font-semibold <%= change_color %>"><%= formatted_change %></p>
+  <% end %>
+</div>

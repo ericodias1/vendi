@@ -1,0 +1,22 @@
+<div class="max-w-2xl mx-auto">
+  <%= render 'shared/ui/heading',
+      text: "Bem-vindo ao Vendi Gestão",
+      size: :xl,
+      description: "Vamos deixar sua loja pronta em poucos passos." %>
+
+  <%= render 'shared/ui/card', class: "my-4" do %>
+    <%= render 'shared/ui/heading', text: "Configuração rápida", size: :lg, class: "mb-2" %>
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+      Você pode cadastrar produtos durante a venda. Não precisa preparar tudo antes.
+    </p>
+
+    <div class="mt-4">
+      <%= render 'shared/ui/button',
+          text: "Começar",
+          href: backoffice_onboarding_path(step: 1),
+          variant: :primary,
+          class: "w-full justify-center" %>
+    </div>
+  <% end %>
+</div>
+

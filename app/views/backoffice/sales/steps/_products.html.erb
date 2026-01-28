@@ -85,18 +85,20 @@
   <!-- Bottom Action Button -->
   <div class="fixed-footer">
     <%= render 'backoffice/sales/steps/sale_summary', sale: sale %>
-    <%= render 'shared/ui/button', 
-        href: edit_backoffice_sale_details_path(sale),
-        variant: :primary,
-        size: :lg,
-        width: "w-full",
-        class: sale.sale_items.empty? ? 'opacity-50 cursor-not-allowed pointer-events-none' : '',
-        disabled: sale.sale_items.empty? do %>
-      Continuar
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-    <% end %>
+    <div id="continue_button">
+      <%= render 'shared/ui/button', 
+          href: edit_backoffice_sale_details_path(sale),
+          variant: :primary,
+          size: :lg,
+          width: "w-full",
+          class: sale.sale_items.empty? ? 'opacity-50 cursor-not-allowed pointer-events-none' : '',
+          disabled: sale.sale_items.empty? do %>
+        Continuar
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      <% end %>
+    </div>
     <!-- iOS Home Indicator Spacing -->
     <div class="h-4"></div>
   </div>

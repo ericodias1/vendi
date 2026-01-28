@@ -29,8 +29,15 @@ module Backoffice
     end
 
     def new
+      # Validar que current_account existe
+      unless current_account
+        redirect_to backoffice_root_path, alert: "Conta não encontrada. Entre em contato com o suporte."
+        return
+      end
+
       # Sempre criar novo draft
       @sale = current_account.sales.with_drafts.create!(
+        account: current_account,
         user: current_user,
         status: "draft"
       )

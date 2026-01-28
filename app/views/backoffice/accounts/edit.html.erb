@@ -1,0 +1,31 @@
+<div class="max-w-3xl mx-auto space-y-6">
+  <%= render "shared/ui/heading",
+             text: "Editar conta",
+             size: :xl,
+             description: "Atualize as informações básicas da conta." %>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-6">
+    <%= form_with model: @account,
+                  url: backoffice_account_path(@account),
+                  method: :patch,
+                  local: true do |f| %>
+      <%= render "backoffice/accounts/form", form: f %>
+
+      <div class="mt-6 flex items-center justify-between">
+        <%= render "shared/ui/button",
+                   text: "Cancelar",
+                   variant: :secondary,
+                   size: :md,
+                   href: backoffice_account_path(@account) %>
+
+        <%= render "shared/ui/button",
+                   text: "Salvar alterações",
+                   variant: :primary,
+                   size: :md,
+                   type: :submit,
+                   form: f %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

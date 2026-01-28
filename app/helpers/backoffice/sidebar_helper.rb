@@ -3,7 +3,7 @@
 module Backoffice
   module SidebarHelper
     def sidebar_menu_items
-      [
+      items = [
         {
           path: backoffice_root_path,
           label: "Início",
@@ -24,10 +24,10 @@ module Backoffice
           active_paths: [backoffice_products_path, "/backoffice/products"]
         },
         {
-          path: "#",
+          path: backoffice_reports_path,
           label: "Relatórios",
           icon: "bar_chart",
-          active_paths: []
+          active_paths: [backoffice_reports_path, "/backoffice/reports"]
         },
         {
           path: backoffice_account_config_path,
@@ -36,6 +36,29 @@ module Backoffice
           active_paths: [backoffice_account_config_path, "/backoffice/account_config"]
         }
       ]
+
+      if current_user&.admin?
+        items << {
+          divider: true,
+          label: "Admin"
+        }
+
+        items << {
+          path: backoffice_accounts_path,
+          label: "Contas",
+          icon: "admin_panel_settings",
+          active_paths: [backoffice_accounts_path, "/backoffice/accounts"]
+        }
+
+        items << {
+          path: backoffice_users_path,
+          label: "Usuários",
+          icon: "group",
+          active_paths: [backoffice_users_path, "/backoffice/users"]
+        }
+      end
+
+      items
     end
 
     def sidebar_item_classes(item, current_path)
@@ -49,6 +72,8 @@ module Backoffice
     end
 
     def sidebar_item_active?(item, current_path)
+      return false if item[:divider]
+
       return false if item[:active_paths].empty?
       
       item[:active_paths].any? do |active_path|

@@ -1,0 +1,89 @@
+<div class="max-w-7xl mx-auto">
+  <%= render 'backoffice/reports/shared/report_header',
+      title: "Top Lucro" %>
+
+  <!-- Filtro de Período -->
+  <%= render 'backoffice/reports/shared/period_filter',
+      current_period: @period,
+      base_path: top_profit_backoffice_reports_path %>
+
+  <!-- Card Principal: Resumo -->
+  <%= render 'shared/ui/card', class: "mb-6" do %>
+    <%= render 'shared/ui/heading',
+        text: "Produtos com maior margem de lucro",
+        size: :lg,
+        class: "mb-4" %>
+
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      Este relatório mostra os produtos que mais geram lucro no período selecionado, ordenados por lucro total.
+      Apenas produtos com custo cadastrado são considerados no cálculo.
+    </p>
+
+    <% if @report.top_products.any? %>
+      <div class="divide-y divide-gray-100 dark:divide-gray-800 -mx-4">
+        <% @report.top_products.each_with_index do |product, index| %>
+          <div class="flex items-center px-6 gap-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <!-- Posição -->
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+              <%= index + 1 %>
+            </div>
+
+            <!-- Informações do Produto -->
+            <div class="flex-1 min-w-0">
+              <%= render 'backoffice/reports/shared/product_info',
+                  product_name: product.product_name,
+                  show_avatar: false %>
+              <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>
+                  <%= product.total_quantity.to_i %> <%= product.total_quantity.to_i == 1 ? "unidade" : "unidades" %> vendidas
+                </span>
+                <span>•</span>
+                <span>
+                  Receita: <%= price_display(product.total_revenue.to_f) %>
+                </span>
+                <% if product.margin_percentage.present? %>
+                  <span>•</span>
+                  <span class="font-semibold text-primary">
+                    Margem: <%= number_with_precision(product.margin_percentage.to_f, precision: 1) %>%
+                  </span>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Lucro Total -->
+            <div class="text-right shrink-0">
+              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                Lucro Total
+              </p>
+              <p class="text-lg font-bold" style="color: var(--color-vendi-green-500);">
+                <%= price_display(product.total_profit.to_f) %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-3xl text-gray-400">trending_up</span>
+        </div>
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+          Nenhum produto com lucro registrado
+        </p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Para aparecer neste relatório, os produtos precisam ter vendas pagas no período selecionado e custo cadastrado.
+        </p>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Card de Informações -->
+  <%= render 'backoffice/reports/shared/info_card',
+      title: "Como funciona este relatório?",
+      items: [
+        "Produtos são ordenados por <strong>lucro total</strong> (não por margem percentual)",
+        "Apenas produtos com <strong>custo cadastrado</strong> aparecem no relatório",
+        "O lucro é calculado como: <strong>(preço de venda - custo) × quantidade vendida</strong>",
+        "A margem mostra a porcentagem de lucro sobre a receita total do produto"
+      ] %>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,6 +26,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
     t.text "enabled_colors", default: [], array: true
     t.text "enabled_sizes", default: [], array: true
     t.boolean "fiado_enabled"
+    t.decimal "high_profit_margin_threshold", precision: 5, scale: 2, default: "50.0"
     t.decimal "monthly_goal", precision: 10, scale: 2
     t.boolean "pix_enabled", default: true
     t.boolean "require_customer", default: false
@@ -124,6 +125,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
     t.index ["status"], name: "index_payments_on_status"
   end
 
+  create_table "product_imports", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.boolean "auto_generate_sku", default: false, null: false
+    t.datetime "created_at", null: false
+    t.integer "failed_rows", default: 0
+    t.boolean "ignore_errors", default: true, null: false
+    t.jsonb "import_errors", default: []
+    t.text "observations"
+    t.jsonb "parsed_data", default: []
+    t.boolean "prevent_duplicate_names", default: true, null: false
+    t.integer "processed_rows", default: 0
+    t.string "source_type", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "successful_rows", default: 0
+    t.integer "total_rows"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["account_id"], name: "index_product_imports_on_account_id"
+    t.index ["source_type"], name: "index_product_imports_on_source_type"
+    t.index ["status"], name: "index_product_imports_on_status"
+    t.index ["user_id"], name: "index_product_imports_on_user_id"
+  end
+
   create_table "products", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.boolean "active", default: true, null: false
@@ -137,21 +161,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
     t.datetime "deleted_at"
     t.text "description"
     t.datetime "discarded_at"
+    t.datetime "last_sold_at"
     t.string "material"
     t.string "name", null: false
+    t.string "parameterized_category"
+    t.string "parameterized_name"
+    t.string "parameterized_supplier"
     t.integer "position"
     t.string "size"
     t.string "sku"
     t.integer "stock_quantity", default: 0, null: false
+    t.string "supplier"
     t.string "supplier_code"
     t.datetime "updated_at", null: false
+    t.index ["account_id", "parameterized_name"], name: "index_products_on_account_id_and_parameterized_name"
     t.index ["account_id", "sku"], name: "index_products_on_account_id_and_sku", unique: true, where: "(sku IS NOT NULL)"
     t.index ["account_id"], name: "index_products_on_account_id"
     t.index ["active"], name: "index_products_on_active"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
+    t.index ["last_sold_at"], name: "index_products_on_last_sold_at"
+    t.index ["parameterized_category"], name: "index_products_on_parameterized_category"
+    t.index ["parameterized_supplier"], name: "index_products_on_parameterized_supplier"
   end
 
   create_table "sale_items", force: :cascade do |t|
+    t.decimal "cost_price", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.decimal "discount_amount", precision: 10, scale: 2, default: "0.0"
     t.string "product_color"
@@ -218,6 +252,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
   create_table "users", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.boolean "active", default: true, null: false
+    t.boolean "admin", default: false, null: false
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "name"
@@ -229,6 +264,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_users_on_account_id"
     t.index ["active"], name: "index_users_on_active"
+    t.index ["admin"], name: "index_users_on_admin"
     t.index ["email", "account_id"], name: "index_users_on_email_and_account_id", unique: true
   end
 
@@ -237,6 +273,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_125304) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "customers", "accounts"
   add_foreign_key "payments", "sales"
+  add_foreign_key "product_imports", "accounts"
+  add_foreign_key "product_imports", "users"
   add_foreign_key "products", "accounts"
   add_foreign_key "sale_items", "products"
   add_foreign_key "sale_items", "sales"

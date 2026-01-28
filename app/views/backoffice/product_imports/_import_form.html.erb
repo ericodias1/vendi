@@ -1,0 +1,113 @@
+<%
+  # Parâmetros esperados:
+  # - form: objeto do form_with
+  # - type: "csv" ou "xml"
+  # - icon: conteúdo do ícone (pode ser texto ou SVG)
+  # - icon_bg: classe de background do ícone (ex: "bg-primary" ou "bg-slate-700")
+  # - title: título da seção
+  # - description: descrição da seção
+  # - download_link: hash com :url e :text (opcional, apenas para CSV)
+  # - upload_type: "drag-drop" ou "button"
+  # - file_field_name: nome do campo (ex: :file ou :xml_file)
+  # - accept: string com tipos aceitos
+  # - formats_text: texto dos formatos aceitos (ex: ".csv, .xlsx" ou ".xml")
+  
+  form = local_assigns[:form]
+  type = local_assigns[:type] || "csv"
+  icon = local_assigns[:icon]
+  icon_bg = local_assigns[:icon_bg] || "bg-primary"
+  title = local_assigns[:title]
+  description = local_assigns[:description]
+  download_link = local_assigns[:download_link]
+  upload_type = local_assigns[:upload_type] || "drag-drop"
+  file_field_name = local_assigns[:file_field_name] || :file
+  accept = local_assigns[:accept] || ".csv"
+  formats_text = local_assigns[:formats_text] || ".csv"
+  
+  input_id = "#{type}_file_input"
+%>
+
+<%= render 'shared/ui/card', class: "mb-6" do %>
+  <div class="flex items-start gap-4 mb-4">
+    <div class="w-12 h-12 rounded-xl <%= icon_bg %> flex items-center justify-center shrink-0">
+      <%= raw icon %>
+    </div>
+    <div class="flex-1">
+      <%= render 'shared/ui/heading',
+          text: title,
+          size: :lg,
+          class: "mb-2" %>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        <%= description %>
+      </p>
+      
+      <% if download_link.present? %>
+        <%= link_to download_link[:url], 
+            download: download_link[:download] || true,
+            class: "inline-flex items-center gap-2 text-primary hover:text-primary-dark font-medium text-sm mb-4" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <%= download_link[:text] %>
+        <% end %>
+      <% end %>
+
+      <% if upload_type == "drag-drop" %>
+        <!-- Área de Upload Drag & Drop -->
+        <div class="border-2 border-dashed border-primary rounded-3xl p-8 dark:bg-slate-800/50 cursor-pointer transition-colors"
+             style="background-color: var(--color-primary-soft);"
+             onmouseover="this.style.backgroundColor='var(--color-primary-light)'"
+             onmouseout="this.style.backgroundColor='var(--color-primary-soft)'"
+             @click="triggerFileInput('<%= type %>')">
+          <%= form.file_field file_field_name,
+              accept: accept,
+              class: "hidden",
+              id: input_id,
+              "@change": "handleFileSelect($event, '#{type}')" %>
+          
+          <div class="text-center">
+            <svg class="w-16 h-16 mx-auto mb-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p class="text-base font-medium text-slate-900 dark:text-slate-100 mb-1">
+              Clique ou arraste o arquivo aqui
+            </p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              Formatos aceitos: <%= formats_text %>
+            </p>
+          </div>
+        </div>
+      <% else %>
+        <!-- Botão de Upload -->
+        <div class="relative">
+          <%= form.file_field file_field_name,
+              accept: accept,
+              class: "hidden",
+              id: input_id,
+              "@change": "handleFileSelect($event, '#{type}')" %>
+          
+          <%
+            upload_button_text = "Upload #{type.upcase}"
+          %>
+          <%= render 'shared/ui/button',
+              text: upload_button_text,
+              variant: :secondary,
+              size: :md,
+              type: :button,
+              class: "w-full",
+              "@click": "triggerFileInput('#{type}')" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Nome do arquivo selecionado -->
+      <div class="mt-3 text-sm text-slate-600 dark:text-slate-400" x-show="selectedFile && importType === '<%= type %>'">
+        <span class="font-medium">Arquivo selecionado:</span>
+        <span x-text="fileName"></span>
+      </div>
+    </div>
+  </div>
+<% end %>

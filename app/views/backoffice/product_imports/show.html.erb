@@ -1,0 +1,218 @@
+<!-- Header -->
+<header class="sticky -top-6 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
+  <div class="flex items-center gap-4">
+    <%= render 'shared/ui/back_link', path: backoffice_products_path, only_icon: true %>
+    <%= render 'shared/ui/heading',
+        text: "Revisar importação",
+        size: :lg %>
+  </div>
+</header>
+
+<script>
+  window.productImportData = {
+    rows: <%= raw @product_import.parsed_data.to_json %>,
+    errors: <%= raw @product_import.import_errors.to_json %>
+  };
+</script>
+
+<main class="max-w-7xl mx-auto pb-32 px-4" x-data="productImportReview()">
+  <!-- Alerta de Conflitos de Nomes -->
+  <div class="mb-6" x-show="hasNameConflicts()" x-transition>
+    <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <div class="shrink-0">
+          <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+            <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-red-900 dark:text-red-100 mb-2">
+            ⚠️ Conflitos de nomes detectados
+          </p>
+          <p class="text-xs text-red-700 dark:text-red-300 mb-3">
+            Existem produtos com nomes duplicados na importação. Corrija os nomes antes de continuar ou desative a validação "Não permitir nomes repetidos".
+          </p>
+          <div class="space-y-2 max-h-48 overflow-y-auto">
+            <template x-for="conflict in getNameConflicts()" :key="'conflict-' + conflict.row">
+              <div class="text-xs bg-red-100 dark:bg-red-900/30 rounded p-2 border border-red-200 dark:border-red-800">
+                <span class="font-semibold text-red-900 dark:text-red-100">Linha <span x-text="conflict.row"></span>:</span>
+                <ul class="list-disc list-inside ml-2 mt-1 space-y-0.5">
+                  <template x-for="error in conflict.errors.filter(e => typeof e === 'string' && (e.includes('nome') || e.includes('Nome') || e.includes('já existe') || e.includes('duplicado')))" :key="error">
+                    <li class="text-red-700 dark:text-red-300" x-text="error"></li>
+                  </template>
+                </ul>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informações da Importação -->
+  <div class="mb-6">
+    <%= render 'shared/ui/card' do %>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Tipo de arquivo</p>
+          <p class="font-semibold text-slate-900 dark:text-slate-100"><%= @product_import.source_type.upcase %></p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Total de linhas</p>
+          <p class="font-semibold text-slate-900 dark:text-slate-100"><%= @product_import.total_rows || 0 %></p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Status</p>
+          <%= render 'shared/ui/badge',
+              text: @product_import.status_label,
+              variant: @product_import.status == 'ready' ? :success : (@product_import.status == 'failed' ? :error : :warning) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Formulário de Edição -->
+  <%= form_with model: @product_import, url: backoffice_product_import_path(@product_import), method: :patch, local: true, id: "import-form" do |f| %>
+    <!-- Tabela Editável -->
+    <div class="mb-6">
+      <%= render 'shared/ui/card' do %>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-max">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-700">
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">Nome</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[250px]">Descrição</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[120px]">SKU</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[100px]">Preço Base</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[100px]">Preço Custo</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[120px]">Categoria</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[150px]">Marca</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[120px]">Cor</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[100px]">Tamanho</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[90px]">Estoque</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[70px]">Ativo</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[150px]">Erros</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(row, index) in rows" :key="index">
+                <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    :class="{ 'bg-red-50 dark:bg-red-900/10': hasErrors(index) }">
+                  <td class="py-3 px-4 min-w-[200px]">
+                    <input type="text"
+                           x-model="row.nome"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                           required>
+                  </td>
+                  <td class="py-3 px-4 min-w-[250px]">
+                    <input type="text"
+                           x-model="row.descricao"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[120px]">
+                    <input type="text"
+                           x-model="row.sku"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[100px]">
+                    <input type="number"
+                           x-model.number="row.preco_base"
+                           step="0.01"
+                           min="0"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[100px]">
+                    <input type="number"
+                           x-model.number="row.preco_custo"
+                           step="0.01"
+                           min="0"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[120px]">
+                    <input type="text"
+                           x-model="row.categoria"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[150px]">
+                    <input type="text"
+                           x-model="row.marca"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[120px]">
+                    <input type="text"
+                           x-model="row.cor"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[100px]">
+                    <input type="text"
+                           x-model="row.tamanho"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                  </td>
+                  <td class="py-3 px-4 min-w-[90px]">
+                    <input type="number"
+                           x-model.number="row.quantidade_estoque"
+                           min="0"
+                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                           required>
+                  </td>
+                  <td class="py-3 px-4 min-w-[70px]">
+                    <label class="relative flex h-6 w-11 cursor-pointer items-center rounded-full border-none bg-slate-200 dark:bg-slate-700 p-0.5 transition-all"
+                           :class="row.ativo ? 'justify-end bg-primary' : 'justify-start'"
+                           @click="row.ativo = !row.ativo">
+                      <div class="h-5 w-5 rounded-full bg-white shadow-md transition-all"></div>
+                      <input type="checkbox" 
+                             x-model="row.ativo"
+                             class="invisible absolute peer" />
+                    </label>
+                  </td>
+                  <td class="py-3 px-4 min-w-[150px]">
+                    <template x-if="hasErrors(index)">
+                      <div class="text-xs text-red-600 dark:text-red-400">
+                        <ul class="list-disc list-inside">
+                          <template x-for="error in getErrors(index)" :key="error">
+                            <li x-text="error"></li>
+                          </template>
+                        </ul>
+                      </div>
+                    </template>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Campo hidden para parsed_data -->
+    <%= f.hidden_field :parsed_data, value: "", "x-bind:value": "JSON.stringify(rows)" %>
+
+    <!-- Botões de Ação -->
+    <div class="sticky -bottom-6 bg-background-light dark:bg-background-dark pt-4 pb-6 -mx-4 px-4 flex gap-4">
+      <%= render 'shared/ui/button',
+          text: "Salvar alterações",
+          variant: :secondary,
+          size: :lg,
+          type: :submit,
+          class: "flex-1" %>
+      
+      <% unless @product_import.status == 'completed' %>
+        <%= render 'shared/ui/button',
+            text: "Confirmar importação",
+            variant: :primary,
+            size: :lg,
+            type: :button,
+            class: "flex-1",
+            "@click": "confirmImport()" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Formulário para processar importação -->
+  <%= form_with url: process_import_backoffice_product_import_path(@product_import), method: :post, local: true, id: "process-form", style: "display: none;" do |f| %>
+    <%= hidden_field_tag :parsed_data, "", "x-bind:value": "JSON.stringify(rows)" %>
+  <% end %>
+</main>
+

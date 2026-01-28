@@ -28,6 +28,14 @@
       <span class="text-xs">Vendas</span>
     <% end %>
 
+    <%= link_to backoffice_reports_path,
+        class: "flex flex-col items-center justify-center flex-1 h-full text-slate-600 hover:text-primary transition-colors #{current_path == backoffice_reports_path || current_path.start_with?('/backoffice/reports') ? 'text-primary' : ''}" do %>
+      <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <span class="text-xs">Relatórios</span>
+    <% end %>
+
     <button type="button"
             class="flex flex-col items-center justify-center flex-1 h-full text-slate-600 hover:text-primary transition-colors"
             data-action="click->sidebar#toggle"

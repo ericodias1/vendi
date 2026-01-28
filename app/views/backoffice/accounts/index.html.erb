@@ -1,0 +1,68 @@
+<div class="max-w-5xl mx-auto space-y-6">
+  <%= render "shared/ui/heading",
+             text: "Contas",
+             size: :xl,
+             description: "Selecione uma conta de cliente para visualizar o backoffice como ela." %>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
+    <%= form_with url: backoffice_accounts_path, method: :get, local: true, class: "mb-4" do |f| %>
+      <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+        <div class="relative flex-1">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+            <span class="material-symbols-outlined text-xl">search</span>
+          </span>
+          <input type="text"
+                 name="search"
+                 value="<%= @search %>"
+                 placeholder="Buscar por nome da conta..."
+                 class="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+        </div>
+
+        <%= render "shared/ui/button",
+                   text: "Buscar",
+                   variant: :primary,
+                   size: :md,
+                   type: :submit,
+                   form: f %>
+      </div>
+    <% end %>
+
+    <% if @accounts.any? %>
+      <div class="mt-4 space-y-3">
+        <% @accounts.each do |account| %>
+          <%= render "shared/ui/card", class: "flex items-center justify-between gap-4 hover:shadow-sm transition-shadow" do %>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">
+                <%= account.name %>
+              </p>
+              <p class="text-xs text-slate-500 truncate mt-0.5">
+                WhatsApp: <%= account.whatsapp.presence || "—" %>
+              </p>
+              <p class="text-xs text-slate-500 truncate mt-0.5">
+                Slug: <%= account.slug %>
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <%= render "shared/ui/button",
+                         text: "Entrar na conta",
+                         variant: :primary,
+                         size: :sm,
+                         href: impersonate_backoffice_account_path(account),
+                         method: :post %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mt-4">
+        <%= render "shared/ui/empty_card",
+                   title: "Nenhuma conta encontrada",
+                   description: "Ajuste os filtros de busca ou verifique se já existem contas cadastradas.",
+                   cta_text: nil,
+                   cta_path: nil %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

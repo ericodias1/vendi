@@ -1,0 +1,195 @@
+<div class="max-w-7xl mx-auto">
+  <%= render 'backoffice/reports/shared/report_header',
+      title: "Estoque Crítico" %>
+
+  <!-- Filtros -->
+  <div class="mb-6">
+    <%= render 'shared/ui/filter_chips',
+        filters: [
+          { key: 'all', label: 'Todos', path: critical_stock_backoffice_reports_path(filter: 'all') },
+          { key: 'critical', label: 'Crítico', path: critical_stock_backoffice_reports_path(filter: 'critical') },
+          { key: 'low_stock', label: 'Estoque Baixo', path: critical_stock_backoffice_reports_path(filter: 'low_stock') }
+        ],
+        active_filter: @filter %>
+  </div>
+
+  <!-- Card de Insights -->
+  <% if @report.insights[:critical_count] > 0 || @report.insights[:high_profit_low_stock_count] > 0 %>
+    <%= render 'shared/ui/card', class: "mb-6" do %>
+      <%= render 'shared/ui/heading',
+          text: "Insights",
+          size: :lg,
+          class: "mb-4" %>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% if @report.insights[:critical_count] > 0 %>
+            <div class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-red-600 dark:text-red-400 text-xl">warning</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-red-900 dark:text-red-100 mb-1">
+                  Estoque Crítico
+                </p>
+                <p class="text-xs text-red-700 dark:text-red-300">
+                  <%= @report.insights[:critical_count] %> <%= @report.insights[:critical_count] == 1 ? "produto vai acabar" : "produtos vão acabar" %> em até <%= @report.insights[:critical_days_threshold] %> <%= @report.insights[:critical_days_threshold] == 1 ? "dia" : "dias" %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @report.insights[:high_profit_low_stock_count] > 0 %>
+            <div class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl">trending_up</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                  Alto Lucro com Estoque Baixo
+                </p>
+                <p class="text-xs text-amber-700 dark:text-amber-300">
+                  <%= @report.insights[:high_profit_low_stock_count] %> <%= @report.insights[:high_profit_low_stock_count] == 1 ? "produto" : "produtos" %> com margem acima de <%= number_with_precision(@report.insights[:high_profit_margin_threshold], precision: 0) %>% e estoque baixo
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+    <% end %>
+  <% end %>
+
+  <!-- Tabela de Produtos -->
+  <%= render 'shared/ui/card', class: "mb-6" do %>
+    <%= render 'shared/ui/heading',
+        text: "Produtos",
+        size: :lg,
+        class: "mb-4" %>
+
+      <% if @products.any? %>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200 dark:border-gray-800">
+                <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Produto</th>
+                <th class="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estoque</th>
+                <th class="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Venda Média/Dia</th>
+                <th class="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dias de Cobertura</th>
+                <th class="text-right py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lucro Potencial/Dia</th>
+                <th class="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ação</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              <% @products.each do |product_data| %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <!-- Produto -->
+                  <td class="py-4 px-4">
+                    <%= render 'backoffice/reports/shared/product_info',
+                        product: product_data.product,
+                        product_name: product_data.product_name %>
+                  </td>
+
+                  <!-- Estoque -->
+                  <td class="py-4 px-4 text-center">
+                    <div class="flex flex-col items-center gap-1">
+                      <span class="text-sm font-semibold text-[#0e1b12] dark:text-white">
+                        <%= product_data.stock_quantity %>
+                      </span>
+                      <%= render 'shared/ui/badge',
+                          text: product_data.stock_quantity == 0 ? "SEM ESTOQUE" : (product_data.stock_quantity <= 3 ? "BAIXO" : "OK"),
+                          variant: product_data.stock_quantity == 0 ? :error : (product_data.stock_quantity <= 3 ? :warning : :success),
+                          class: "text-[10px] font-bold uppercase tracking-wider" %>
+                    </div>
+                  </td>
+
+                  <!-- Venda Média/Dia -->
+                  <td class="py-4 px-4 text-center">
+                    <span class="text-sm font-semibold text-[#0e1b12] dark:text-white">
+                      <%= number_with_precision(product_data.avg_sales_per_day, precision: 2) %>
+                    </span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">unidades</p>
+                  </td>
+
+                  <!-- Dias de Cobertura -->
+                  <td class="py-4 px-4 text-center">
+                    <% if product_data.days_of_coverage.present? %>
+                      <div class="flex flex-col items-center gap-1">
+                        <span class="text-sm font-semibold <%= product_data.critical? ? 'text-red-600 dark:text-red-400' : 'text-[#0e1b12] dark:text-white' %>">
+                          <%= number_with_precision(product_data.days_of_coverage, precision: 1) %>
+                        </span>
+                        <% if product_data.critical? %>
+                          <%= render 'shared/ui/badge',
+                              text: "CRÍTICO",
+                              variant: :error,
+                              class: "text-[10px] font-bold uppercase tracking-wider" %>
+                        <% end %>
+                      </div>
+                    <% else %>
+                      <span class="text-sm text-gray-400 dark:text-gray-500 italic">
+                        Sem vendas recentes
+                      </span>
+                    <% end %>
+                  </td>
+
+                  <!-- Lucro Potencial/Dia -->
+                  <td class="py-4 px-4 text-right">
+                    <% if product_data.profit_per_day > 0 %>
+                      <span class="text-sm font-bold" style="color: var(--color-vendi-green-500);">
+                        <%= price_display(product_data.profit_per_day) %>
+                      </span>
+                      <% if product_data.margin_percentage.present? %>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          Margem: <%= number_with_precision(product_data.margin_percentage, precision: 1) %>%
+                        </p>
+                      <% end %>
+                    <% else %>
+                      <span class="text-sm text-gray-400 dark:text-gray-500">
+                        —
+                      </span>
+                    <% end %>
+                  </td>
+
+                  <!-- Ação -->
+                  <td class="py-4 px-4 text-center">
+                    <%= link_to backoffice_product_path(product_data.product),
+                        class: "inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline" do %>
+                      Ajustar estoque
+                      <span class="material-symbols-outlined text-sm">chevron_right</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl text-gray-400">inventory_2</span>
+          </div>
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+            Nenhum produto encontrado
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            <% if @filter == "critical" %>
+              Não há produtos com estoque crítico no momento.
+            <% elsif @filter == "low_stock" %>
+              Não há produtos com estoque baixo no momento.
+            <% else %>
+              Não há produtos para exibir.
+            <% end %>
+          </p>
+        </div>
+      <% end %>
+  <% end %>
+
+  <!-- Card de Informações -->
+  <%= render 'backoffice/reports/shared/info_card',
+      title: "Como funciona este relatório?",
+      items: [
+        "A <strong>venda média por dia</strong> é calculada com base nas vendas dos últimos 30 dias",
+        "Os <strong>dias de cobertura</strong> mostram quantos dias o estoque atual durará baseado na venda média",
+        "Um produto é considerado <strong>crítico</strong> quando os dias de cobertura são iguais ou menores que #{@report.insights[:critical_days_threshold]} dias",
+        "O <strong>lucro potencial por dia</strong> é calculado como: (preço médio de venda - custo) × venda média por dia",
+        "Produtos sem vendas nos últimos 30 dias aparecem como \"Sem vendas recentes\" e não têm cálculo de dias de cobertura",
+        "Produtos de <strong>alto lucro</strong> são aqueles com margem acima de #{number_with_precision(@report.insights[:high_profit_margin_threshold], precision: 0)}%"
+      ] %>
+</div>

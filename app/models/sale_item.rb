@@ -29,6 +29,7 @@ class SaleItem < ApplicationRecord
     self.product_size = product.size
     self.product_color = product.color
     self.product_sku = product.sku
+    self.cost_price = product.cost_price
   end
 
   def calculate_totals

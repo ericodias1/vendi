@@ -97,6 +97,7 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [x] Criar views: index, show, new, edit
 - [x] Implementar filtros (todos, estoque baixo, mais vendidos)
 - [x] Implementar paginação
+- [x] Corrigir bug de paginação (valores nil)
 
 #### 2.3 Cadastro de Produtos
 - [x] Criar formulário de cadastro (foto, nome, preço)
@@ -143,75 +144,91 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 - [x] Criar model `Customer` (migration, validações)
 - [x] Criar enums para status (draft, pending_payment, paid, cancelled)
 - [x] Implementar cálculo de totais (subtotal, desconto, total - campos básicos)
-- [ ] Implementar geração automática de número da venda
-- [ ] Criar model `Payment` (migration, validações) - se necessário para futuro
-- [ ] Definir estrutura de armazenamento de itens da venda (JSON ou tabela separada)
+- [x] Implementar geração automática de número da venda
+- [x] Criar model `Payment` (migration, validações)
+- [x] Definir estrutura de armazenamento de itens da venda (SaleItems - tabela separada)
 
 #### 3.2 Lista de Vendas
 - [x] Criar `SalesController` (index, show, new, create - básico)
 - [x] Implementar busca de vendas (Searchable concern)
-- [ ] Criar view de lista com cards de vendas
-- [ ] Implementar filtros de período (hoje, 7 dias, mês)
+- [x] Criar view de lista com cards de vendas
+- [x] Implementar filtros de período (hoje, 7 dias, mês)
+- [x] Implementar scopes no model (today, this_week, this_month, by_period)
+- [x] Mostrar drafts separadamente na listagem
 - [ ] Implementar filtros de status
 - [ ] Criar paginação
 
 #### 3.3 Detalhe da Venda
-- [ ] Criar view de detalhe completa
-- [ ] Mostrar todos os produtos vendidos (via StockMovements relacionados)
-- [ ] Mostrar resumo financeiro (subtotal, desconto, total)
-- [ ] Mostrar informações de pagamento (método, status)
-- [ ] Mostrar informações do cliente (se houver)
-- [ ] Implementar ações (Confirmar pagamento, Reenviar link, Cancelar)
+- [x] Criar view de detalhe completa
+- [x] Mostrar todos os produtos vendidos (via SaleItems)
+- [x] Mostrar resumo financeiro (subtotal, desconto, total)
+- [x] Mostrar informações de pagamento (método, status - traduzido para português)
+- [x] Mostrar informações do cliente (se houver)
+- [x] Implementar ações (Confirmar pagamento, Reenviar link, Cancelar via destroy)
 
 #### 3.4 Nova Venda - Passo 1: Selecionar Produtos
-- [ ] Criar rota `/sales/new?step=1`
-- [ ] Implementar barra de busca de produtos
-- [ ] Criar chips de produtos recentes
-- [ ] Criar lista de produtos (sem seleção de variação - produto é único)
-- [ ] Implementar stepper de quantidade
-- [ ] Criar resumo sticky no bottom (carrinho)
-- [ ] Implementar validação de estoque disponível (verifica stock_quantity do Product)
-- [ ] Salvar dados temporários na sessão
+- [x] Criar rota `/sales/:id/products/edit` (refatorado para ProductsController)
+- [x] Implementar barra de busca de produtos
+- [x] Criar chips de produtos recentes
+- [x] Criar lista de produtos com variações (ProductVariants)
+- [x] Implementar stepper de quantidade
+- [x] Criar resumo sticky no bottom (carrinho)
+- [x] Implementar validação de estoque disponível (verifica stock_quantity do Product)
+- [x] Salvar dados em draft (Sale com status draft)
 
 #### 3.5 Nova Venda - Passo 2: Forma de Pagamento
-- [ ] Criar rota `/sales/new?step=2`
-- [ ] Criar card de resumo do pedido
-- [ ] Implementar grid de formas de pagamento (PIX, Cartão, Dinheiro, Fiado)
-- [ ] Implementar campo de parcelas (se cartão)
-- [ ] Implementar toggle de desconto (valor fixo ou porcentagem)
-- [ ] Implementar toggle de adicionar cliente
-- [ ] Criar autocomplete de clientes
-- [ ] Criar modal de cadastro rápido de cliente
-- [ ] Atualizar total em tempo real
+- [x] Criar rota `/sales/:id/details/edit` (refatorado para DetailsController)
+- [x] Criar card de resumo do pedido (com imagens sobrepostas e resumo de produtos)
+- [x] Implementar grid de formas de pagamento (PIX, Cartão de Crédito, Cartão de Débito, Dinheiro, Fiado)
+- [x] Implementar toggle de desconto (valor fixo ou porcentagem) com cálculo em tempo real
+- [x] Implementar toggle de adicionar cliente
+- [x] Criar autocomplete de clientes (com Turbo Frames)
+- [x] Criar modal de cadastro rápido de cliente
+- [x] Atualizar total em tempo real (Alpine.js)
+- [x] Separar actions: update_payment, update_discount, update_customer
 
 #### 3.6 Nova Venda - Passo 3: Confirmação
-- [ ] Criar rota `/sales/new?step=3`
-- [ ] Mostrar resumo completo da venda
-- [ ] Implementar opções de finalização (link WhatsApp ou pagamento em mãos)
-- [ ] Criar service `Sales::CreateService`
-- [ ] Implementar criação de Sale (sem SaleItems - produtos são diretos na Sale)
-- [ ] Implementar decremento de estoque (atualiza stock_quantity do Product)
-- [ ] Criar StockMovements para auditoria (referencia Product diretamente)
+- [x] Criar rota `/sales/:id/finalize/edit` (refatorado para FinalizeController)
+- [x] Mostrar resumo completo da venda (itens, pagamento, cliente, totais)
+- [x] Mostrar informações do cliente (se existir)
+- [x] Implementar opções de finalização (link WhatsApp ou pagamento em mãos)
+- [x] Criar service `Backoffice::Sales::FinalizeService`
+- [x] Implementar finalização de Sale (com SaleItems)
+- [x] Implementar decremento de estoque (atualiza stock_quantity do Product)
+- [x] Criar StockMovements para auditoria (referencia Product diretamente)
 - [ ] Implementar geração de token de link de pagamento
 - [ ] Verificar alertas de estoque baixo
 - [ ] Verificar metas diárias
 
 #### 3.7 Ações de Venda
-- [ ] Implementar "Confirmar pagamento" (PATCH /sales/:id/complete)
-- [ ] Implementar "Reenviar link WhatsApp" (POST /sales/:id/send_payment_link)
-- [ ] Implementar "Cancelar venda" (PATCH /sales/:id/cancel)
-- [ ] Implementar reversão de estoque no cancelamento
-- [ ] Criar StockMovement do tipo "return"
+- [x] Implementar "Confirmar pagamento" (PATCH /sales/:id/complete)
+- [x] Implementar "Reenviar link WhatsApp" (POST /sales/:id/send_payment_link)
+- [x] Implementar "Cancelar venda" (DELETE /sales/:id via destroy)
+- [x] Implementar reversão de estoque no cancelamento
+- [x] Criar StockMovement do tipo "return"
 
 #### 3.8 Clientes
-- [ ] Criar `CustomersController` (CRUD completo)
-- [ ] Criar views: index, show, new, edit
-- [ ] Implementar busca de clientes
+- [x] Criar `CustomersController` (search, create)
+- [x] Implementar busca de clientes (com Turbo Frames)
+- [x] Criar modal de cadastro rápido de cliente (no fluxo de venda)
+- [x] Implementar validação de cliente obrigatório para pagamento em fiado
+- [ ] Criar views: index, show, new, edit (CRUD completo)
 - [ ] Implementar estatísticas do cliente (total de compras, valor gasto)
 - [ ] Criar view de histórico de compras do cliente
 
+#### 3.9 Refactoring da Arquitetura de Vendas
+- [x] Refatorar `SalesController` dividindo em controllers especializados
+- [x] Criar `ProductsController` para step 1 (seleção de produtos)
+- [x] Criar `DetailsController` para step 2 (pagamento, desconto, cliente) com actions separadas
+- [x] Criar `FinalizeController` para step 3 (confirmação)
+- [x] Adicionar scopes no model Sale (today, this_week, this_month, by_period)
+- [x] Permitir múltiplos drafts simultâneos
+- [x] Implementar cancelamento via destroy
+- [x] Renomear views de steps para padrão semântico (_products, _details, _finalize)
+
 **Estimativa:** 4 semanas
 **Prioridade:** Crítica
+**Status:** ~85% concluído
 
 ---
 
@@ -224,25 +241,30 @@ Este documento apresenta o cronograma completo de desenvolvimento da plataforma 
 #### 4.1 Dashboard
 - [x] Criar `DashboardController`
 - [x] Criar view básica do dashboard
-- [ ] Implementar query de vendas do dia
-- [ ] Criar card de "Vendas de Hoje" com valor total
-- [ ] Calcular e mostrar ticket médio
-- [ ] Criar card de "Estoque Baixo" (condicional)
-- [ ] Implementar saudação contextual (bom dia/tarde/noite)
-- [ ] Mostrar badge de meta diária
+- [x] Implementar query de vendas do dia
+- [x] Criar card de "Vendas de Hoje" com valor total
+- [x] Calcular e mostrar ticket médio
+- [x] Criar card de "Estoque Baixo" (condicional)
+- [x] Implementar saudação contextual (bom dia/tarde/noite)
+- [x] Corrigir formatação de data (mês em português)
+- [x] Mostrar badge de meta diária
 - [ ] Criar empty state quando não há vendas
 - [ ] Implementar FAB (Floating Action Button)
 - [ ] Implementar atualização em tempo real (Turbo Streams)
 
 #### 4.2 Relatórios
-- [ ] Criar `ReportsController`
-- [ ] Implementar filtros de período (hoje, 7 dias, mês, customizado)
-- [ ] Criar card principal "Total Vendido"
-- [ ] Calcular e mostrar quantidade de vendas
-- [ ] Calcular e mostrar ticket médio
+- [x] Criar `ReportsController`
+- [x] Implementar filtros de período (hoje, 7 dias, 30 dias, mês) via `BaseReportService`
+- [x] Criar estrutura base de relatórios (controllers, services, views)
+- [x] Implementar relatório "Resumo do Dia" (total vendido, quantidade, ticket médio, top produtos)
+- [x] Implementar relatório "Top Lucro" (produtos com maior margem de lucro)
+- [x] Implementar relatório "Estoque Crítico" (produtos que podem faltar)
+- [x] Implementar relatório "Produtos Parados" (dinheiro travado em estoque)
+- [x] Implementar relatório "Sugestão de Reposição" (lista de compra baseada em giro e lucro)
+- [x] Implementar relatório "Ranking por Critério" (marca, categoria, tamanho, cor, fornecedor, faixa de preço)
+- [x] Criar widgets de métricas (total vendido, lucro, margem, etc.)
+- [x] Implementar sistema de insights automáticos nos relatórios
 - [ ] Implementar comparação com período anterior
-- [ ] Criar seção "Mais Vendidos" (top 10)
-- [ ] Implementar query de produtos mais vendidos
 - [ ] Criar gráfico de vendas (Chart.js ou ApexCharts) - opcional
 
 **Estimativa:** 2 semanas
@@ -426,8 +448,8 @@ Funcionalidades que podem ser adiadas para pós-MVP:
 
 ---
 
-**Última atualização:** 2025-01-21
-**Versão:** 1.2
+**Última atualização:** 2025-01-23
+**Versão:** 1.3
 
 ## 📊 Progresso Atual
 
@@ -449,14 +471,17 @@ Funcionalidades que podem ser adiadas para pós-MVP:
 - View de detalhe do produto (show.html.erb)
 - View de ajuste de estoque (stock_adjustments/edit.html.erb)
 - Sistema de navegação responsiva (sidebar desktop, bottom nav mobile)
+- CRUD completo de produtos (index, show, new, create, edit, update, destroy)
+- Dashboard com métricas básicas (vendas do dia, ticket médio, estoque baixo)
+- Saudação contextual (bom dia/tarde/noite) com formatação de data em português
+- Paginação de produtos corrigida
 
 ### 🚧 Em Progresso
-- CRUD completo de produtos (falta edit, update, destroy)
 - Views de vendas (lista, detalhe, nova venda multi-step)
-- Dashboard com métricas reais
+- Dashboard com métricas reais (queries implementadas, falta empty state e FAB)
 
 ### 📝 Próximos Passos
-1. Completar CRUD de produtos (edit, update, destroy)
+1. Completar dashboard (empty state, FAB, atualização em tempo real)
 2. Implementar fluxo completo de vendas (3 passos)
-3. Implementar dashboard com métricas reais (vendas do dia, ticket médio, estoque baixo)
-4. Criar sistema de notificações
+3. Criar sistema de notificações
+4. Implementar relatórios básicos

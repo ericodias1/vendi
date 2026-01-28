@@ -1,0 +1,50 @@
+<% if false %>
+  Info Card component for reports
+  Usage:
+    <%= render 'backoffice/reports/shared/info_card',
+        title: "Como funciona este relatório?",
+        items: [
+          "Produtos são ordenados por lucro total",
+          "Apenas produtos com custo cadastrado aparecem"
+        ],
+        icon: "info",
+        icon_color: "blue" %>
+<% end %>
+
+<%
+  title = local_assigns[:title] || "Informações"
+  items = local_assigns[:items] || []
+  icon = local_assigns[:icon] || "info"
+  icon_color = local_assigns[:icon_color] || "blue"
+  
+  icon_color_classes = {
+    blue: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
+    green: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400",
+    orange: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400",
+    purple: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+  }
+  
+  icon_bg_class = icon_color_classes[icon_color.to_sym] || icon_color_classes[:blue]
+%>
+
+<%= render 'shared/ui/card', class: local_assigns[:class] || "mb-6" do %>
+  <div class="p-6">
+    <div class="flex items-start gap-3">
+      <div class="w-8 h-8 rounded-full <%= icon_bg_class %> flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-lg"><%= icon %></span>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-semibold text-[#0e1b12] dark:text-white mb-2">
+          <%= title %>
+        </p>
+        <% if items.any? %>
+          <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1 list-disc list-inside">
+            <% items.each do |item| %>
+              <li><%= raw item %></li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

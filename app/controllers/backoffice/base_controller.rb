@@ -2,12 +2,11 @@
 
 module Backoffice
   class BaseController < ApplicationController
-        layout "backoffice"
+    layout "backoffice"
 
     before_action :authenticate_user!
+    before_action :ensure_onboarding_completed!
     before_action :authorize_resource, if: -> { action_name != "index" }
-
-    helper_method :current_account
 
     private
 
@@ -26,8 +25,14 @@ module Backoffice
       authorize(resource) if resource.present?
     end
 
-    def current_account
-      @current_account ||= current_user&.account
+    def ensure_onboarding_completed!
+      return if current_account.blank?
+      return if current_account.onboarding_completed_at.present?
+
+      # Não bloquear o próprio fluxo de onboarding
+      return if controller_name == "onboarding"
+
+      redirect_to backoffice_onboarding_path, alert: "Vamos finalizar a configuração da sua loja antes de continuar."
     end
   end
 end

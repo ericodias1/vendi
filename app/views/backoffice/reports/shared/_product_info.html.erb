@@ -1,0 +1,34 @@
+<% if false %>
+  Product Info component for reports
+  Usage:
+    <%= render 'backoffice/reports/shared/product_info',
+        product: product_data.product,
+        product_name: product_data.product_name %>
+    
+    Or with just product:
+    <%= render 'backoffice/reports/shared/product_info',
+        product: @product %>
+<% end %>
+
+<%
+  product = local_assigns[:product]
+  product_name = local_assigns[:product_name] || product&.name
+  show_avatar = local_assigns.fetch(:show_avatar, true)
+  avatar_size = local_assigns[:avatar_size] || :small
+%>
+
+<div class="flex items-center gap-3">
+  <% if show_avatar && product.present? %>
+    <%= render 'shared/ui/product_avatar', product: product, size: avatar_size %>
+  <% end %>
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-semibold text-[#0e1b12] dark:text-white truncate">
+      <%= product_name %>
+    </p>
+    <% if product&.sku.present? %>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+        Ref: <%= product.sku %>
+      </p>
+    <% end %>
+  </div>
+</div>

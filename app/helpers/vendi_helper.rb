@@ -57,4 +57,13 @@ module VendiHelper
       "Boa noite"
     end
   end
+
+  def format_date_long(date = Date.current)
+    day_name = I18n.t("date.day_names.#{date.strftime('%A').downcase}", default: date.strftime('%A'))
+    # month_names é um array, então acessamos pelo índice
+    month_names = I18n.t("date.month_names", default: [])
+    month_name = month_names[date.month] || date.strftime('%B')
+    
+    "#{day_name}, #{date.day} de #{month_name}"
+  end
 end

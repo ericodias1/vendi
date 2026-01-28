@@ -38,7 +38,7 @@ module Backoffice
       @page = params[:page].to_i
       @page = 1 if @page < 1
       @per_page = 20
-      @total_count = @products.count
+      @total_count = @products.count || 0
       @products = @products.limit(@per_page).offset((@page - 1) * @per_page)
     end
 
@@ -114,7 +114,7 @@ module Backoffice
 
     def product_params
       permitted = params.require(:product).permit(
-        :name, :description, :sku, :base_price, :cost_price, :category, :brand, :color, :material, :active,
+        :name, :description, :sku, :base_price, :cost_price, :category, :brand, :color, :material, :supplier, :active,
         :size, :stock_quantity,
         images: []
       )
