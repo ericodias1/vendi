@@ -4,6 +4,10 @@ service: vendi
 # Name of the container image (Docker Hub: usuario/repo — deve bater com registry.username).
 image: ericodias1/vendi
 
+# How long to wait for new containers to become healthy (default 30s).
+# Rails + DB connection can take longer on cold boot.
+deploy_timeout: 90
+
 # Deploy to these servers.
 servers:
   web:
