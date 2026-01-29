@@ -1,8 +1,8 @@
 # Name of your application. Used to uniquely configure containers.
 service: vendi
 
-# Name of the container image (Docker Hub: usuario/vendi — altere "vendi" para seu usuário se necessário).
-image: vendi/vendi
+# Name of the container image (Docker Hub: usuario/repo — deve bater com registry.username).
+image: ericodias1/vendi
 
 # Deploy to these servers.
 servers:
