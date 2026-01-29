@@ -30,7 +30,7 @@
 /tmp/storage/*
 !/tmp/storage/.keep
 
-# Ignore assets.
+# Ignore assets (gerados no build).
 /node_modules/
 /app/assets/builds/*
 !/app/assets/builds/.keep
