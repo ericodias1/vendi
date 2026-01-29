@@ -90,6 +90,7 @@ production:
     database: vendi_production
     username: vendi
     password: <%= ENV["VENDI_DATABASE_PASSWORD"] %>
+    host: <%= ENV["DB_HOST"] %>
   cache:
     <<: *primary_production
     database: vendi_production_cache

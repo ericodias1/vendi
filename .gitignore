@@ -49,3 +49,5 @@ node_modules
 # Ignore key files for decrypting credentials and more.
 /config/credentials/*.key
 
+.kamal_registry_password
+.kamal_db_password
