@@ -9,14 +9,18 @@ module Backoffice
           @import_result = import_result
         end
 
-        def validate(sku)
+        def validate(sku, exclude_product_id: nil)
           return [] if sku.blank?
 
-          if @import_result.sku_already_imported?(sku)
-            return ["SKU '#{sku}' já foi usado nesta importação"]
+          unless exclude_product_id.present?
+            if @import_result.sku_already_imported?(sku)
+              return ["SKU '#{sku}' já foi usado nesta importação"]
+            end
           end
 
-          if @account.products.exists?(sku: sku)
+          scope = @account.products.where(sku: sku)
+          scope = scope.where.not(id: exclude_product_id) if exclude_product_id.present?
+          if scope.exists?
             return ["SKU '#{sku}' já existe no sistema"]
           end
 

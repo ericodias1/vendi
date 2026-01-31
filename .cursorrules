@@ -634,9 +634,15 @@ flash.now[:error] = "Erro ao processar"
 ### Cores do Vendi Gestão
 
 ```css
-/* Cores Primárias */
---color-vendi-green-500: #00D863;  /* Primary Green */
---color-vendi-green-600: #00B854;  /* Primary Green Dark (hover) */
+/* Cores Primárias - Definidas em app/javascript/stylesheets/colors.css */
+--color-primary: #10b981;       /* Primary - emerald-500 */
+--color-primary-dark: #059669;  /* Primary Dark - emerald-600 (hover) */
+--color-primary-light: #D1FAE5; /* Primary Light - para badges */
+--color-primary-soft: #ECFDF5;  /* Primary Soft - para backgrounds suaves */
+
+/* Classes Tailwind disponíveis: */
+/* bg-primary, text-primary, bg-primary-dark, text-primary-dark */
+/* bg-primary-light, bg-primary-soft */
 
 /* Badges de Estoque */
 /* EM ESTOQUE: badge-success (verde) */

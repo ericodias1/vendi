@@ -9,17 +9,21 @@ module Backoffice
           @import_result = import_result
         end
 
-        def validate(product_name, prevent_duplicates: true)
+        def validate(product_name, prevent_duplicates: true, exclude_product_id: nil)
           return [] unless prevent_duplicates
           return [] if product_name.blank?
 
           parameterized_name = product_name.parameterize
 
-          if @import_result.name_already_imported?(parameterized_name)
-            return ["Já existe um produto com o nome '#{product_name}' nesta importação"]
+          unless exclude_product_id.present?
+            if @import_result.name_already_imported?(parameterized_name)
+              return ["Já existe um produto com o nome '#{product_name}' nesta importação"]
+            end
           end
 
-          if @account.products.exists?(parameterized_name: parameterized_name)
+          scope = @account.products.where(parameterized_name: parameterized_name)
+          scope = scope.where.not(id: exclude_product_id) if exclude_product_id.present?
+          if scope.exists?
             return ["Já existe um produto com o nome '#{product_name}' no sistema"]
           end
 

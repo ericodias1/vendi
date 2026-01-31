@@ -106,6 +106,7 @@ module Backoffice
         end
 
         # Converter números
+        normalized[:id] = normalize_integer(normalized[:id])
         normalized[:preco_base] = normalize_decimal(normalized[:preco_base])
         normalized[:preco_custo] = normalize_decimal(normalized[:preco_custo])
         normalized[:quantidade_estoque] = normalize_integer(normalized[:quantidade_estoque])
@@ -179,6 +180,11 @@ module Backoffice
 
         if row_data[:preco_custo].present? && row_data[:preco_custo] < 0
           errors << "Preço de custo deve ser maior ou igual a zero"
+        end
+
+        # ID (quando presente) deve ser inteiro positivo
+        if row_data[:id].present? && row_data[:id].to_i < 1
+          errors << "ID do produto deve ser um número inteiro positivo"
         end
 
         errors

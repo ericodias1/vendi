@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_31_013407) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -18,6 +18,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
     t.bigint "account_id", null: false
     t.jsonb "additional_settings", default: {}
     t.boolean "auto_send_payment_link", default: false
+    t.boolean "automatic_pricing_enabled", default: false, null: false
+    t.decimal "automatic_pricing_markup_percent", precision: 5, scale: 2
+    t.string "automatic_pricing_rounding_mode"
+    t.boolean "automatic_pricing_use_csv_when_cost_empty", default: false, null: false
     t.boolean "card_enabled", default: true
     t.boolean "cash_enabled", default: true
     t.datetime "created_at", null: false
@@ -29,6 +33,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
     t.decimal "high_profit_margin_threshold", precision: 5, scale: 2, default: "50.0"
     t.decimal "monthly_goal", precision: 10, scale: 2
     t.boolean "pix_enabled", default: true
+    t.boolean "product_import_auto_generate_sku", default: false, null: false
+    t.boolean "product_import_ignore_errors", default: true, null: false
+    t.string "product_import_name_normalization"
+    t.boolean "product_import_prevent_duplicate_names", default: true, null: false
+    t.string "products_view_mode", default: "cards", null: false
     t.boolean "require_customer", default: false
     t.integer "stock_alert_threshold", default: 3
     t.boolean "stock_alerts_enabled", default: true
@@ -132,6 +141,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
     t.integer "failed_rows", default: 0
     t.boolean "ignore_errors", default: true, null: false
     t.jsonb "import_errors", default: []
+    t.string "import_mode", default: "create_only", null: false
+    t.string "name_normalization"
     t.text "observations"
     t.jsonb "parsed_data", default: []
     t.boolean "prevent_duplicate_names", default: true, null: false
@@ -168,6 +179,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
     t.string "parameterized_name"
     t.string "parameterized_supplier"
     t.integer "position"
+    t.bigint "product_import_id"
     t.string "size"
     t.string "sku"
     t.integer "stock_quantity", default: 0, null: false
@@ -182,6 +194,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
     t.index ["last_sold_at"], name: "index_products_on_last_sold_at"
     t.index ["parameterized_category"], name: "index_products_on_parameterized_category"
     t.index ["parameterized_supplier"], name: "index_products_on_parameterized_supplier"
+    t.index ["product_import_id"], name: "index_products_on_product_import_id"
   end
 
   create_table "sale_items", force: :cascade do |t|
@@ -276,6 +289,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_180000) do
   add_foreign_key "product_imports", "accounts"
   add_foreign_key "product_imports", "users"
   add_foreign_key "products", "accounts"
+  add_foreign_key "products", "product_imports"
   add_foreign_key "sale_items", "products"
   add_foreign_key "sale_items", "sales"
   add_foreign_key "sales", "accounts"

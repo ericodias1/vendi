@@ -30,11 +30,11 @@ export function productImport() {
   }
 }
 
-export function productImportWithSettings() {
+export function productImportWithSettings(initial = {}) {
   return {
     ...productImport(),
-    autoGenerateSku: false,
-    ignoreErrors: true,
-    preventDuplicateNames: true
+    importMode: initial.import_mode ?? 'create_only',
+    autoGenerateSku: initial.auto_generate_sku ?? false,
+    ignoreErrors: initial.ignore_errors ?? true
   }
 }

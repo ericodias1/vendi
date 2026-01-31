@@ -1,0 +1,28 @@
+<% if false %>
+  Radio option card component (cor primária da aplicação)
+  Usage:
+    <%= render 'shared/ui/radio_option',
+        name: "base_calc",
+        value: "cost",
+        label: "Preço de compra (custo)",
+        selected_expression: "!modalUseCsvWhenEmpty",
+        change_expression: "modalUseCsvWhenEmpty = false" %>
+<% end %>
+<%
+  name = local_assigns[:name] || "option"
+  value = local_assigns[:value] || ""
+  label = local_assigns[:label] || ""
+  selected_expression = local_assigns[:selected_expression]
+  change_expression = local_assigns[:change_expression]
+  wrapper_class = local_assigns[:class] || ""
+%>
+<label class="flex items-center p-4 rounded-xl cursor-pointer transition-colors border-2 <%= wrapper_class %>"
+       <% if selected_expression.present? %>:class="<%= selected_expression %> ? 'border-primary bg-primary/10 text-[#0e1b12] dark:text-white' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300'"<% end %>>
+  <input type="radio"
+         name="<%= name %>"
+         value="<%= value %>"
+         <% if selected_expression.present? %>:checked="<%= selected_expression %>"<% end %>
+         <% if change_expression.present? %>@change="<%= change_expression %>"<% end %>
+         class="w-5 h-5 border-slate-300 focus:ring-primary focus:ring-2 text-primary accent-[var(--color-primary)]" />
+  <span class="ml-3 font-medium"><%= label %></span>
+</label>

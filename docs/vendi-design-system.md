@@ -77,11 +77,11 @@ As cores devem estar disponíveis como classes Tailwind. Adicionar em `@theme` d
   --color-primary-dark: var(--color-primary-dark);
   --color-primary-light: var(--color-primary-light);
   --color-primary-soft: var(--color-primary-soft);
-  
+
   /* Backgrounds */
   --color-background-light: var(--color-bg-layout);
   --color-sidebar-bg: var(--color-sidebar-bg);
-  
+
   /* Alertas */
   --color-vendi-warning-orange: var(--color-vendi-warning-orange);
   --color-vendi-warning-light: var(--color-vendi-warning-light);
@@ -174,7 +174,7 @@ module VendiHelper
     content_tag :span,
       number_to_currency(amount, unit: "R$ ", separator: ",", delimiter: "."),
       class: size_classes[size],
-      style: "color: var(--color-vendi-green-500);"
+      style: "color: var(--color-primary);"
   end
 end
 ```
@@ -660,7 +660,7 @@ export default class extends Controller {
      class="inline-flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-full">
   <button type="button"
           data-action="click->vendi--stepper#decrement"
-          class="w-8 h-8 rounded-full border-0 bg-transparent text-vendi-green-500 text-xl font-semibold flex items-center justify-center hover:bg-vendi-green-50 transition-colors">
+          class="w-8 h-8 rounded-full border-0 bg-transparent text-primary text-xl font-semibold flex items-center justify-center hover:bg-primary-soft transition-colors">
     −
   </button>
 
@@ -681,7 +681,7 @@ export default class extends Controller {
 
   <button type="button"
           data-action="click->vendi--stepper#increment"
-          class="w-8 h-8 rounded-full border-0 bg-transparent text-vendi-green-500 text-xl font-semibold flex items-center justify-center hover:bg-vendi-green-50 transition-colors">
+          class="w-8 h-8 rounded-full border-0 bg-transparent text-primary text-xl font-semibold flex items-center justify-center hover:bg-primary-soft transition-colors">
     +
   </button>
 </div>
@@ -702,7 +702,7 @@ export default class extends Controller {
 <%= render 'shared/ui/badge', text: "SEM ESTOQUE", variant: :error %>
 
 <!-- Badge de Pagamento (customizado) -->
-<span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold uppercase bg-vendi-green-light text-vendi-green-700">
+<span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold uppercase bg-primary-light text-primary-dark">
   PIX
 </span>
 ```
@@ -786,7 +786,7 @@ export default class extends Controller {
 
 ```erb
 <div class="bg-vendi-mint-green rounded-2xl p-5 flex items-start gap-3 mb-5">
-  <svg class="w-6 h-6 text-vendi-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg class="w-6 h-6 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
   </svg>
   <div class="flex-1">
@@ -805,19 +805,19 @@ export default class extends Controller {
      class="flex gap-3 overflow-x-auto pb-2 mb-5">
   <button type="button"
           @click="activeFilter = 'all'"
-          :class="activeFilter === 'all' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-slate-600'"
+          :class="activeFilter === 'all' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600'"
           class="px-5 py-2.5 rounded-full border-0 text-sm font-medium whitespace-nowrap transition-all">
     Todos
   </button>
   <button type="button"
           @click="activeFilter = 'low'"
-          :class="activeFilter === 'low' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-slate-600'"
+          :class="activeFilter === 'low' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600'"
           class="px-5 py-2.5 rounded-full border-0 text-sm font-medium whitespace-nowrap transition-all">
     Estoque baixo
   </button>
   <button type="button"
           @click="activeFilter = 'popular'"
-          :class="activeFilter === 'popular' ? 'bg-vendi-green-500 text-white shadow-md' : 'bg-white text-slate-600'"
+          :class="activeFilter === 'popular' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-600'"
           class="px-5 py-2.5 rounded-full border-0 text-sm font-medium whitespace-nowrap transition-all">
     Mais vendidos
   </button>
@@ -831,19 +831,19 @@ export default class extends Controller {
      class="flex gap-2 mb-5">
   <button type="button"
           @click="activePeriod = 'today'"
-          :class="activePeriod === 'today' ? 'bg-vendi-green-500 text-white' : 'bg-white text-slate-600'"
+          :class="activePeriod === 'today' ? 'bg-primary text-white' : 'bg-white text-slate-600'"
           class="px-5 py-2 rounded-full border-0 text-sm font-medium transition-all">
     Hoje
   </button>
   <button type="button"
           @click="activePeriod = 'week'"
-          :class="activePeriod === 'week' ? 'bg-vendi-green-500 text-white' : 'bg-white text-slate-600'"
+          :class="activePeriod === 'week' ? 'bg-primary text-white' : 'bg-white text-slate-600'"
           class="px-5 py-2 rounded-full border-0 text-sm font-medium transition-all">
     7 dias
   </button>
   <button type="button"
           @click="activePeriod = 'month'"
-          :class="activePeriod === 'month' ? 'bg-vendi-green-500 text-white' : 'bg-white text-slate-600'"
+          :class="activePeriod === 'month' ? 'bg-primary text-white' : 'bg-white text-slate-600'"
           class="px-5 py-2 rounded-full border-0 text-sm font-medium transition-all">
     Mês
   </button>
@@ -897,7 +897,7 @@ export default class extends Controller {
     <% end %>
 
     <label for="<%= size_id %>"
-           :class="selected === '<%= size %>' ? 'border-vendi-green-500 bg-vendi-green-500 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-vendi-green-500 hover:bg-vendi-green-50'"
+           :class="selected === '<%= size %>' ? 'border-primary bg-primary text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-primary hover:bg-primary-soft'"
            :class="{ 'opacity-30 cursor-not-allowed': <%= is_disabled %> }"
            class="w-12 h-12 rounded-xl border-2 flex items-center justify-center text-base font-semibold cursor-pointer transition-all">
       <%= size %>
@@ -937,7 +937,7 @@ export default class extends Controller {
 
   <div x-data="{ checked: <%= checked %> }"
        class="relative inline-flex h-8 w-13 cursor-pointer rounded-full transition-colors"
-       :class="checked ? 'bg-vendi-green-500' : 'bg-slate-200'"
+       :class="checked ? 'bg-primary' : 'bg-slate-200'"
        @click="checked = !checked">
     <% if form %>
       <%= form.check_box field,
@@ -962,7 +962,7 @@ export default class extends Controller {
 
 ```erb
 <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
-  <div class="h-full bg-vendi-green-500 rounded-full transition-all duration-300"
+  <div class="h-full bg-primary rounded-full transition-all duration-300"
        style="width: <%= percentage %>%"></div>
 </div>
 ```
@@ -1069,7 +1069,7 @@ export default class extends Controller {
   slider_id = form ? "#{form.object_name}_#{field}" : "slider_#{field}"
 %>
 
-<div class="bg-vendi-green-500 rounded-2xl p-6 mb-5">
+<div class="bg-primary rounded-2xl p-6 mb-5">
   <div class="flex items-center gap-2 mb-1">
     <span class="text-sm font-medium text-white"><%= label %></span>
   </div>
@@ -1187,7 +1187,7 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
 ```erb
 <div class="min-h-screen flex flex-col items-center justify-center px-5 bg-slate-50">
   <!-- Logo -->
-  <div class="w-24 h-24 rounded-full bg-vendi-green-500 flex items-center justify-center mb-6">
+  <div class="w-24 h-24 rounded-full bg-primary flex items-center justify-center mb-6">
     <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
     </svg>
@@ -1204,8 +1204,8 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
   <div class="w-full max-w-md space-y-4 mb-8">
     <%= render 'shared/ui/card', class: "cursor-pointer hover:shadow-md transition-shadow" do %>
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-vendi-green-100 flex items-center justify-center">
-          <svg class="w-6 h-6 text-vendi-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center">
+          <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
         </div>
@@ -1253,7 +1253,7 @@ Usar SVG inline ou biblioteca de ícones. Exemplo com SVG Heroicons:
   <!-- Vendas Hoje -->
   <%= render 'shared/ui/card', class: "mb-5" do %>
     <div class="text-center py-8">
-      <p class="text-4xl font-bold" style="color: var(--color-vendi-green-500);">
+      <p class="text-4xl font-bold" style="color: var(--color-primary);">
         <%= price_display(@today_sales, size: :large) %>
       </p>
       <p class="text-sm text-slate-500 mt-2">
@@ -1381,7 +1381,7 @@ module VendiHelper
     content_tag :span,
       number_to_currency(amount, unit: "R$ ", separator: ",", delimiter: "."),
       class: size_classes[size],
-      style: "color: var(--color-vendi-green-500);"
+      style: "color: var(--color-primary);"
   end
 
   def stock_status_variant(product)

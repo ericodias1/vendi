@@ -37,11 +37,21 @@ Rails.application.routes.draw do
       resource :stock_adjustment, only: %i[edit update], controller: "products/stock_adjustments"
       collection do
         get :low_stock
+        get :export_csv
+        patch :update_view_mode
       end
     end
-    resources :product_imports, only: [:new, :create, :show, :update] do
+    resources :product_imports, only: [:index, :new, :create, :show, :update] do
+      collection do
+        post :calculate_prices
+      end
+      resource :pricing, only: [:show, :update], controller: "product_imports/automatic_pricing" do
+        get :close
+        post :apply
+      end
       member do
         post :process_import
+        post :revert
       end
     end
     resources :sales, only: [:index, :show, :new, :create, :destroy] do

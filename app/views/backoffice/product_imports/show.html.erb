@@ -11,11 +11,55 @@
 <script>
   window.productImportData = {
     rows: <%= raw @product_import.parsed_data.to_json %>,
-    errors: <%= raw @product_import.import_errors.to_json %>
+    errors: <%= raw @product_import.import_errors.to_json %>,
+    automatic_pricing: {
+      enabled: <%= @account_config.automatic_pricing_enabled %>,
+      markup_percent: <%= @account_config.automatic_pricing_markup_percent&.to_f || 35 %>,
+      rounding_mode: <%= raw (@account_config.automatic_pricing_rounding_mode || 'up_9_90').to_json %>,
+      use_csv_when_cost_empty: <%= @account_config.automatic_pricing_use_csv_when_cost_empty %>
+    }
   };
 </script>
+<%= tag.script(
+  @product_import.parsed_data.to_json.html_safe,
+  type: "application/json",
+  id: "import-rows-data"
+) %>
+<script>
+  document.addEventListener("turbo:before-stream-render", function(event) {
+    var newStream = event.detail.newStream;
+    var targetId = newStream.getAttribute ? newStream.getAttribute("target") : null;
+    if (targetId === "import-rows-data") {
+      var originalRender = event.detail.render;
+      event.detail.render = function(currentElement) {
+        var p = originalRender(currentElement);
+        if (p && p.then) {
+          return p.then(function() {
+            var el = document.getElementById("import-rows-data");
+            if (el && el.textContent && window.Alpine) {
+              try {
+                var newRows = JSON.parse(el.textContent);
+                var main = document.getElementById("import-review-main");
+                if (main && Alpine.$data(main)) Alpine.$data(main).rows = newRows;
+              } catch (e) {}
+            }
+          });
+        }
+        var el = document.getElementById("import-rows-data");
+        if (el && el.textContent && window.Alpine) {
+          try {
+            var newRows = JSON.parse(el.textContent);
+            var main = document.getElementById("import-review-main");
+            if (main && Alpine.$data(main)) Alpine.$data(main).rows = newRows;
+          } catch (e) {}
+        }
+        return p;
+      };
+    }
+  });
+</script>
 
-<main class="max-w-7xl mx-auto pb-32 px-4" x-data="productImportReview()">
+<main id="import-review-main" class="max-w-7xl mx-auto pb-32 px-4" x-data="productImportReview()">
   <!-- Alerta de Conflitos de Nomes -->
   <div class="mb-6" x-show="hasNameConflicts()" x-transition>
     <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-xl p-4">
@@ -32,7 +76,7 @@
             ⚠️ Conflitos de nomes detectados
           </p>
           <p class="text-xs text-red-700 dark:text-red-300 mb-3">
-            Existem produtos com nomes duplicados na importação. Corrija os nomes antes de continuar ou desative a validação "Não permitir nomes repetidos".
+            Existem produtos com nomes duplicados na importação. Corrija os nomes antes de continuar.
           </p>
           <div class="space-y-2 max-h-48 overflow-y-auto">
             <template x-for="conflict in getNameConflicts()" :key="'conflict-' + conflict.row">
@@ -72,6 +116,50 @@
       </div>
     <% end %>
   </div>
+
+  <!-- Precificação automática -->
+  <div class="mt-4 mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm"
+       x-data
+       x-show="true">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex flex-col">
+        <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">Precificação automática</span>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-tight pr-4">Preencha o preço de venda com base no custo + markup e arredondamento.</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox"
+               class="sr-only peer"
+               x-model="automaticPricingEnabled" />
+        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+      </label>
+    </div>
+    <template x-if="automaticPricingEnabled">
+      <div>
+        <div class="flex flex-wrap gap-2 items-center pt-3 border-t border-slate-100 dark:border-slate-800">
+          <%= link_to backoffice_product_import_pricing_path(@product_import),
+              data: { turbo_frame: "pricing_modal_placeholder" },
+              class: "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300 no-underline" do %>
+            <span class="material-symbols-outlined text-sm">settings</span>
+            Configurar
+          <% end %>
+          <%= button_to apply_backoffice_product_import_pricing_path(@product_import, format: :turbo_stream),
+              method: :post,
+              class: "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border-0 cursor-pointer" do %>
+            <span class="material-symbols-outlined text-sm">auto_fix_high</span>
+            Aplicar na tabela
+          <% end %>
+        </div>
+        <div x-show="pricingConfig.markup_percent != null && pricingConfig.rounding_mode"
+             class="mt-3 flex items-center gap-2 text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+          <span class="material-symbols-outlined text-sm text-primary">info</span>
+          <span>Markup: <strong class="text-slate-700 dark:text-slate-300" x-text="pricingConfig.markup_percent + '%'"></strong> · Arred.: <strong class="text-slate-700 dark:text-slate-300" x-text="roundingModeLabel(pricingConfig.rounding_mode)"></strong></span>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Modal de precificação (carregado no frame ao clicar em "Configurar") -->
+  <%= turbo_frame_tag "pricing_modal_placeholder" %>
 
   <!-- Formulário de Edição -->
   <%= form_with model: @product_import, url: backoffice_product_import_path(@product_import), method: :patch, local: true, id: "import-form" do |f| %>
@@ -117,11 +205,16 @@
                            class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
                   </td>
                   <td class="py-3 px-4 min-w-[100px]">
-                    <input type="number"
-                           x-model.number="row.preco_base"
-                           step="0.01"
-                           min="0"
-                           class="w-full px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <input type="number"
+                             x-model.number="row.preco_base"
+                             step="0.01"
+                             min="0"
+                             class="w-full min-w-0 px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary">
+                      <span x-show="row.preco_base_auto || row._auto_price"
+                            class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300"
+                            style="display: none;">AUTO</span>
+                    </div>
                   </td>
                   <td class="py-3 px-4 min-w-[100px]">
                     <input type="number"
@@ -186,8 +279,8 @@
       <% end %>
     </div>
 
-    <!-- Campo hidden para parsed_data -->
-    <%= f.hidden_field :parsed_data, value: "", "x-bind:value": "JSON.stringify(rows)" %>
+    <!-- Campo hidden para parsed_data (sem flags _auto_price / _cost_invalid) -->
+    <%= f.hidden_field :parsed_data, value: "", "x-bind:value": "JSON.stringify(rowsForSubmit())" %>
 
     <!-- Botões de Ação -->
     <div class="sticky -bottom-6 bg-background-light dark:bg-background-dark pt-4 pb-6 -mx-4 px-4 flex gap-4">
@@ -212,7 +305,7 @@
 
   <!-- Formulário para processar importação -->
   <%= form_with url: process_import_backoffice_product_import_path(@product_import), method: :post, local: true, id: "process-form", style: "display: none;" do |f| %>
-    <%= hidden_field_tag :parsed_data, "", "x-bind:value": "JSON.stringify(rows)" %>
+    <%= hidden_field_tag :parsed_data, "", "x-bind:value": "JSON.stringify(rowsForSubmit())" %>
   <% end %>
 </main>
 

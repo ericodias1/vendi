@@ -43,21 +43,24 @@ module Backoffice
         # Validar erros de parsing se ignore_errors=false
         return false if should_fail_due_to_parsing_errors?
 
-        # Validar duplicatas no CSV se prevent_duplicate_names=true
-        duplicate_errors = ValidateImportDataService.new(product_import: @product_import).call
+        # Recalcular e verificar erros de duplicata de nome (modo create_only)
+        duplicate_errors = calculate_duplicate_name_errors
         if duplicate_errors.any?
           if @product_import.ignore_errors
-            # Adicionar erros mas continuar
-            @product_import.update(import_errors: @product_import.import_errors + duplicate_errors)
+            # Salvar erros e continuar
+            @product_import.update(import_errors: duplicate_errors)
           else
-            # Falhar completamente
+            # Falhar completamente - salvar erros E status em um único update
             errors.add(:base, "Existem nomes duplicados no arquivo. Corrija antes de importar.")
             @product_import.update(
-              import_errors: @product_import.import_errors + duplicate_errors,
+              import_errors: duplicate_errors,
               status: 'failed'
             )
             return false
           end
+        else
+          # Limpar erros de duplicata antigos se não há mais duplicatas
+          clean_duplicate_errors
         end
 
         # Inicializar componentes
@@ -102,6 +105,57 @@ module Backoffice
 
         # Finalizar importação
         finalize_import(import_result)
+      end
+
+      def calculate_duplicate_name_errors
+        return [] unless @product_import.create_only?
+        return [] unless @product_import.parsed_data.present?
+
+        name_map = {}
+        @product_import.parsed_data.each_with_index do |row_data, index|
+          product_name = row_data['nome'] || row_data[:nome]
+          next unless product_name.present?
+
+          parameterized_name = product_name.to_s.strip.downcase
+          name_map[parameterized_name] ||= []
+          name_map[parameterized_name] << { row: index + 1, name: product_name, data: row_data }
+        end
+
+        duplicate_errors = []
+        name_map.each do |_name, entries|
+          next if entries.length <= 1
+
+          entries.each do |entry|
+            other_rows = entries.reject { |e| e[:row] == entry[:row] }
+            other_rows_text = other_rows.map { |e| e[:row] }.join(", ")
+
+            duplicate_errors << {
+              'row' => entry[:row],
+              'data' => entry[:data],
+              'errors' => ["Nome duplicado: \"#{entry[:name]}\" (também na linha #{other_rows_text})"]
+            }
+          end
+        end
+
+        duplicate_errors
+      end
+
+      def clean_duplicate_errors
+        cleaned = (@product_import.import_errors || []).reject do |error|
+          next false unless error.is_a?(Hash)
+
+          error_list = error['errors'] || error[:errors]
+          next false unless error_list.is_a?(Array)
+
+          error_list.all? do |err|
+            err.is_a?(String) && (
+              err.downcase.include?('nome duplicado') ||
+              err.downcase.include?('também na linha')
+            )
+          end
+        end
+
+        @product_import.update(import_errors: cleaned) if cleaned != @product_import.import_errors
       end
 
       def should_fail_due_to_parsing_errors?

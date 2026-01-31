@@ -19,13 +19,17 @@
     <% end %>
     <!-- Desktop Buttons (top right) -->
     <div class="hidden md:flex items-center gap-2 shrink-0">
+      <%= render 'shared/ui/view_mode_selector',
+          current_mode: @account_config&.products_view_mode || "cards",
+          cards_path: update_view_mode_backoffice_products_path(view_mode: 'cards', filter: params[:filter], search: params[:search], page: params[:page]),
+          table_path: update_view_mode_backoffice_products_path(view_mode: 'table', filter: params[:filter], search: params[:search], page: params[:page]) %>
       <%= render 'shared/ui/button',
           text: "",
           variant: :secondary,
           size: :md,
-          href: new_backoffice_product_import_path,
+          href: backoffice_product_imports_path,
           class: "items-center gap-2" do %>
-        <span class="material-symbols-outlined">upload</span>
+        <span class="material-symbols-outlined">upload_file</span>
         <span>Importar</span>
       <% end %>
       <%= render 'shared/ui/button',
@@ -52,11 +56,13 @@
 
 <!-- Product List -->
 <% if @products.any? %>
-  <div class="space-y-3 pb-32">
-    <% @products.each do |product| %>
-      <%= render 'shared/ui/product_card', product: product %>
-    <% end %>
-  </div>
+  <% view_mode = @account_config&.products_view_mode || "cards" %>
+  
+  <% if view_mode == "table" %>
+    <%= render 'products_table', products: @products %>
+  <% else %>
+    <%= render 'products_cards', products: @products %>
+  <% end %>
   
   <!-- Paginação -->
   <% if (@total_count || 0) > (@per_page || 20) %>
@@ -94,13 +100,32 @@
       cta_path: new_backoffice_product_path %>
 <% end %>
 
-<!-- Mobile Floating Action Button (bottom center) -->
-<%= render 'shared/ui/button',
-    text: "",
-    variant: :primary,
-    size: :lg,
-    href: new_backoffice_product_path,
-    class: "fixed bottom-24 left-0 right-0 flex justify-center px-4 z-40 max-w-md mx-auto w-full md:!hidden" do %>
-  <span class="material-symbols-outlined">add_circle</span>
-  <span>Novo produto</span>
-<% end %>
+<!-- Mobile FAB with Dropdown -->
+<% current_view_mode = @account_config&.products_view_mode || "cards" %>
+<%= render 'shared/ui/fab_dropdown', items: [
+  { 
+    icon: 'add_circle', 
+    label: 'Novo produto', 
+    href: new_backoffice_product_path 
+  },
+  { 
+    icon: 'upload_file', 
+    label: 'Importar produtos', 
+    href: backoffice_product_imports_path 
+  },
+  { divider: true },
+  { 
+    icon: 'grid_view', 
+    label: 'Ver em cards', 
+    href: update_view_mode_backoffice_products_path(view_mode: 'cards', filter: params[:filter], search: params[:search], page: params[:page]),
+    method: :patch,
+    active: current_view_mode == 'cards'
+  },
+  { 
+    icon: 'view_list', 
+    label: 'Ver em tabela', 
+    href: update_view_mode_backoffice_products_path(view_mode: 'table', filter: params[:filter], search: params[:search], page: params[:page]),
+    method: :patch,
+    active: current_view_mode == 'table'
+  }
+] %>

@@ -148,6 +148,52 @@
       </div>
     </section>
 
+    <!-- Import Section -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <%= render 'shared/ui/heading',
+              text: "Importação de produtos",
+              size: :md %>
+        </div>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+          Valores padrão usados na tela de nova importação. Podem ser alterados a cada importação.
+        </p>
+        <div class="space-y-3">
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :product_import_auto_generate_sku,
+              label: "Gerar SKUs automaticamente",
+              hint: "Se o produto não tiver SKU, será gerado automaticamente." %>
+
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :product_import_ignore_errors,
+              label: "Ignorar linhas com erro",
+              hint: "Importa apenas as linhas válidas. Se desmarcado, só importa se tudo estiver correto." %>
+
+          <%= render 'shared/ui/toggle',
+              form: f,
+              field: :product_import_prevent_duplicate_names,
+              label: "Não permitir nomes repetidos",
+              hint: "Valida nomes duplicados e impede a importação de produtos com o mesmo nome." %>
+
+          <%= render 'shared/ui/form_select',
+              form: f,
+              field: :product_import_name_normalization,
+              label: "Normalizar nome do produto",
+              options: [
+                ["Manter como no CSV", "none"],
+                ["Todas maiúsculas", "uppercase"],
+                ["Primeira letra maiúscula", "sentence"],
+                ["Título (cada palavra maiúscula)", "title"]
+              ],
+              prompt: "Manter como no CSV",
+              hint: "Aplica esta formatação ao nome de cada produto ao importar." %>
+        </div>
+      </div>
+    </section>
+
     <!-- Sizes Section -->
     <section class="px-4 mb-6">
       <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">

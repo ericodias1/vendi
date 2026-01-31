@@ -21,7 +21,7 @@
       <div class="flex justify-between items-start">
         <h4 class="font-bold text-[#0e1b12] dark:text-white flex-1"><%= product.name %></h4>
         <div class="flex items-center gap-2">
-          <span class="font-bold text-primary" style="color: var(--color-vendi-green-500);">
+          <span class="font-bold text-primary" style="color: var(--color-primary);">
             <%= number_to_currency(item.unit_price, unit: "R$ ", separator: ",", delimiter: ".") %>
           </span>
           <% sale_obj = local_assigns[:sale] || @sale %>
@@ -69,14 +69,14 @@
         <%= f.hidden_field :quantity, value: [item.quantity - 1, 1].max, id: "quantity_#{item.id}_decrement" %>
         <button type="submit" 
                 class="text-primary font-bold text-xl leading-none" 
-                style="color: var(--color-vendi-green-500);">－</button>
+                style="color: var(--color-primary);">－</button>
       <% end %>
       <span class="text-base font-bold min-w-[20px] text-center" id="item_quantity_<%= item.id %>"><%= item.quantity %></span>
       <%= form_with url: backoffice_sale_item_path(sale_obj, item), method: :patch, local: false, data: { turbo_frame: "_top" } do |f| %>
         <%= f.hidden_field :quantity, value: item.quantity + 1, id: "quantity_#{item.id}_increment" %>
         <button type="submit" 
                 class="text-primary font-bold text-xl leading-none" 
-                style="color: var(--color-vendi-green-500);">＋</button>
+                style="color: var(--color-primary);">＋</button>
       <% end %>
     </div>
   </div>

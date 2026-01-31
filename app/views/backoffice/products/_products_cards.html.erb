@@ -1,0 +1,9 @@
+<%
+  products = local_assigns[:products]
+%>
+
+<div class="space-y-3 pb-32">
+  <% products.each do |product| %>
+    <%= render 'shared/ui/product_card', product: product %>
+  <% end %>
+</div>

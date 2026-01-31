@@ -1,5 +1,5 @@
 <!-- Header -->
-<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
+<header class="sticky -top-6 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
   <div class="flex items-center gap-4">
     <%= render 'shared/ui/back_link', path: backoffice_products_path, only_icon: true %>
     <%= render 'shared/ui/heading',
@@ -8,7 +8,7 @@
   </div>
 </header>
 
-<main class="max-w-2xl mx-auto pb-32 px-4" x-data="productImportWithSettings()">
+<main class="max-w-2xl mx-auto pb-32 px-4" x-data='productImportWithSettings(<%= @import_defaults.to_json %>)'>
   <%= form_with url: backoffice_product_imports_path, method: :post, local: true, multipart: true do |f| %>
     <!-- Escolha do tipo de importação -->
     <div class="mb-6">
@@ -84,8 +84,8 @@
           },
           upload_type: "drag-drop",
           file_field_name: :file,
-          accept: '.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel',
-          formats_text: ".csv, .xlsx" %>
+          accept: '.csv',
+          formats_text: ".csv" %>
     </div>
 
     <!-- Form XML -->
@@ -105,6 +105,37 @@
 
     <!-- Campo hidden para source_type -->
     <%= hidden_field_tag :source_type, "", value: "", "x-model": "importType" %>
+
+    <!-- Modo de Importação -->
+    <%= render 'shared/ui/card', class: "mb-4" do %>
+      <%= render 'shared/ui/heading',
+          text: "Modo de importação",
+          size: :md,
+          class: "mb-4" %>
+      
+      <div class="space-y-3">
+        <%= render 'shared/ui/radio_option',
+            name: "import_mode",
+            value: "create_only",
+            label: "Adicionar novos produtos",
+            selected_expression: "importMode === 'create_only'",
+            change_expression: "importMode = 'create_only'" %>
+        
+        <%= render 'shared/ui/radio_option',
+            name: "import_mode",
+            value: "update_only",
+            label: "Atualizar base existente",
+            selected_expression: "importMode === 'update_only'",
+            change_expression: "importMode = 'update_only'" %>
+      </div>
+      
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-3" x-show="importMode === 'create_only'">
+        Todos os produtos do CSV serão criados como novos. A coluna ID é ignorada.
+      </p>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-3" x-show="importMode === 'update_only'">
+        Use o CSV exportado da base. Produtos serão atualizados pelo ID interno.
+      </p>
+    <% end %>
 
     <!-- Configurações de Importação -->
     <%= render 'shared/ui/card' do %>
@@ -127,7 +158,7 @@
           <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
                  :class="autoGenerateSku ? 'justify-end bg-primary' : 'justify-start'">
             <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
-            <%= check_box_tag :auto_generate_sku, "1", false, class: "invisible absolute peer", "x-model": "autoGenerateSku" %>
+            <%= check_box_tag :auto_generate_sku, "1", @account_config.product_import_auto_generate_sku?, class: "invisible absolute peer", "x-model": "autoGenerateSku" %>
           </label>
         </div>
 
@@ -144,25 +175,29 @@
           <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-all"
                  :class="ignoreErrors ? 'justify-end bg-primary' : 'justify-start bg-gray-200 dark:bg-gray-700'">
             <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
-            <%= check_box_tag :ignore_errors, "1", true, class: "invisible absolute peer", "x-model": "ignoreErrors" %>
+            <%= check_box_tag :ignore_errors, "1", @account_config.product_import_ignore_errors?, class: "invisible absolute peer", "x-model": "ignoreErrors" %>
           </label>
         </div>
 
-        <!-- Não permitir nomes repetidos -->
-        <div class="flex items-start gap-3 group">
-          <div class="flex-1">
-            <p class="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors">
-              Não permitir nomes repetidos
-            </p>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Valida nomes duplicados e impede a importação de produtos com o mesmo nome
-            </p>
-          </div>
-          <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-all"
-                 :class="preventDuplicateNames ? 'justify-end bg-primary' : 'justify-start bg-gray-200 dark:bg-gray-700'">
-            <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
-            <%= check_box_tag :prevent_duplicate_names, "1", true, class: "invisible absolute peer", "x-model": "preventDuplicateNames" %>
+        <!-- Normalizar nome do produto -->
+        <div>
+          <label for="name_normalization" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Normalizar nome do produto
           </label>
+          <%= select_tag :name_normalization,
+              options_for_select(
+                [
+                  ["Manter como no CSV", "none"],
+                  ["Todas maiúsculas", "uppercase"],
+                  ["Primeira letra maiúscula", "sentence"],
+                  ["Título (cada palavra maiúscula)", "title"]
+                ],
+                @account_config.product_import_name_normalization.presence || "none"
+              ),
+              class: "input-base input-md w-full" %>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Aplica esta formatação ao nome de cada produto ao importar.
+          </p>
         </div>
       </div>
     <% end %>
@@ -180,7 +215,7 @@
     </div>
 
     <!-- Botão Continuar -->
-    <div class="sticky bottom-0 bg-background-light dark:bg-background-dark pt-4 pb-6 -mx-4 px-4">
+    <div class="sticky -bottom-6 z-10 bg-background-light dark:bg-background-dark pt-4 pb-6 -mx-4 px-4">
       <%= render 'shared/ui/button',
           text: "Continuar",
           variant: :primary,

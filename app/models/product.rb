@@ -2,6 +2,7 @@
 
 class Product < ApplicationRecord
   belongs_to :account
+  belongs_to :product_import, optional: true
 
   has_many :stock_movements, dependent: :destroy
   has_many_attached :images
@@ -59,6 +60,7 @@ class Product < ApplicationRecord
   scope :in_stock, -> { where("stock_quantity > 0") }
   scope :low_stock, -> { where("stock_quantity > 0 AND stock_quantity <= ?", 3) }
   scope :out_of_stock, -> { where(stock_quantity: 0) }
+  scope :from_import, ->(import) { where(product_import_id: import&.id) }
 
   after_initialize :set_defaults, if: :new_record?
   after_create :create_initial_stock_movement, if: -> { stock_quantity.positive? }

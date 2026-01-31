@@ -19,6 +19,7 @@ O arquivo deve ser um CSV (valores separados por vírgula) com encoding UTF-8. A
 
 | Coluna | Tipo | Descrição | Exemplo | Valor Padrão |
 |--------|------|-----------|---------|--------------|
+| `id` | Integer | ID interno do produto (não editável). Quando preenchido e o produto existir na conta, a linha **atualiza** o produto em vez de criar um novo. Usado na conciliação (exportar CSV da base e reimportar). | `42` | `null` (cria novo produto) |
 | `descricao` | Text | Descrição detalhada do produto | "Confortável vestido com estampa floral" | `null` |
 | `sku` | String | Código SKU interno do produto | "VD-FLOR-001" | `null` |
 | `codigo_fornecedor` | String | Código de referência do fornecedor | "FORN-1234" | `null` |
@@ -31,6 +32,10 @@ O arquivo deve ser um CSV (valores separados por vírgula) com encoding UTF-8. A
 | `ativo` | Boolean | Se o produto está ativo | `sim`, `não`, `nao`, `true`, `false`, `1` ou `0` | `true` |
 
 ## 📝 Observações Importantes
+
+### Conciliação (atualização por ID)
+
+Na tela **Importações**, você pode **Baixar CSV da base**: o arquivo exportado contém a coluna `id` (ID interno de cada produto). Ao editar esse CSV e reimportar, as linhas que tiverem `id` preenchido com um produto existente na sua conta terão esse produto **atualizado** (nome, preços, estoque, etc.) em vez de criar um novo. Linhas sem `id` ou com `id` inexistente continuam criando novos produtos. Não altere a coluna `id` ao editar o CSV de conciliação.
 
 ### Campos Opcionais (cor, tamanho, SKU)
 

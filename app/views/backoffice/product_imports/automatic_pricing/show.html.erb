@@ -1,0 +1,4 @@
+<%= turbo_frame_tag "pricing_modal_content" do %>
+  <%= render partial: "backoffice/product_imports/automatic_pricing/form",
+             locals: { product_import: @product_import, account_config: @account_config } %>
+<% end %>

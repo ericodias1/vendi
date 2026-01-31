@@ -6,7 +6,7 @@ module ProductVariations
   # Tamanhos pré-definidos
   SIZES = [
     "1", "2", "3", "4", "6", "8", "10", "12", "14", "16",
-    "P", "M", "G", "GG", "EG", "EGG", "G1", "G2", "G3"
+    "P", "M", "G", "GG", "EG", "EGG", "G1", "G2", "G3", "Único"
   ].freeze
 
   # Cores pré-definidas

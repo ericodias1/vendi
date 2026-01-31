@@ -33,7 +33,7 @@
 <%= render 'shared/ui/card', class: "mb-5" do %>
   <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">VENDAS DE HOJE</p>
   <div class="flex items-end justify-between mb-3">
-    <p class="text-4xl font-bold" style="color: var(--color-vendi-green-500);">
+    <p class="text-4xl font-bold" style="color: var(--color-primary);">
       <%= price_display(@today_total, size: :large) %>
     </p>
     <% if @growth_percentage != 0 %>

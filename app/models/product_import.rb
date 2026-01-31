@@ -4,14 +4,34 @@ class ProductImport < ApplicationRecord
   belongs_to :account
   belongs_to :user
 
+  has_many :products, dependent: :nullify
   has_one_attached :file
+
+  NAME_NORMALIZATION_MODES = %w[none uppercase sentence title].freeze
+  IMPORT_MODES = %w[create_only update_only].freeze
 
   validates :source_type, presence: true, inclusion: { in: %w[csv xml] }
   validates :status, presence: true
   validates :account_id, presence: true
   validates :user_id, presence: true
+  validates :name_normalization, inclusion: { in: NAME_NORMALIZATION_MODES }, allow_nil: true
+  validates :import_mode, presence: true, inclusion: { in: IMPORT_MODES }
+
+  def create_only?
+    import_mode == "create_only"
+  end
+
+  def update_only?
+    import_mode == "update_only"
+  end
 
   after_commit :parse_file, on: :create
+
+  def revertible?
+    return false unless status == "completed"
+
+    !products.joins(:stock_movements).where(stock_movements: { movement_type: "sale" }).exists?
+  end
 
   def status_label
     case status
@@ -25,6 +45,8 @@ class ProductImport < ApplicationRecord
       'Importando'
     when 'completed'
       'Concluído'
+    when 'reverted'
+      'Revertido'
     when 'failed'
       'Falhou'
     else

@@ -5,9 +5,17 @@ class AccountConfig < ApplicationRecord
 
   belongs_to :account
 
+  ROUNDING_MODES = %w[down_9_90 up_9_90 cents_90].freeze
+  NAME_NORMALIZATION_MODES = %w[none uppercase sentence title].freeze
+  PRODUCTS_VIEW_MODES = %w[cards table].freeze
+
   validates :account_id, presence: true, uniqueness: true
+  validates :product_import_name_normalization, inclusion: { in: NAME_NORMALIZATION_MODES }, allow_nil: true
   validates :daily_goal, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :stock_alert_threshold, numericality: { greater_than: 0 }, allow_nil: true
+  validates :automatic_pricing_markup_percent, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
+  validates :automatic_pricing_rounding_mode, inclusion: { in: ROUNDING_MODES }, allow_nil: true
+  validates :products_view_mode, inclusion: { in: PRODUCTS_VIEW_MODES }
   validate :enabled_sizes_are_valid
   validate :enabled_colors_are_valid
   validate :at_least_one_payment_method_enabled
@@ -48,9 +56,15 @@ class AccountConfig < ApplicationRecord
     self.fiado_enabled ||= false
     self.require_customer ||= false
     self.auto_send_payment_link ||= false
+    self.automatic_pricing_enabled ||= false
+    self.automatic_pricing_use_csv_when_cost_empty ||= false
+    self.product_import_auto_generate_sku ||= false
+    self.product_import_ignore_errors ||= true
+    self.product_import_prevent_duplicate_names ||= true
     self.additional_settings ||= {}
     self.enabled_sizes ||= []
     self.enabled_colors ||= []
+    self.products_view_mode ||= "cards"
   end
 
   def enabled_sizes_are_valid

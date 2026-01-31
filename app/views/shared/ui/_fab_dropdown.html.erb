@@ -1,0 +1,73 @@
+<% if false %>
+  FAB Dropdown component
+  Usage:
+    <%= render 'shared/ui/fab_dropdown', items: [
+      { icon: 'add_circle', label: 'Novo produto', href: new_backoffice_product_path },
+      { icon: 'upload_file', label: 'Importar', href: backoffice_product_imports_path },
+      { icon: 'grid_view', label: 'Ver em cards', href: '#', method: :patch },
+    ] %>
+<% end %>
+<%
+  items = local_assigns[:items] || []
+  icon = local_assigns[:icon] || "more_vert"
+%>
+
+<div x-data="{ open: false }" class="fixed bottom-24 right-4 z-50 md:hidden">
+  <!-- Backdrop -->
+  <div
+    x-show="open"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    @click="open = false"
+    class="fixed inset-0 bg-black/20 dark:bg-black/40"
+    style="display: none;">
+  </div>
+
+  <!-- Dropdown Menu (appears above FAB) -->
+  <div
+    x-show="open"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 translate-y-4"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 translate-y-0"
+    x-transition:leave-end="opacity-0 translate-y-4"
+    class="absolute bottom-16 right-0 mb-2 w-56 bg-white dark:bg-surface-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden"
+    style="display: none;">
+    <div class="py-1">
+      <% items.each do |item| %>
+        <% if item[:divider] %>
+          <div class="border-t border-gray-100 dark:border-gray-800 my-1"></div>
+        <% else %>
+          <%
+            link_classes = "flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            link_classes += " bg-primary-soft text-primary-dark" if item[:active]
+            icon_classes = "material-symbols-outlined text-xl"
+            icon_classes += item[:active] ? " text-primary" : " text-slate-400 dark:text-slate-500"
+          %>
+          <%= link_to item[:href],
+              data: item[:method] ? { turbo_method: item[:method] } : {},
+              class: link_classes,
+              "x-on:click": "open = false" do %>
+            <span class="<%= icon_classes %>"><%= item[:icon] %></span>
+            <span><%= item[:label] %></span>
+            <% if item[:active] %>
+              <span class="material-symbols-outlined text-lg text-primary ml-auto">check</span>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- FAB Button -->
+  <button
+    @click="open = !open"
+    class="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-white shadow-lg hover:bg-primary-dark active:scale-95 transition-all duration-200">
+    <span class="material-symbols-outlined text-2xl transition-transform duration-200" :class="{ 'rotate-45': open }">add</span>
+  </button>
+</div>

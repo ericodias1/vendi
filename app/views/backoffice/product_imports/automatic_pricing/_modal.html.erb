@@ -1,0 +1,25 @@
+<%
+  product_import = local_assigns[:product_import]
+  pricing_path = backoffice_product_import_pricing_path(product_import)
+  close_path = close_backoffice_product_import_pricing_path(product_import)
+%>
+<div class="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[90vh] flex flex-col"
+       data-action="click.stop">
+    <div class="px-6 py-4 flex items-center border-b border-gray-200 dark:border-gray-800 shrink-0">
+      <%= link_to close_path,
+          data: { turbo_frame: "pricing_modal_placeholder" },
+          class: "mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" do %>
+        <span class="material-symbols-outlined">close</span>
+      <% end %>
+      <h1 class="text-lg font-bold text-gray-900 dark:text-white">Configurar Precificação</h1>
+    </div>
+    <%= turbo_frame_tag "pricing_modal_content",
+        src: pricing_path,
+        class: "flex-1 flex flex-col min-h-0" do %>
+      <div class="flex-1 overflow-y-auto px-6 py-6 flex items-center justify-center text-slate-500">
+        Carregando...
+      </div>
+    <% end %>
+  </div>
+</div>

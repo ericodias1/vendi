@@ -1,0 +1,110 @@
+<%
+  product_import = local_assigns[:product_import]
+  account_config = local_assigns[:account_config]
+  markup = account_config.automatic_pricing_markup_percent&.to_f || 35
+  rounding = account_config.automatic_pricing_rounding_mode.presence || "up_9_90"
+  use_csv = account_config.automatic_pricing_use_csv_when_cost_empty
+  pricing_path = backoffice_product_import_pricing_path(product_import)
+  close_path = close_backoffice_product_import_pricing_path(product_import)
+%>
+<%= form_with url: pricing_path,
+    method: :patch,
+    data: {
+      controller: "pricing-form",
+      pricing_form_calculate_prices_url_value: calculate_prices_backoffice_product_imports_path,
+      turbo_frame: "_top"
+    },
+    class: "contents" do |f| %>
+  <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+    <section class="space-y-3">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Markup (%)</label>
+      <div class="relative">
+        <input type="number"
+               name="account_config[automatic_pricing_markup_percent]"
+               value="<%= markup %>"
+               step="0.01"
+               min="0"
+               max="100"
+               data-pricing-form-target="markup"
+               data-action="input->pricing-form#fetchPreview"
+               class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-lg font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none dark:text-white" />
+        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">%</span>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400">Aplicado sobre o preço de compra/custo.</p>
+    </section>
+    <section class="space-y-4">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Base do Cálculo</label>
+      <div class="space-y-3">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="radio"
+                 name="account_config[automatic_pricing_use_csv_when_cost_empty]"
+                 value="0"
+                 <%= "checked" unless use_csv %>
+                 class="size-5 shrink-0 border-slate-300 text-primary focus:ring-2 focus:ring-primary accent-[var(--color-primary)]" />
+          <span class="text-sm text-gray-700 dark:text-gray-300">Preço de compra (custo)</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="radio"
+                 name="account_config[automatic_pricing_use_csv_when_cost_empty]"
+                 value="1"
+                 <%= "checked" if use_csv %>
+                 class="size-5 shrink-0 border-slate-300 text-primary focus:ring-2 focus:ring-primary accent-[var(--color-primary)]" />
+          <span class="text-sm text-gray-700 dark:text-gray-300">Se custo estiver vazio, manter preço do CSV</span>
+        </label>
+      </div>
+    </section>
+    <section class="space-y-3">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Arredondamento</label>
+      <div class="relative">
+        <select name="account_config[automatic_pricing_rounding_mode]"
+                data-pricing-form-target="roundingMode"
+                data-action="change->pricing-form#fetchPreview"
+                class="w-full appearance-none bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 pr-10 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary outline-none">
+          <option value="down_9_90" <%= "selected" if rounding == "down_9_90" %>>Para baixo para 9,90 (ex: 56,50 → 49,90)</option>
+          <option value="up_9_90" <%= "selected" if rounding == "up_9_90" %>>Para cima para 9,90 (ex: 56,50 → 59,90)</option>
+          <option value="cents_90" <%= "selected" if rounding == "cents_90" %>>Somente ajustar centavos para ,90</option>
+        </select>
+        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">expand_more</span>
+      </div>
+    </section>
+    <div class="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800"
+         data-pricing-form-target="previewSection">
+      <div class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-primary text-xl">visibility</span>
+        <div class="space-y-2 flex-1">
+          <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Preview Dinâmico</p>
+          <div class="flex items-center gap-2 flex-wrap">
+            <label class="text-sm text-gray-700 dark:text-gray-300">Exemplo de custo:</label>
+            <input type="number"
+                   step="0.01"
+                   min="0"
+                   value="42"
+                   data-pricing-form-target="costExample"
+                   data-action="input->pricing-form#fetchPreview"
+                   class="w-24 px-2 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white" />
+          </div>
+          <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+            <span data-pricing-form-target="previewText">Custo R$ 42,00 + 35% = -- → Resultado: --</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="px-6 py-6 border-t border-gray-200 dark:border-gray-800 space-y-3 bg-white dark:bg-slate-900">
+    <button type="submit"
+            name="then_apply"
+            value="1"
+            class="w-full bg-primary hover:opacity-90 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-primary/20">
+      Salvar e aplicar na tabela
+    </button>
+    <button type="submit"
+            class="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold py-4 rounded-xl transition-all">
+      Salvar configurações
+    </button>
+    <%= link_to close_path,
+        data: { turbo_frame: "pricing_modal_placeholder" },
+        class: "w-full text-center text-gray-500 dark:text-gray-400 font-medium py-2 text-sm hover:underline block" do %>
+      Cancelar
+    <% end %>
+  </div>
+<% end %>

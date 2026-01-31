@@ -8,7 +8,9 @@ module Backoffice
       end
 
       def call
-        return [] unless @product_import.prevent_duplicate_names
+        # No modo update_only, não validar duplicatas (estamos atualizando por ID)
+        return [] if @product_import.update_only?
+        # No modo create_only, sempre validar duplicatas
         return [] unless @product_import.parsed_data.present?
 
         detect_duplicate_names_in_csv
