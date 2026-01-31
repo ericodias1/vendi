@@ -16,14 +16,14 @@ local:
 
 # Digital Ocean Spaces (compatível com S3)
 # Use bin/rails credentials:edit to set the Digital Ocean secrets (as digitalocean:access_key_id|secret_access_key)
-# digitalocean:
-#   service: S3
-#   access_key_id: <%= Rails.application.credentials.dig(:digitalocean, :access_key_id) %>
-#   secret_access_key: <%= Rails.application.credentials.dig(:digitalocean, :secret_access_key) %>
-#   region: sfo3
-#   bucket: vendi-app
-#   endpoint: https://sfo3.digitaloceanspaces.com
-#   force_path_style: false
+digitalocean:
+  service: S3
+  access_key_id: <%= Rails.application.credentials.dig(:digitalocean, :access_key_id) %>
+  secret_access_key: <%= Rails.application.credentials.dig(:digitalocean, :secret_access_key) %>
+  region: sfo3
+  bucket: vendi-gestao
+  endpoint: https://sfo3.digitaloceanspaces.com
+  force_path_style: false
 
 # Remember not to checkin your GCS keyfile to a repository
 # google:
