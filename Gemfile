@@ -38,7 +38,7 @@ gem "prawn", "~> 2.4"
 gem "prawn-table", "~> 0.2"
 
 # Para pagamentos (futuro, mas já preparar)
-gem "stripe", "~> 10.0"
+gem "stripe", "~> 18.3"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
