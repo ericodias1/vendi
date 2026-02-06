@@ -21,9 +21,9 @@ export function productImportReview() {
         this.automaticPricingEnabled = false;
         this.pricingConfig = { markup_percent: 35, rounding_mode: 'up_9_90', use_csv_when_cost_empty: false };
       }
-      // Garantir que cada row tenha preco_base_auto (vindo do servidor após aplicar precificação)
+      // Garantir que cada row tenha preco_venda_auto (vindo do servidor após aplicar precificação)
       this.rows.forEach(row => {
-        if (row.preco_base_auto === undefined) row.preco_base_auto = false;
+        if (row.preco_venda_auto === undefined) row.preco_venda_auto = row.preco_base_auto ?? false;
       });
     },
 
@@ -40,12 +40,13 @@ export function productImportReview() {
       return errorObj ? errorObj.errors : [];
     },
 
-    // Retorna erros de duplicata de nome (calculados pelo backend)
+    // Retorna erros de duplicata (nome ou produto com mesmo tamanho/marca/cor)
     getNameConflicts() {
       return this.errors.filter(err => {
         return err.errors && err.errors.some(error =>
           typeof error === 'string' && (
             error.toLowerCase().includes('nome duplicado') ||
+            error.toLowerCase().includes('produto duplicado') ||
             error.toLowerCase().includes('também na linha')
           )
         );

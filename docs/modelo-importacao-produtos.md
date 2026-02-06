@@ -23,8 +23,8 @@ O arquivo deve ser um CSV (valores separados por vírgula) com encoding UTF-8. A
 | `descricao` | Text | Descrição detalhada do produto | "Confortável vestido com estampa floral" | `null` |
 | `sku` | String | Código SKU interno do produto | "VD-FLOR-001" | `null` |
 | `codigo_fornecedor` | String | Código de referência do fornecedor | "FORN-1234" | `null` |
-| `preco_base` | Decimal | Preço de venda do produto | `89.90` | `null` |
 | `preco_custo` | Decimal | Preço de compra do produto | `45.00` | `null` |
+| `preco_venda` | Decimal | Preço de venda do produto | `89.90` | `null` |
 | `categoria` | String | Categoria do produto | "Vestidos" | `null` |
 | `marca` | String | Marca do produto | "Marca Kids" | `null` |
 | `cor` | String | Cor do produto | "Rosa" | `null` |
@@ -126,42 +126,42 @@ O arquivo `docs/modelo-importacao-produtos.csv` contém um exemplo completo com 
 ### Exemplo Simplificado
 
 ```csv
-nome,descricao,sku,codigo_fornecedor,preco_base,preco_custo,categoria,marca,cor,tamanho,quantidade_estoque,ativo
-Vestido Floral Infantil,Confortável vestido com estampa floral para meninas,VD-FLOR-001,FORN-1234,89.90,45.00,Vestidos,Marca Kids,Rosa,P,10,sim
-Blusa Manga Longa,Blusa confortável para o inverno,,FORN-1237,59.90,25.00,Blusas,Marca Kids,Cinza,,20,sim
-Boneca de Pelúcia,Boneca macia e fofa para crianças,,FORN-1239,49.90,20.00,Brinquedos,Marca Kids,,,5,sim
+nome,descricao,sku,codigo_fornecedor,preco_custo,preco_venda,categoria,marca,cor,tamanho,quantidade_estoque,ativo
+Vestido Floral Infantil,Confortável vestido com estampa floral para meninas,VD-FLOR-001,FORN-1234,45.00,89.90,Vestidos,Marca Kids,Rosa,P,10,sim
+Blusa Manga Longa,Blusa confortável para o inverno,,FORN-1237,25.00,59.90,Blusas,Marca Kids,Cinza,,20,sim
+Boneca de Pelúcia,Boneca macia e fofa para crianças,,FORN-1239,20.00,49.90,Brinquedos,Marca Kids,,,5,sim
 ```
 
 ### Cenários de Uso
 
 #### Produto com todos os campos
 ```csv
-nome,descricao,sku,codigo_fornecedor,preco_base,preco_custo,categoria,marca,cor,tamanho,quantidade_estoque,ativo
-Vestido Floral Infantil,Confortável vestido com estampa floral para meninas,VD-FLOR-001,FORN-1234,89.90,45.00,Vestidos,Marca Kids,Rosa,P,10,sim
+nome,descricao,sku,codigo_fornecedor,preco_custo,preco_venda,categoria,marca,cor,tamanho,quantidade_estoque,ativo
+Vestido Floral Infantil,Confortável vestido com estampa floral para meninas,VD-FLOR-001,FORN-1234,45.00,89.90,Vestidos,Marca Kids,Rosa,P,10,sim
 ```
 
 #### Produto sem SKU (deixe vazio)
 ```csv
-nome,descricao,sku,codigo_fornecedor,preco_base,preco_custo,categoria,marca,cor,tamanho,quantidade_estoque,ativo
-Blusa Manga Longa,Blusa confortável para o inverno,,FORN-1237,59.90,25.00,Blusas,Marca Kids,Cinza,,20,sim
+nome,descricao,sku,codigo_fornecedor,preco_custo,preco_venda,categoria,marca,cor,tamanho,quantidade_estoque,ativo
+Blusa Manga Longa,Blusa confortável para o inverno,,FORN-1237,25.00,59.90,Blusas,Marca Kids,Cinza,,20,sim
 ```
 
 #### Produto sem cor e sem tamanho (deixe ambos vazios)
 ```csv
-nome,descricao,sku,codigo_fornecedor,preco_base,preco_custo,categoria,marca,cor,tamanho,quantidade_estoque,ativo
-Boneca de Pelúcia,Boneca macia e fofa para crianças,,FORN-1239,49.90,20.00,Brinquedos,Marca Kids,,,5,sim
+nome,descricao,sku,codigo_fornecedor,preco_custo,preco_venda,categoria,marca,cor,tamanho,quantidade_estoque,ativo
+Boneca de Pelúcia,Boneca macia e fofa para crianças,,FORN-1239,20.00,49.90,Brinquedos,Marca Kids,,,5,sim
 ```
 
 #### Produto sem preço de venda (deixe vazio)
 ```csv
-nome,descricao,sku,codigo_fornecedor,preco_base,preco_custo,categoria,marca,cor,tamanho,quantidade_estoque,ativo
+nome,descricao,sku,codigo_fornecedor,preco_custo,preco_venda,categoria,marca,cor,tamanho,quantidade_estoque,ativo
 Produto Sem Preço,Produto para teste sem preço definido,TEST-001,FORN-1241,,,Teste,Marca Kids,Verde,M,0,não
 ```
 
 #### Produto sem preço de compra (deixe vazio - será salvo como nil)
 ```csv
-nome,descricao,sku,codigo_fornecedor,preco_base,preco_custo,categoria,marca,cor,tamanho,quantidade_estoque,ativo
-Vestido de Festa,Vestido elegante para ocasiões especiais,VD-FEST-008,FORN-1242,129.90,,Vestidos,Marca Kids,Rosa,G,8,sim
+nome,descricao,sku,codigo_fornecedor,preco_custo,preco_venda,categoria,marca,cor,tamanho,quantidade_estoque,ativo
+Vestido de Festa,Vestido elegante para ocasiões especiais,VD-FEST-008,FORN-1242,,129.90,Vestidos,Marca Kids,Rosa,G,8,sim
 ```
 
 ## 🔍 Validações
@@ -171,7 +171,7 @@ Vestido de Festa,Vestido elegante para ocasiões especiais,VD-FEST-008,FORN-1242
 1. **Nome**: Obrigatório e não pode estar vazio
 2. **Quantidade de Estoque**: Obrigatório, deve ser um número inteiro ≥ 0
 3. **SKU**: Se informado, deve ser único dentro da conta (account)
-4. **Preços**: Se informados, devem ser números decimais positivos. O preço de compra (`preco_custo`) é opcional e será salvo como `nil` se não for informado.
+4. **Preços**: Se informados, devem ser números decimais positivos. A ordem das colunas no CSV é `preco_custo`, `preco_venda`. O preço de compra (`preco_custo`) é opcional e será salvo como `nil` se não for informado.
 5. **Ativo**: Se informado, deve ser `sim`, `não`, `nao`, `true`, `false`, `1` ou `0` (será aplicado `parameterize` e `strip` antes da validação). Tanto `não` quanto `nao` (com ou sem acento) são sempre tratados como `false`, independente de maiúsculas/minúsculas.
 
 ## 📦 Campos que NÃO serão importados (por enquanto)

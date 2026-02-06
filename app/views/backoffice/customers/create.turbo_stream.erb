@@ -8,7 +8,7 @@
   <% end %>
 <% end %>
 
-<%= turbo_stream.append "flash_messages" do %>
+<%= turbo_stream.append "toast-container" do %>
   <%= render "shared/ui/toast", type: :success, message: "Cliente cadastrado com sucesso!" %>
 <% end %>
 

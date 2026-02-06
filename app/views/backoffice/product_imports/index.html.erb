@@ -64,6 +64,14 @@
                 <span class="material-symbols-outlined text-sm">visibility</span>
                 Ver
               <% end %>
+              <% if import.deletable? %>
+                <%= link_to backoffice_product_import_path(import),
+                    data: { turbo_method: :delete, turbo_confirm: "Deseja realmente excluir esta importação da lista? (Não afeta produtos já importados.)" },
+                    class: "inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-700 dark:text-red-400" do %>
+                  <span class="material-symbols-outlined text-sm">delete</span>
+                  Excluir
+                <% end %>
+              <% end %>
               <% if import.revertible? %>
                 <%= button_to revert_backoffice_product_import_path(import),
                     method: :post,

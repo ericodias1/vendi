@@ -51,7 +51,7 @@ module Backoffice
             @product_import.update(import_errors: duplicate_errors)
           else
             # Falhar completamente - salvar erros E status em um único update
-            errors.add(:base, "Existem nomes duplicados no arquivo. Corrija antes de importar.")
+            errors.add(:base, "Existem produtos duplicados no arquivo (mesmo nome, tamanho, marca e cor). Corrija antes de importar.")
             @product_import.update(
               import_errors: duplicate_errors,
               status: 'failed'
@@ -111,18 +111,18 @@ module Backoffice
         return [] unless @product_import.create_only?
         return [] unless @product_import.parsed_data.present?
 
-        name_map = {}
+        key_map = {}
         @product_import.parsed_data.each_with_index do |row_data, index|
-          product_name = row_data['nome'] || row_data[:nome]
-          next unless product_name.present?
+          composite_key = DuplicateKey.from_row(row_data)
+          next unless composite_key.present?
 
-          parameterized_name = product_name.to_s.strip.downcase
-          name_map[parameterized_name] ||= []
-          name_map[parameterized_name] << { row: index + 1, name: product_name, data: row_data }
+          product_name = row_data['nome'] || row_data[:nome]
+          key_map[composite_key] ||= []
+          key_map[composite_key] << { row: index + 1, name: product_name, data: row_data }
         end
 
         duplicate_errors = []
-        name_map.each do |_name, entries|
+        key_map.each do |_key, entries|
           next if entries.length <= 1
 
           entries.each do |entry|
@@ -132,7 +132,7 @@ module Backoffice
             duplicate_errors << {
               'row' => entry[:row],
               'data' => entry[:data],
-              'errors' => ["Nome duplicado: \"#{entry[:name]}\" (também na linha #{other_rows_text})"]
+              'errors' => ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho/marca/cor (também na linha #{other_rows_text})"]
             }
           end
         end
@@ -149,6 +149,7 @@ module Backoffice
 
           error_list.all? do |err|
             err.is_a?(String) && (
+              err.downcase.include?('produto duplicado') ||
               err.downcase.include?('nome duplicado') ||
               err.downcase.include?('também na linha')
             )

@@ -5,15 +5,21 @@ class Product < ApplicationRecord
   belongs_to :product_import, optional: true
 
   has_many :stock_movements, dependent: :destroy
+  has_many :sale_items, dependent: :destroy
   has_many_attached :images
 
   before_save :set_parameterized_name, if: :will_save_change_to_name?
   before_save :set_parameterized_category, if: :will_save_change_to_category?
   before_save :set_parameterized_supplier, if: :will_save_change_to_supplier?
 
-  # Verificar se produto tem vendas atreladas
+  # Verificar se produto tem vendas atreladas (movimentação de estoque de venda)
   def has_sales?
     stock_movements.where(movement_type: 'sale').exists?
+  end
+
+  # Verificar se produto possui itens em vendas confirmadas (não rascunho)
+  def has_non_draft_sales?
+    sale_items.joins(:sale).where.not(sales: { status: 'draft' }).exists?
   end
 
   # Obter última venda do produto
@@ -41,7 +47,7 @@ class Product < ApplicationRecord
   end
 
   include Searchable
-  searchable_columns :name, :description, :sku
+  searchable_columns :name, :description, :sku, :size, :color, :supplier, :category, :brand
 
   include Discard::Model
   default_scope { kept }

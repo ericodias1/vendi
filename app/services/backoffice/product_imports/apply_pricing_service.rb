@@ -22,16 +22,16 @@ module Backoffice
             price = AutomaticPricing::Calculator.calculate(cost, markup, mode)
             if price
               row = row.dup
-              row["preco_base"] = price.to_f.round(2)
-              row["preco_base_auto"] = true
+              row["preco_venda"] = price.to_f.round(2)
+              row["preco_venda_auto"] = true
             else
               row = row.dup
-              row["preco_base_auto"] = false
+              row["preco_venda_auto"] = false
             end
           else
-            # Sem custo: nunca aplicar AUTO; manter preco_base como está se use_csv_when_empty
+            # Sem custo: nunca aplicar AUTO; manter preco_venda como está se use_csv_when_empty
             row = row.dup
-            row["preco_base_auto"] = false
+            row["preco_venda_auto"] = false
           end
 
           row
@@ -43,12 +43,7 @@ module Backoffice
       private
 
       def parse_cost(value)
-        return nil if value.blank?
-
-        n = value.is_a?(Numeric) ? value : value.to_s.strip.gsub(",", ".")
-        Float(n)
-      rescue ArgumentError, TypeError
-        nil
+        CurrencyParser.parse(value)
       end
     end
   end

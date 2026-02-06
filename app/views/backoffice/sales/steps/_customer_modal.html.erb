@@ -38,16 +38,17 @@
     </div>
     
     <!-- Form -->
-    <%= form_with model: [:backoffice, Customer.new], 
+    <%= form_with model: [:backoffice, Customer.new],
                   url: backoffice_customers_path,
                   method: :post,
                   local: false,
-                  data: { 
+                  data: {
                     turbo_frame: "_top",
                     turbo_stream: true
                   },
                   id: "customer-form" do |f| %>
-      
+      <%= hidden_field_tag :sale_id, local_assigns[:sale].id if local_assigns[:sale].present? %>
+
       <div class="space-y-5">
         <!-- Nome -->
         <div class="space-y-1.5">

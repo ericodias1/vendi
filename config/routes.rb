@@ -35,13 +35,14 @@ Rails.application.routes.draw do
 
     resources :products, except: [] do
       resource :stock_adjustment, only: %i[edit update], controller: "products/stock_adjustments"
+      resource :quick_sale, only: [:create], controller: "products/quick_sales"
       collection do
         get :low_stock
         get :export_csv
         patch :update_view_mode
       end
     end
-    resources :product_imports, only: [:index, :new, :create, :show, :update] do
+    resources :product_imports, only: [:index, :new, :create, :show, :update, :destroy] do
       collection do
         post :calculate_prices
       end

@@ -55,6 +55,10 @@ module Backoffice
           errors.add(:base, "Método de pagamento deve ser selecionado")
           return false
         end
+        if @sale.payment.method == "fiado" && @sale.customer_id.blank?
+          errors.add(:base, "Cliente é obrigatório para pagamento em fiado")
+          return false
+        end
         true
       end
 

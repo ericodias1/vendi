@@ -25,16 +25,16 @@ module Backoffice
         @errors << { row: row_number, data: row_data, errors: error_messages }
       end
 
-      def track_name(parameterized_name)
-        @imported_names << parameterized_name
+      def track_name(composite_key)
+        @imported_names << composite_key if composite_key.present?
       end
 
       def track_sku(sku)
         @imported_skus << sku if sku.present?
       end
 
-      def name_already_imported?(parameterized_name)
-        @imported_names.include?(parameterized_name)
+      def name_already_imported?(composite_key)
+        composite_key.present? && @imported_names.include?(composite_key)
       end
 
       def sku_already_imported?(sku)

@@ -66,7 +66,10 @@ module Backoffice
         name_errors = @name_validator.validate(
           product_attributes[:name],
           prevent_duplicates: true,
-          exclude_product_id: existing.id
+          exclude_product_id: existing.id,
+          size: product_attributes[:size],
+          brand: product_attributes[:brand],
+          color: product_attributes[:color]
         )
         if name_errors.any?
           result = { success: false, errors: name_errors }
@@ -91,7 +94,13 @@ module Backoffice
           return result
         end
 
-        name_errors = @name_validator.validate(product_attributes[:name], prevent_duplicates: true)
+        name_errors = @name_validator.validate(
+          product_attributes[:name],
+          prevent_duplicates: true,
+          size: product_attributes[:size],
+          brand: product_attributes[:brand],
+          color: product_attributes[:color]
+        )
         if name_errors.any?
           result = { success: false, errors: name_errors }
           track_result(result, product_attributes, row_number, row_data)
@@ -118,7 +127,13 @@ module Backoffice
 
       def track_result(result, product_attributes, row_number, row_data)
         if result[:success]
-          @import_result.track_name(product_attributes[:name].parameterize)
+          composite_key = DuplicateKey.from_attributes(
+            name: product_attributes[:name],
+            size: product_attributes[:size],
+            brand: product_attributes[:brand],
+            color: product_attributes[:color]
+          )
+          @import_result.track_name(composite_key)
           @import_result.track_sku(product_attributes[:sku])
           @import_result.record_success
         else
@@ -137,7 +152,7 @@ module Backoffice
           description: row_data['descricao'] || row_data[:descricao],
           sku: row_data['sku'] || row_data[:sku],
           supplier_code: row_data['codigo_fornecedor'] || row_data[:codigo_fornecedor],
-          base_price: row_data['preco_base'] || row_data[:preco_base],
+          base_price: row_data['preco_venda'] || row_data[:preco_venda] || row_data['preco_base'] || row_data[:preco_base],
           cost_price: row_data['preco_custo'] || row_data[:preco_custo],
           category: row_data['categoria'] || row_data[:categoria],
           brand: row_data['marca'] || row_data[:marca],

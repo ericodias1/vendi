@@ -4,12 +4,14 @@
     <%= render 'shared/ui/card', class: "mb-4" do %>
       <div>Content here</div>
     <% end %>
+    body_class: optional, applied to the inner card-body div.
 <% end %>
 
 <% card_class = local_assigns.fetch(:class, "") %>
+<% body_class = local_assigns.fetch(:body_class, "") %>
 <div class="card <%= card_class %>">
   <% if block_given? %>
-    <div class="card-body">
+    <div class="card-body <%= body_class %>">
       <%= yield %>
     </div>
   <% end %>

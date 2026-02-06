@@ -334,6 +334,29 @@
   border-radius: 1rem;
 }
 
+/* Tabela de revisão de importação: scroll vertical e horizontal (altura definida pelo layout flex/vh) */
+.import-table-scroll {
+  overflow: auto;
+}
+.import-table-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 12px;
+}
+.import-table-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+.import-table-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+.dark .import-table-scroll::-webkit-scrollbar-track {
+  background: #334155;
+}
+.dark .import-table-scroll::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
 .card.rounded-none .table-container {
   border-top-left-radius: 0;
   border-top-right-radius: 0;

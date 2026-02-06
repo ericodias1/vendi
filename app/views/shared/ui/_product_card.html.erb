@@ -2,32 +2,70 @@
   Product Card component
   Usage:
     <%= render 'shared/ui/product_card', product: @product %>
+    <%= render 'shared/ui/product_card', product: @product, show_quick_sale: true %>
 <% end %>
 <%
   product = local_assigns[:product]
   decorated_product = decorate(product)
   product_path = local_assigns[:path] || backoffice_product_path(product)
+  show_quick_sale = local_assigns[:show_quick_sale]
+  card_class = "bg-white dark:bg-surface-dark p-3 rounded-xl flex items-center justify-between shadow-sm border border-gray-100 dark:border-gray-800 group active:scale-[0.98] transition-transform"
 %>
-<%= link_to product_path, class: "bg-white dark:bg-surface-dark p-3 rounded-xl flex items-center justify-between shadow-sm border border-gray-100 dark:border-gray-800 group active:scale-[0.98] transition-transform" do %>
-  <div class="flex items-center gap-3">
-    <%= render 'shared/ui/product_avatar', product: product, size: :small %>
-    <div class="flex-1">
-      <p class="text-base font-semibold leading-tight mb-1 text-slate-900 dark:text-white"><%= product.name %></p>
-      <div class="flex flex-col gap-1 mb-2">
-        <% if product.size.present? || product.color.present? || product.sku.present? %>
-          <p class="text-gray-500 dark:text-gray-400 text-xs">
-            <%= [decorated_product.display_variation, product.sku].compact.join(" | ") %>
-          </p>
-        <% end %>
-        <% if product.base_price.present? %>
-          <p class="text-sm font-semibold text-slate-900 dark:text-white"><%= decorated_product.formatted_price %></p>
-        <% end %>
+<% if show_quick_sale %>
+  <div class="<%= card_class %> flex">
+    <%= link_to product_path, class: "flex-1 flex items-center justify-between min-w-0" do %>
+      <div class="flex items-center gap-3 min-w-0">
+        <%= render 'shared/ui/product_avatar', product: product, size: :small %>
+        <div class="flex-1 min-w-0">
+          <p class="text-base font-semibold leading-tight mb-1 text-slate-900 dark:text-white truncate"><%= product.name %></p>
+          <div class="flex flex-col gap-1 mb-2">
+            <% if product.size.present? || product.color.present? || product.sku.present? %>
+              <p class="text-gray-500 dark:text-gray-400 text-xs">
+                <%= [decorated_product.display_variation, product.sku].compact.join(" | ") %>
+              </p>
+            <% end %>
+            <% if product.base_price.present? %>
+              <p class="text-sm font-semibold text-slate-900 dark:text-white"><%= decorated_product.formatted_price %></p>
+            <% end %>
+          </div>
+          <%= render 'shared/ui/badge',
+              text: decorated_product.stock_badge_text,
+              variant: decorated_product.stock_badge_variant,
+              class: "text-[10px] font-bold uppercase tracking-wider" %>
+        </div>
       </div>
-      <%= render 'shared/ui/badge', 
-          text: decorated_product.stock_badge_text, 
-          variant: decorated_product.stock_badge_variant,
-          class: "text-[10px] font-bold uppercase tracking-wider" %>
-    </div>
+      <span class="material-symbols-outlined text-gray-300 dark:text-gray-600 shrink-0 ml-2">chevron_right</span>
+    <% end %>
+    <%= button_to backoffice_product_quick_sale_path(product),
+        method: :post,
+        form: { onclick: "event.stopPropagation()", class: "shrink-0 ml-2" },
+        class: "shrink-0 flex items-center justify-center w-10 h-10 rounded-lg text-primary hover:bg-primary/10 transition-colors",
+        title: "Venda rápida" do %>
+      <span class="material-symbols-outlined text-xl">bolt</span>
+    <% end %>
   </div>
-  <span class="material-symbols-outlined text-gray-300 dark:text-gray-600">chevron_right</span>
+<% else %>
+  <%= link_to product_path, class: card_class do %>
+    <div class="flex items-center gap-3">
+      <%= render 'shared/ui/product_avatar', product: product, size: :small %>
+      <div class="flex-1">
+        <p class="text-base font-semibold leading-tight mb-1 text-slate-900 dark:text-white"><%= product.name %></p>
+        <div class="flex flex-col gap-1 mb-2">
+          <% if product.size.present? || product.color.present? || product.sku.present? %>
+            <p class="text-gray-500 dark:text-gray-400 text-xs">
+              <%= [decorated_product.display_variation, product.sku].compact.join(" | ") %>
+            </p>
+          <% end %>
+          <% if product.base_price.present? %>
+            <p class="text-sm font-semibold text-slate-900 dark:text-white"><%= decorated_product.formatted_price %></p>
+          <% end %>
+        </div>
+        <%= render 'shared/ui/badge',
+            text: decorated_product.stock_badge_text,
+            variant: decorated_product.stock_badge_variant,
+            class: "text-[10px] font-bold uppercase tracking-wider" %>
+      </div>
+    </div>
+    <span class="material-symbols-outlined text-gray-300 dark:text-gray-600">chevron_right</span>
+  <% end %>
 <% end %>

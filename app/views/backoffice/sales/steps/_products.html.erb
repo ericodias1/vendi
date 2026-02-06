@@ -5,19 +5,19 @@
 %>
 
 <div data-controller="sale-form" data-sale-form-step-value="1">
-  <%= render 'shared/ui/step_header', 
-      title: "Registrar venda", 
-      current_step: 1, 
+  <%= render 'shared/ui/step_header',
+      title: "Registrar venda",
+      current_step: 1,
       total_steps: 3,
       back_path: backoffice_sales_path %>
 
-  <main class="flex-1 pb-32">
+  <main class="flex-1 pb-48">
     <!-- SearchBar -->
     <div class="px-4 py-2">
       <%= form_with url: edit_backoffice_sale_products_path(sale), method: :get, local: true, data: { turbo_frame: "_top" } do |f| %>
-        <%= render 'shared/ui/search_input', 
-            form: f, 
-            field: :search, 
+        <%= render 'shared/ui/search_input',
+            form: f,
+            field: :search,
             placeholder: "Buscar produto...",
             hint: "Ex: vestido, conjunto, body" %>
       <% end %>
@@ -42,38 +42,23 @@
       </div>
     <% end %>
 
-    <!-- Itens Selecionados -->
+    <!-- Lista de Produtos (Foto, REF, Nome, Variações, Preço, Adicionar) -->
     <div class="px-4 mt-4">
-      <div id="sale_items_section">
-        <% if sale.sale_items.any? %>
-          <%= render 'shared/ui/heading', text: "Itens Selecionados", size: :md, class: "mb-3" %>
-          <div id="sale_items_list">
-            <% sale.sale_items.each do |item| %>
-              <%= render 'backoffice/sales/items/sale_item', item: item, sale: sale %>
-            <% end %>
-          </div>
-        <% else %>
-          <div id="sale_items_list" class="hidden"></div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Product List -->
-    <div class="px-4 mt-6 space-y-4">
       <%= render 'shared/ui/heading', text: "Produtos", size: :md, class: "mb-2" %>
       <% if products.any? %>
-        <% products.each do |product| %>
-          <%= render 'backoffice/sales/steps/product_item', product: product, sale: sale %>
-        <% end %>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
+          <% products.each do |product| %>
+            <%= render 'backoffice/sales/products/product_list_row', product: product, sale: sale %>
+          <% end %>
+        </div>
       <% else %>
-        <!-- Empty State / Search Action -->
         <div class="bg-primary/5 border border-dashed border-primary/30 rounded-xl p-6 flex flex-col items-center text-center">
           <svg class="w-12 h-12 text-primary/50 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <p class="text-gray-600 dark:text-gray-300 font-medium mb-4">Produto não encontrado?</p>
-          <%= render 'shared/ui/button', 
-              text: "Criar produto rápido", 
+          <%= render 'shared/ui/button',
+              text: "Criar produto rápido",
               href: new_backoffice_product_path,
               variant: :secondary,
               size: :sm %>
@@ -82,11 +67,23 @@
     </div>
   </main>
 
-  <!-- Bottom Action Button -->
+  <!-- Footer sticky: Itens na venda + Resumo + Continuar -->
   <div class="fixed-footer">
+    <div id="sale_items_section" class="mb-3 max-h-40 overflow-y-auto">
+      <% if sale.sale_items.any? %>
+        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-tight mb-2 px-1">Itens na venda</p>
+        <div id="sale_items_list" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
+          <% sale.sale_items.each do |item| %>
+            <%= render 'backoffice/sales/items/sale_item_footer', item: item, sale: sale %>
+          <% end %>
+        </div>
+      <% else %>
+        <div id="sale_items_list" class="hidden"></div>
+      <% end %>
+    </div>
     <%= render 'backoffice/sales/steps/sale_summary', sale: sale %>
     <div id="continue_button">
-      <%= render 'shared/ui/button', 
+      <%= render 'shared/ui/button',
           href: edit_backoffice_sale_details_path(sale),
           variant: :primary,
           size: :lg,
@@ -99,7 +96,6 @@
         </svg>
       <% end %>
     </div>
-    <!-- iOS Home Indicator Spacing -->
     <div class="h-4"></div>
   </div>
 </div>

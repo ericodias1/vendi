@@ -1,0 +1,62 @@
+<%
+  product = local_assigns[:product]
+  sale = local_assigns[:sale]
+  sale_item = sale&.sale_items&.find_by(product: product)
+  in_sale = sale_item.present?
+  quantity = sale_item&.quantity.to_i || 0
+%>
+
+<div id="product_row_<%= product.id %>" class="flex items-center gap-3 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0 px-4">
+  <!-- Foto -->
+  <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden shrink-0">
+    <% if product.images.attached? %>
+      <%= image_tag product.images.first, alt: product.name, class: "w-full h-full object-cover" %>
+    <% else %>
+      <div class="w-full h-full flex items-center justify-center">
+        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Mobile: SKU/Nome/Variações na mesma coluna | Desktop: SKU/Nome + coluna Variações -->
+  <div class="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-4">
+    <div class="min-w-0 flex flex-col gap-0.5">
+      <p class="text-xs text-gray-500 dark:text-gray-400 font-medium"><%= product.sku.presence || "—" %></p>
+      <p class="font-semibold text-[#0e1b12] dark:text-white truncate"><%= product.name %></p>
+    </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400 md:shrink-0"><%= product.display_variation %></p>
+  </div>
+
+  <!-- Preço / Adicionar -->
+  <div class="flex items-center gap-2 shrink-0">
+    <span class="font-bold text-primary text-sm whitespace-nowrap" style="color: var(--color-primary);">
+      <%= number_to_currency(product.base_price || 0, unit: "R$ ", separator: ",", delimiter: ".") %>
+    </span>
+
+    <% if in_sale %>
+      <span class="text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">×<%= quantity %></span>
+      <%= button_to backoffice_sale_item_path(sale, sale_item),
+          method: :delete,
+          form: { data: { turbo_frame: "_top", turbo_confirm: "Remover este item da venda?" }, class: "inline" },
+          class: "p-1.5 rounded text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors",
+          title: "Remover da venda" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      <% end %>
+    <% else %>
+      <%= form_with url: backoffice_sale_items_path(sale), method: :post, local: false, data: { turbo_frame: "_top" }, class: "inline" do |f| %>
+        <%= f.hidden_field :product_id, value: product.id %>
+        <%= f.hidden_field :quantity, value: 1 %>
+        <%= f.hidden_field :unit_price, value: product.base_price || 0 %>
+        <button type="submit" class="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="Adicionar">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+</div>

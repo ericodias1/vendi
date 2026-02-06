@@ -87,8 +87,15 @@
             </td>
             
             <!-- Ações -->
-            <td class="px-4 py-3 text-right">
-              <%= link_to backoffice_product_path(product), 
+            <td class="px-4 py-3 text-right" onclick="event.stopPropagation()">
+              <%= button_to backoffice_product_quick_sale_path(product),
+                  method: :post,
+                  form: { onclick: "event.stopPropagation()", class: "inline" },
+                  class: "inline-flex items-center justify-center w-8 h-8 rounded-lg text-primary hover:bg-primary/10 transition-colors mr-1 border-0 bg-transparent cursor-pointer",
+                  title: "Venda rápida" do %>
+                <span class="material-symbols-outlined text-xl">bolt</span>
+              <% end %>
+              <%= link_to backoffice_product_path(product),
                   class: "inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800 transition-colors" do %>
                 <span class="material-symbols-outlined text-xl">chevron_right</span>
               <% end %>

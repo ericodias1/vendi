@@ -21,6 +21,12 @@
       <div
         class="hidden absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800 py-2 z-50"
         data-dropdown-target="menu">
+        <%= button_to backoffice_product_quick_sale_path(@product),
+            method: :post,
+            class: "w-full flex items-center gap-3 px-4 py-3 text-sm text-left text-[#0e1b12] dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors border-0 bg-transparent cursor-pointer" do %>
+          <span class="material-symbols-outlined text-xl">bolt</span>
+          <span>Venda rápida</span>
+        <% end %>
         <%= link_to edit_backoffice_product_stock_adjustment_path(@product),
             class: "flex items-center gap-3 px-4 py-3 text-sm text-[#0e1b12] dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" do %>
           <span class="material-symbols-outlined text-xl">edit_square</span>
@@ -56,9 +62,88 @@
     </div>
 
     <!-- Product Details Section -->
-    <section class="pt-6 pb-4 @xl:pt-0 @xl:flex-1">
+    <section class="pt-6 pb-4 @xl:pt-0 @xl:flex-1 space-y-4">
+      <!-- Detalhes do produto -->
       <div class="bg-white dark:bg-[#1a2e1f] border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
-        <!-- Stock Info Card -->
+        <%= render 'shared/ui/heading', text: "Detalhes do produto", size: :md, class: "mb-4" %>
+        <dl class="space-y-3 text-sm text-zinc-700 dark:text-zinc-200">
+          <% if @product.brand.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Marca</dt>
+              <dd class="font-medium text-right"><%= @product.brand %></dd>
+            </div>
+          <% end %>
+          <% if @product.category.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Categoria</dt>
+              <dd class="font-medium text-right"><%= @product.category %></dd>
+            </div>
+          <% end %>
+          <% if @product.size.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Tamanho</dt>
+              <dd class="font-medium text-right"><%= @product.size %></dd>
+            </div>
+          <% end %>
+          <% if @product.color.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Cor</dt>
+              <dd class="font-medium text-right"><%= @product.color %></dd>
+            </div>
+          <% end %>
+          <% if @product.sku.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">SKU</dt>
+              <dd class="font-medium text-right font-mono"><%= @product.sku %></dd>
+            </div>
+          <% end %>
+          <% if @product.supplier.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Fornecedor</dt>
+              <dd class="font-medium text-right"><%= @product.supplier %></dd>
+            </div>
+          <% end %>
+          <% if @product.supplier_code.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Código do fornecedor</dt>
+              <dd class="font-medium text-right"><%= @product.supplier_code %></dd>
+            </div>
+          <% end %>
+          <% if @product.material.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Material</dt>
+              <dd class="font-medium text-right"><%= @product.material %></dd>
+            </div>
+          <% end %>
+          <div class="flex items-center justify-between gap-4">
+            <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Preço de venda</dt>
+            <dd class="font-medium text-right"><%= decorate(@product).formatted_price %></dd>
+          </div>
+          <% if @product.cost_price.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Preço de custo</dt>
+              <dd class="font-medium text-right">
+                <%= number_to_currency(@product.cost_price, unit: "R$ ", separator: ",", delimiter: ".") %>
+              </dd>
+            </div>
+          <% end %>
+          <% if @product.last_sold_at.present? %>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-zinc-500 dark:text-zinc-400 shrink-0">Última venda</dt>
+              <dd class="font-medium text-right"><%= l(@product.last_sold_at.to_date, format: :long) %></dd>
+            </div>
+          <% end %>
+          <% if @product.description.present? %>
+            <div class="pt-2 border-t border-zinc-200 dark:border-zinc-700">
+              <dt class="text-zinc-500 dark:text-zinc-400 mb-1">Descrição</dt>
+              <dd class="font-medium text-zinc-700 dark:text-zinc-200 whitespace-pre-wrap"><%= @product.description %></dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+
+      <!-- Stock Info Card -->
+      <div class="bg-white dark:bg-[#1a2e1f] border border-zinc-200 dark:border-zinc-800 rounded-xl p-4">
         <div class="flex items-center gap-4 min-h-[80px] py-2">
           <div class="text-primary flex items-center justify-center rounded-xl bg-primary/10 shrink-0 size-12">
             <span class="material-symbols-outlined">inventory_2</span>
@@ -86,6 +171,12 @@
 <!-- Bottom Sticky Actions (Mobile Only) -->
 <div class="fixed-footer flex flex-col gap-3 @xl:hidden">
   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+    <%= button_to backoffice_product_quick_sale_path(@product),
+        method: :post,
+        class: "flex items-center justify-center gap-2 h-14 rounded-full btn-base btn-lg btn-primary w-full" do %>
+      <span class="material-symbols-outlined">bolt</span>
+      <span>Venda rápida</span>
+    <% end %>
     <%= render 'shared/ui/button',
         variant: :primary,
         size: :lg,

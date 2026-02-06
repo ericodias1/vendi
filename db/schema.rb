@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_31_013407) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_06_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -138,6 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_31_013407) do
     t.bigint "account_id", null: false
     t.boolean "auto_generate_sku", default: false, null: false
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.integer "failed_rows", default: 0
     t.boolean "ignore_errors", default: true, null: false
     t.jsonb "import_errors", default: []
@@ -154,6 +155,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_31_013407) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["account_id"], name: "index_product_imports_on_account_id"
+    t.index ["deleted_at"], name: "index_product_imports_on_deleted_at"
     t.index ["source_type"], name: "index_product_imports_on_source_type"
     t.index ["status"], name: "index_product_imports_on_status"
     t.index ["user_id"], name: "index_product_imports_on_user_id"

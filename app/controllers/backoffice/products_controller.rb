@@ -121,7 +121,7 @@ module Backoffice
       filename = "conciliacao-produtos-#{Time.zone.now.strftime('%Y%m%d')}.csv"
 
       csv_string = CSV.generate(headers: true, col_sep: ",", encoding: "UTF-8") do |csv|
-        csv << %w[id nome descricao sku codigo_fornecedor preco_base preco_custo categoria marca cor tamanho quantidade_estoque ativo]
+        csv << %w[id nome descricao sku codigo_fornecedor preco_custo preco_venda categoria marca cor tamanho quantidade_estoque ativo]
         products.find_each do |p|
           csv << [
             p.id,
@@ -129,8 +129,8 @@ module Backoffice
             p.description,
             p.sku,
             p.supplier_code,
-            p.base_price&.to_f,
             p.cost_price&.to_f,
+            p.base_price&.to_f,
             p.category,
             p.brand,
             p.color,

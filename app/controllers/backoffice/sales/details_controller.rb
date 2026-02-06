@@ -14,15 +14,8 @@ module Backoffice
 
       def update_payment
         payment_method = params[:payment_method]
-        
-        # Validação: se método de pagamento for "fiado", cliente é obrigatório
-        if payment_method == "fiado" && @sale.customer_id.blank?
-          @sale.errors.add(:customer_id, "é obrigatório para pagamento em fiado")
-          render :edit, status: :unprocessable_entity
-          return
-        end
 
-        # Criar ou atualizar payment
+        # Salvar o método de pagamento sempre (a validação de cliente para fiado é feita na finalização)
         if @sale.payment.blank?
           @sale.create_payment!(
             method: payment_method,

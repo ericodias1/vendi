@@ -105,10 +105,10 @@ module Backoffice
           normalized[:ativo] = true # Default
         end
 
-        # Converter números
+        # Converter números (preco_venda: coluna nova; preco_base mantido para compatibilidade com CSVs antigos)
         normalized[:id] = normalize_integer(normalized[:id])
-        normalized[:preco_base] = normalize_decimal(normalized[:preco_base])
         normalized[:preco_custo] = normalize_decimal(normalized[:preco_custo])
+        normalized[:preco_venda] = normalize_decimal(normalized[:preco_venda] || normalized[:preco_base])
         normalized[:quantidade_estoque] = normalize_integer(normalized[:quantidade_estoque])
 
         # Campos opcionais podem ser nil se vazios
@@ -136,16 +136,9 @@ module Backoffice
       end
 
       def normalize_decimal(value)
-        return nil if value.blank?
-
-        # Remove espaços e converte para float
-        cleaned = value.to_s.strip.gsub(',', '.')
-        decimal = Float(cleaned)
-
-        return nil if decimal < 0
+        decimal = CurrencyParser.parse(value)
+        return nil if decimal.nil? || decimal < 0
         decimal
-      rescue ArgumentError, TypeError
-        nil
       end
 
       def normalize_integer(value)
@@ -174,12 +167,12 @@ module Backoffice
         end
 
         # Preços devem ser positivos se informados
-        if row_data[:preco_base].present? && row_data[:preco_base] < 0
-          errors << "Preço base deve ser maior ou igual a zero"
-        end
-
         if row_data[:preco_custo].present? && row_data[:preco_custo] < 0
           errors << "Preço de custo deve ser maior ou igual a zero"
+        end
+
+        if row_data[:preco_venda].present? && row_data[:preco_venda] < 0
+          errors << "Preço de venda deve ser maior ou igual a zero"
         end
 
         # ID (quando presente) deve ser inteiro positivo

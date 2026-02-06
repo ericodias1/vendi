@@ -1,9 +1,9 @@
 <%= turbo_stream.update "sale_items_section" do %>
   <% if @sale.sale_items.any? %>
-    <h3 class="text-sm font-bold uppercase tracking-wider text-[#4e9767] mb-3">Itens Selecionados</h3>
-    <div id="sale_items_list">
+    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-tight mb-2 px-1">Itens na venda</p>
+    <div id="sale_items_list" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
       <% @sale.sale_items.each do |item| %>
-        <%= render 'backoffice/sales/items/sale_item', item: item, sale: @sale %>
+        <%= render 'backoffice/sales/items/sale_item_footer', item: item, sale: @sale %>
       <% end %>
     </div>
   <% else %>
@@ -28,6 +28,10 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
     </svg>
   <% end %>
+<% end %>
+
+<%= turbo_stream.update "product_row_#{@product.id}" do %>
+  <%= render 'backoffice/sales/products/product_list_row', product: @product, sale: @sale %>
 <% end %>
 
 <%= turbo_stream.append "toast-container" do %>

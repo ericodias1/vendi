@@ -7,6 +7,8 @@ class ProductImport < ApplicationRecord
   has_many :products, dependent: :nullify
   has_one_attached :file
 
+  default_scope { where(deleted_at: nil) }
+
   NAME_NORMALIZATION_MODES = %w[none uppercase sentence title].freeze
   IMPORT_MODES = %w[create_only update_only].freeze
 
@@ -16,6 +18,15 @@ class ProductImport < ApplicationRecord
   validates :user_id, presence: true
   validates :name_normalization, inclusion: { in: NAME_NORMALIZATION_MODES }, allow_nil: true
   validates :import_mode, presence: true, inclusion: { in: IMPORT_MODES }
+
+  # Excluir (soft delete) só é permitido quando a importação NÃO foi concluída com sucesso
+  def deletable?
+    status != "completed"
+  end
+
+  def discard!
+    update!(deleted_at: Time.current)
+  end
 
   def create_only?
     import_mode == "create_only"
@@ -30,7 +41,8 @@ class ProductImport < ApplicationRecord
   def revertible?
     return false unless status == "completed"
 
-    !products.joins(:stock_movements).where(stock_movements: { movement_type: "sale" }).exists?
+    # Não é reversível se algum produto da importação tiver vendas confirmadas (não rascunho)
+    !products.joins(sale_items: :sale).where.not(sales: { status: "draft" }).exists?
   end
 
   def status_label

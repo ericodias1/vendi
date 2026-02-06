@@ -6,17 +6,15 @@ module Backoffice
       before_action :set_sale
 
       def edit
-        # IDs dos produtos que já estão na venda
+        # IDs dos produtos que já estão na venda (apenas para chips "Recentes")
         product_ids_in_sale = @sale.sale_items.pluck(:product_id)
-        
-        # Lista de produtos (excluindo os que já estão na venda)
+
+        # Lista de produtos: inclui todos (busca). Produtos na venda aparecem com qty e botão remover.
         @products = current_account.products.active.includes(:images_attachments)
-        @products = @products.where.not(id: product_ids_in_sale) if product_ids_in_sale.any?
         @products = @products.search(params[:search]) if params[:search].present?
         @products = @products.limit(50)
-        
-        # Produtos recentes (mais vendidos nos últimos 7 dias)
-        # Excluir produtos que já estão na venda
+
+        # Produtos recentes (mais vendidos nos últimos 7 dias) — excluir os que já estão na venda
         @recent_products = current_account.products
                                           .joins(:stock_movements)
                                           .where(stock_movements: { movement_type: 'sale' })

@@ -55,8 +55,10 @@ module Backoffice
 
     def destroy
       if @sale.can_cancel? || @sale.draft?
+        was_draft = @sale.draft?
         @sale.cancel!(reason: params[:cancellation_reason], user: current_user) unless @sale.cancelled?
-        redirect_to backoffice_sales_path, notice: "Venda cancelada com sucesso"
+        notice = was_draft ? "Rascunho excluído com sucesso" : "Venda cancelada com sucesso"
+        redirect_to backoffice_sales_path, notice: notice
       else
         redirect_to backoffice_sale_path(@sale), alert: "Não é possível cancelar esta venda"
       end

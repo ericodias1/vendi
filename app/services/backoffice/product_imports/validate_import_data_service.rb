@@ -20,18 +20,18 @@ module Backoffice
 
       def detect_duplicate_names_in_csv
         errors = []
-        name_map = {}
+        key_map = {}
 
         @product_import.parsed_data.each_with_index do |row_data, index|
-          product_name = row_data['nome'] || row_data[:nome]
-          next unless product_name.present?
+          composite_key = DuplicateKey.from_row(row_data)
+          next unless composite_key.present?
 
-          parameterized_name = product_name.to_s.parameterize
-          name_map[parameterized_name] ||= []
-          name_map[parameterized_name] << { row: index + 1, name: product_name, data: row_data }
+          product_name = row_data['nome'] || row_data[:nome]
+          key_map[composite_key] ||= []
+          key_map[composite_key] << { row: index + 1, name: product_name, data: row_data }
         end
 
-        name_map.each do |parameterized_name, entries|
+        key_map.each do |_key, entries|
           next if entries.length <= 1
 
           entries.each do |entry|
@@ -41,7 +41,7 @@ module Backoffice
             errors << {
               row: entry[:row],
               data: entry[:data],
-              errors: ["Nome duplicado: \"#{entry[:name]}\" (também na #{other_rows_text})"]
+              errors: ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho/marca/cor (também na #{other_rows_text})"]
             }
           end
         end

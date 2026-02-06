@@ -14,6 +14,7 @@
   input_id = local_assigns[:input_id] || (form ? "#{form.object_name}_#{field}" : "stock_quantity")
   value = local_assigns[:value] || (form ? form.object.send(field) : 0)
   min = local_assigns[:min] || 0
+  max = local_assigns[:max]
   step = local_assigns[:step] || 1
   wrapper_class = local_assigns[:wrapper_class] || "w-full"
   input_width = local_assigns[:input_width] || "w-12"
@@ -21,13 +22,14 @@
   # Atributos Alpine.js opcionais
   alpine_model = local_assigns[:alpine_model] # Ex: "stockQuantity"
   alpine_name = local_assigns[:alpine_name] # Ex: "informStock ? 'product[stock_quantity]' : ''"
+  form_id = local_assigns[:form_id] # Ex: "quick_sale_form" - associa o input a um form fora do componente
 %>
 <div class="flex items-center justify-center gap-3 text-[#0e1b12] dark:text-white bg-background-light dark:bg-background-dark/50 p-1 rounded-full border border-black/5 dark:border-white/5 <%= wrapper_class %>">
   <button 
     type="button"
     class="flex size-8 items-center justify-center rounded-full bg-white dark:bg-[#2a4533] shadow-sm text-primary hover:bg-primary/10 transition-colors"
     <% if alpine_model %>
-      @click="if (<%= alpine_model %> > 0) <%= alpine_model %>--"
+      @click="if (<%= alpine_model %> > <%= min %>) <%= alpine_model %>--"
     <% else %>
       onclick="decrementStock('<%= input_id %>')"
     <% end %>>
@@ -37,9 +39,11 @@
     <input type="number"
         <% if alpine_name %>:name="<%= alpine_name.html_safe %>"<% else %>name="<%= form ? "#{form.object_name}[#{field}]" : field.to_s %>"<% end %>
         id="<%= input_id %>"
+        <% if form_id %>form="<%= form_id %>"<% end %>
         x-model.number="<%= alpine_model %>"
         :value="<%= alpine_model %>"
         min="<%= min %>"
+        <% if max %>max="<%= max %>"<% end %>
         step="<%= step %>"
         class="text-base font-bold <%= input_width %> p-0 text-center bg-transparent focus:outline-0 focus:ring-0 border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
   <% elsif form %>
@@ -61,7 +65,7 @@
     type="button"
     class="flex size-8 items-center justify-center rounded-full bg-white dark:bg-[#2a4533] shadow-sm text-primary hover:bg-primary/10 transition-colors"
     <% if alpine_model %>
-      @click="<%= alpine_model %>++"
+      <% if max %>@click="if (<%= alpine_model %> < <%= max %>) <%= alpine_model %>++"<% else %>@click="<%= alpine_model %>++"<% end %>
     <% else %>
       onclick="incrementStock('<%= input_id %>')"
     <% end %>>

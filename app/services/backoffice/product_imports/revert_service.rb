@@ -26,7 +26,7 @@ module Backoffice
           validate_presence(:account, @account) &&
           validate_import_belongs_to_account &&
           validate_import_completed &&
-          validate_no_products_with_sales &&
+          validate_no_products_with_non_draft_sales &&
           errors.empty?
       end
 
@@ -44,18 +44,34 @@ module Backoffice
         false
       end
 
-      def validate_no_products_with_sales
+      def validate_no_products_with_non_draft_sales
         products_from_import = @account.products.from_import(@product_import)
-        with_sales = products_from_import.select(&:has_sales?)
-        return true if with_sales.none?
+        with_non_draft_sales = products_from_import.select(&:has_non_draft_sales?)
+        return true if with_non_draft_sales.none?
 
-        errors.add(:base, "Não é possível reverter: #{with_sales.size} produto(s) já possuem vendas registradas")
+        errors.add(
+          :base,
+          "Não é possível reverter: #{with_non_draft_sales.size} produto(s) possuem vendas confirmadas. " \
+          "Remova os produtos das vendas ou cancele as vendas antes de reverter a importação."
+        )
         false
       end
 
       def revert_products
-        @account.products.from_import(@product_import).find_each(&:destroy)
+        @account.products.from_import(@product_import).find_each do |product|
+          remove_product_from_draft_sales(product)
+          product.destroy
+        end
         @product_import.update!(status: "reverted")
+      end
+
+      def remove_product_from_draft_sales(product)
+        draft_sale_items = product.sale_items
+          .joins(:sale)
+          .where(sales: { status: "draft" })
+        affected_sale_ids = draft_sale_items.pluck(:sale_id).uniq
+        draft_sale_items.destroy_all
+        ::Sale.unscoped.where(id: affected_sale_ids).find_each(&:calculate_totals)
       end
     end
   end

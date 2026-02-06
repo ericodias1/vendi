@@ -7,7 +7,7 @@ module Backoffice
       before_action :set_item, only: [:update, :destroy]
 
       def create
-        @product = current_account.products.find(params[:product_id])
+        @product = current_account.products.includes(:images_attachments).find(params[:product_id])
         quantity = params[:quantity].to_i
         unit_price = params[:unit_price].to_f || @product.base_price || 0
 
@@ -43,6 +43,7 @@ module Backoffice
         end
 
         @sale.calculate_totals
+        @sale.sale_items.reload
 
         respond_to do |format|
           format.turbo_stream
@@ -55,22 +56,19 @@ module Backoffice
         if quantity <= 0
           @item.destroy!
           @sale.calculate_totals
+          @sale.sale_items.reload
           respond_to do |format|
             format.turbo_stream { render :destroy }
           end
           return
         end
 
-        # Validar estoque
-        if @item.product.stock_quantity < quantity
-          render turbo_stream: turbo_stream.append("toast-container") do
-            render 'shared/ui/toast', type: :error, message: "Estoque insuficiente. Disponível: #{@item.product.stock_quantity} unidades"
-          end
-          return
-        end
-
+        # Em rascunho permitimos atualizar a quantidade; estoque é validado na finalização
         @item.update!(quantity: quantity)
         @sale.calculate_totals
+        @sale.sale_items.reload
+
+        @stock_warning = @item.product.stock_quantity < quantity
 
         respond_to do |format|
           format.turbo_stream
@@ -80,6 +78,7 @@ module Backoffice
       def destroy
         @item.destroy!
         @sale.calculate_totals
+        @sale.sale_items.reload
 
         respond_to do |format|
           format.turbo_stream
@@ -93,7 +92,7 @@ module Backoffice
       end
 
       def set_item
-        @item = @sale.sale_items.find(params[:id])
+        @item = @sale.sale_items.includes(product: :images_attachments).find(params[:id])
       end
     end
   end

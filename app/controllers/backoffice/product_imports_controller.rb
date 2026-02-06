@@ -114,6 +114,18 @@ module Backoffice
       end
     end
 
+    def destroy
+      @product_import = current_account.product_imports.find(params[:id])
+
+      unless @product_import.deletable?
+        redirect_to backoffice_product_imports_path, alert: "Não é possível excluir uma importação já concluída com sucesso."
+        return
+      end
+
+      @product_import.discard!
+      redirect_to backoffice_product_imports_path, notice: "Importação excluída da lista."
+    end
+
     def revert
       @product_import = current_account.product_imports.find(params[:id])
       service = Backoffice::ProductImports::RevertService.new(
@@ -190,27 +202,34 @@ module Backoffice
         next false unless error.is_a?(Hash)
         error_list = error['errors'] || error[:errors]
         next false unless error_list.is_a?(Array)
-        error_list.all? { |e| e.is_a?(String) && e.downcase.include?('nome duplicado') }
+        error_list.all? do |e|
+          e.is_a?(String) && (
+            e.downcase.include?('produto duplicado') ||
+            e.downcase.include?('nome duplicado') ||
+            e.downcase.include?('também na linha')
+          )
+        end
       end
 
-      # Calcular novas duplicatas
-      name_map = {}
+      # Calcular novas duplicatas por chave composta (nome + tamanho + marca + cor)
+      key_map = {}
       product_import.parsed_data.each_with_index do |row_data, index|
+        composite_key = Backoffice::ProductImports::DuplicateKey.from_row(row_data)
+        next unless composite_key.present?
         product_name = row_data['nome'] || row_data[:nome]
-        next unless product_name.present?
-        parameterized_name = product_name.to_s.strip.downcase
-        name_map[parameterized_name] ||= []
-        name_map[parameterized_name] << { row: index + 1, name: product_name }
+        key_map[composite_key] ||= []
+        key_map[composite_key] << { row: index + 1, name: product_name, data: row_data }
       end
 
       new_errors = []
-      name_map.each do |_name, entries|
+      key_map.each do |_key, entries|
         next if entries.length <= 1
         entries.each do |entry|
           other_rows = entries.reject { |e| e[:row] == entry[:row] }.map { |e| e[:row] }
           new_errors << {
             'row' => entry[:row],
-            'errors' => ["Nome duplicado: \"#{entry[:name]}\" (também na linha #{other_rows.join(', ')})"]
+            'data' => entry[:data],
+            'errors' => ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho/marca/cor (também na linha #{other_rows.join(', ')})"]
           }
         end
       end
