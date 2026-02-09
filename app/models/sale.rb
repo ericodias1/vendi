@@ -42,6 +42,20 @@ class Sale < ApplicationRecord
   before_validation :generate_sale_number, on: :create, if: -> { sale_number.blank? }
   after_create :calculate_totals
 
+  # Rede de segurança: se outro processo gerou o mesmo número (ex.: timezone/replica),
+  # regenera e tenta salvar uma vez.
+  def save(*args, **kwargs)
+    super(*args, **kwargs)
+  rescue ActiveRecord::RecordNotUnique => e
+    raise unless unique_violation_sale_number?(e)
+    raise if @_sale_number_retry
+
+    @_sale_number_retry = true
+    self.sale_number = nil
+    generate_sale_number
+    self.save(*args, **kwargs)
+  end
+
   def generate_sale_number
     return if sale_number.present?
     
@@ -135,5 +149,13 @@ class Sale < ApplicationRecord
     if discount_amount > subtotal
       errors.add(:discount_amount, "não pode ser maior que o subtotal")
     end
+  end
+
+  def unique_violation_sale_number?(exception)
+    return true if exception.message.include?("index_sales_on_sale_number")
+    return true if exception.message.include?("sale_number")
+
+    cause = exception.cause
+    cause.is_a?(PG::UniqueViolation) && cause.message.include?("sale_number")
   end
 end

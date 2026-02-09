@@ -49,6 +49,9 @@ env:
     # Conecta ao PostgreSQL accessory (hostname na rede interna Kamal).
     DB_HOST: vendi-db
 
+    # Mesmo fuso da aplicação (config.time_zone). Evita Date.current diferente entre processos.
+    TZ: America/Sao_Paulo
+
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
 

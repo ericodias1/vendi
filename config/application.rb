@@ -33,7 +33,9 @@ module Vendi
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # Fuso horário da aplicação. Date.current e Time.current usam isso.
+    # Evita divergência entre containers/processos (ex.: sale_number por dia).
+    config.time_zone = "America/Sao_Paulo"
     # config.eager_load_paths << Rails.root.join("extras")
     
     # I18n configuration
