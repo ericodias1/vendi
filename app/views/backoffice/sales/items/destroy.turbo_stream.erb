@@ -12,7 +12,11 @@
 <% end %>
 
 <%= turbo_stream.replace "sale_summary" do %>
-  <%= render 'backoffice/sales/steps/sale_summary', sale: @sale %>
+  <%= render 'backoffice/sales/steps/sale_summary', sale: @sale, show_alterar_on_mobile: true %>
+<% end %>
+
+<%= turbo_stream.update "sale_items_modal_list" do %>
+  <%= render 'backoffice/sales/items/sale_items_modal_list', sale: @sale %>
 <% end %>
 
 <%= turbo_stream.update "continue_button" do %>

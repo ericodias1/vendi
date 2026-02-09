@@ -14,7 +14,7 @@
   back_path = local_assigns[:back_path] || :back
   header_class = local_assigns[:class] || ""
 %>
-<header class="sticky -top-6 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-6 pb-2 <%= header_class %>">
+<header class="max-lg:relative lg:sticky lg:-top-6 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-6 pb-2 <%= header_class %>">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-3">
       <%= render 'shared/ui/back_link', path: back_path, only_icon: true, class: "text-[#0e1b12] dark:text-white cursor-pointer" %>

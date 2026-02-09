@@ -1,0 +1,10 @@
+<%
+  sale = local_assigns[:sale] || @sale
+%>
+<% if sale.sale_items.any? %>
+  <% sale.sale_items.each do |item| %>
+    <%= render 'backoffice/sales/items/sale_item_footer', item: item, sale: sale %>
+  <% end %>
+<% else %>
+  <p class="py-8 text-center text-gray-500 dark:text-gray-400 text-sm">Nenhum item na venda</p>
+<% end %>

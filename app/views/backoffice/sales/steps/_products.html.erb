@@ -4,7 +4,7 @@
   sale = local_assigns[:sale]
 %>
 
-<div data-controller="sale-form" data-sale-form-step-value="1">
+<div data-controller="sale-form" data-sale-form-step-value="1" x-data="{ showItemsModal: false }">
   <%= render 'shared/ui/step_header',
       title: "Registrar venda",
       current_step: 1,
@@ -12,8 +12,8 @@
       back_path: backoffice_sales_path %>
 
   <main class="flex-1 pb-48">
-    <!-- SearchBar -->
-    <div class="px-4 py-2">
+    <!-- SearchBar - sticky apenas no mobile para economizar espaço -->
+    <div class="px-4 py-2 max-lg:sticky max-lg:-top-4 max-lg:z-20 max-lg:bg-background-light max-lg:dark:bg-background-dark">
       <%= form_with url: edit_backoffice_sale_products_path(sale), method: :get, local: true, data: { turbo_frame: "_top" } do |f| %>
         <%= render 'shared/ui/search_input',
             form: f,
@@ -69,7 +69,7 @@
 
   <!-- Footer sticky: Itens na venda + Resumo + Continuar -->
   <div class="fixed-footer">
-    <div id="sale_items_section" class="mb-3 max-h-40 overflow-y-auto">
+    <div id="sale_items_section" class="mb-3 max-h-40 overflow-y-auto max-lg:hidden">
       <% if sale.sale_items.any? %>
         <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-tight mb-2 px-1">Itens na venda</p>
         <div id="sale_items_list" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
@@ -81,7 +81,7 @@
         <div id="sale_items_list" class="hidden"></div>
       <% end %>
     </div>
-    <%= render 'backoffice/sales/steps/sale_summary', sale: sale %>
+    <%= render 'backoffice/sales/steps/sale_summary', sale: sale, show_alterar_on_mobile: true %>
     <div id="continue_button">
       <%= render 'shared/ui/button',
           href: edit_backoffice_sale_details_path(sale),
@@ -97,5 +97,44 @@
       <% end %>
     </div>
     <div class="h-4"></div>
+  </div>
+
+  <!-- Modal de itens (apenas mobile) -->
+  <div x-show="showItemsModal"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-200"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       class="fixed inset-0 z-50 bg-black/40 flex items-end justify-center lg:hidden"
+       style="display: none;"
+       @click.self="showItemsModal = false">
+
+    <div x-show="showItemsModal"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="translate-y-full"
+         x-transition:enter-end="translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="translate-y-0"
+         x-transition:leave-end="translate-y-full"
+         class="bg-white dark:bg-[#1a2e20] w-full max-h-[85vh] rounded-t-2xl shadow-2xl flex flex-col"
+         @click.stop>
+
+      <div class="w-12 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mt-3 mb-4 shrink-0"></div>
+
+      <div class="px-4 pb-2 flex items-center justify-between shrink-0">
+        <h2 class="text-lg font-bold text-[#0e1b12] dark:text-white">Itens na venda</h2>
+        <button type="button"
+                @click="showItemsModal = false"
+                class="p-2 -m-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div id="sale_items_modal_list" class="flex-1 overflow-y-auto px-4 pb-6">
+        <%= render 'backoffice/sales/items/sale_items_modal_list', sale: sale %>
+      </div>
+    </div>
   </div>
 </div>

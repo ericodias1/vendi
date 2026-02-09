@@ -1,4 +1,3 @@
-<%= turbo_stream.update "item_quantity_#{@item.id}", @item.quantity.to_s %>
 <%= turbo_stream.update "sale_items_section" do %>
   <% if @sale.sale_items.any? %>
     <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-tight mb-2 px-1">Itens na venda</p>
@@ -13,7 +12,11 @@
 <% end %>
 
 <%= turbo_stream.replace "sale_summary" do %>
-  <%= render 'backoffice/sales/steps/sale_summary', sale: @sale %>
+  <%= render 'backoffice/sales/steps/sale_summary', sale: @sale, show_alterar_on_mobile: true %>
+<% end %>
+
+<%= turbo_stream.update "sale_items_modal_list" do %>
+  <%= render 'backoffice/sales/items/sale_items_modal_list', sale: @sale %>
 <% end %>
 
 <%= turbo_stream.update "continue_button" do %>
