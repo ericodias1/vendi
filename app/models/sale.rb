@@ -25,8 +25,9 @@ class Sale < ApplicationRecord
 
   scope :recent, -> { order(created_at: :desc) }
   scope :paid, -> { where(status: "paid") }
-  scope :draft, -> { unscoped.where(status: "draft") }
-  scope :with_drafts, -> { unscoped }
+  # Apenas remove o default_scope (not draft), mantendo demais escopos (ex.: account da associação).
+  scope :with_drafts, -> { unscope(where: :status) }
+  scope :draft, -> { where(status: "draft") }
   scope :today, -> { where('created_at >= ?', Date.current.beginning_of_day) }
   scope :this_week, -> { where('created_at >= ?', 7.days.ago.beginning_of_day) }
   scope :this_month, -> { where('created_at >= ?', Date.current.beginning_of_month) }
