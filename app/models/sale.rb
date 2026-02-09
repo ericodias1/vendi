@@ -153,6 +153,7 @@ class Sale < ApplicationRecord
   end
 
   def unique_violation_sale_number?(exception)
+    return true if exception.message.include?("index_sales_on_account_id_and_sale_number")
     return true if exception.message.include?("index_sales_on_sale_number")
     return true if exception.message.include?("sale_number")
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_06_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_09_202333) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -237,10 +237,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_06_120000) do
     t.integer "total_items", default: 0
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["account_id", "sale_number"], name: "index_sales_on_account_id_and_sale_number", unique: true
     t.index ["account_id"], name: "index_sales_on_account_id"
     t.index ["created_at"], name: "index_sales_on_created_at"
     t.index ["customer_id"], name: "index_sales_on_customer_id"
-    t.index ["sale_number"], name: "index_sales_on_sale_number", unique: true
     t.index ["status"], name: "index_sales_on_status"
     t.index ["user_id"], name: "index_sales_on_user_id"
   end
