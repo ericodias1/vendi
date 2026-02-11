@@ -75,8 +75,7 @@ class ProductImport < ApplicationRecord
     when 'csv'
       Backoffice::ProductImports::ParseCsvService.new(product_import: self).call
     when 'xml'
-      # Backoffice::ProductImports::ParseXmlService.new(product_import: self).call
-      # TODO: Implementar ParseXmlService no futuro
+      Backoffice::ProductImports::ParseXmlService.new(product_import: self).call
     end
   end
 end

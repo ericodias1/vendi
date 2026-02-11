@@ -83,6 +83,20 @@ module Backoffice
       end
 
       def process_create_mode(product_attributes, row_number, row_data)
+        # Mesmo código do fornecedor: não duplicar produto, apenas somar quantidade
+        if product_attributes[:supplier_code].present?
+          existing = @account.products.find_by(supplier_code: product_attributes[:supplier_code])
+          if existing
+            result = @product_builder.add_quantity_to_existing(
+              existing,
+              product_attributes[:stock_quantity],
+              row_number: row_number
+            )
+            track_result_for_existing(result, existing, row_number, row_data)
+            return result
+          end
+        end
+
         apply_name_normalization(product_attributes)
         generate_sku_if_needed(product_attributes)
 
@@ -135,6 +149,22 @@ module Backoffice
           )
           @import_result.track_name(composite_key)
           @import_result.track_sku(product_attributes[:sku])
+          @import_result.record_success
+        else
+          @import_result.record_failure(row_number, row_data, result[:errors])
+        end
+      end
+
+      def track_result_for_existing(result, existing_product, row_number, row_data)
+        if result[:success]
+          composite_key = DuplicateKey.from_attributes(
+            name: existing_product.name,
+            size: existing_product.size,
+            brand: existing_product.brand,
+            color: existing_product.color
+          )
+          @import_result.track_name(composite_key)
+          @import_result.track_sku(existing_product.sku)
           @import_result.record_success
         else
           @import_result.record_failure(row_number, row_data, result[:errors])

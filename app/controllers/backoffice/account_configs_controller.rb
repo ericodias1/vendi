@@ -11,6 +11,8 @@ module Backoffice
     end
 
     def update
+      account_logo = params.dig(:account_config, :account, :logo)
+      current_account.logo.attach(account_logo) if account_logo.present?
       if @account_config.update(account_config_params)
         respond_to do |format|
           format.html { redirect_to backoffice_account_config_path, notice: "Configurações atualizadas com sucesso" }
@@ -58,12 +60,16 @@ module Backoffice
         :automatic_pricing_rounding_mode,
         :automatic_pricing_use_csv_when_cost_empty,
         :product_import_auto_generate_sku,
+        :product_import_sku_generation_mode,
         :product_import_ignore_errors,
         :product_import_prevent_duplicate_names,
         :product_import_name_normalization,
+        :label_show_logo,
         enabled_sizes: [],
-        enabled_colors: []
+        enabled_colors: [],
+        label_fields: []
       )
     end
+
   end
 end

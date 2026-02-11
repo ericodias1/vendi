@@ -7,6 +7,7 @@
   form = local_assigns[:form]
   field = local_assigns[:field] || :images
   existing_image = local_assigns[:existing_image]
+  multiple = local_assigns.fetch(:multiple, true)
   wrapper_class = local_assigns[:wrapper_class] || ""
   preview_class = local_assigns[:preview_class] || "w-full h-48"
   # `existing_image` pode ser um ActiveStorage::Attachment (ex: images.first),
@@ -43,13 +44,8 @@
   <label class="w-full flex items-center justify-center gap-2 border-2 border-primary text-[#0e1b12] dark:text-white py-3 rounded-xl font-semibold hover:bg-primary/10 transition-colors cursor-pointer">
     <span class="material-symbols-outlined">add_a_photo</span>
     <span>Adicionar foto</span>
-    <%= form.file_field field, 
-        multiple: true, 
-        accept: "image/*",
-        data: {
-          image_upload_target: "input",
-          action: "change->image-upload#selectFile"
-        },
-        class: "hidden" %>
+    <% file_field_options = { accept: "image/*", data: { image_upload_target: "input", action: "change->image-upload#selectFile" }, class: "hidden" } %>
+    <% file_field_options[:multiple] = true if multiple %>
+    <%= form.file_field field, file_field_options %>
   </label>
 </div>

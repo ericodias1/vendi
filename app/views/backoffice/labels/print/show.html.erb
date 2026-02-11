@@ -1,0 +1,7 @@
+<div class="label-grid">
+  <% @products.each do |product| %>
+    <div class="label-cell">
+      <%= render "backoffice/labels/print/label", product: product, label_settings: @label_settings %>
+    </div>
+  <% end %>
+</div>

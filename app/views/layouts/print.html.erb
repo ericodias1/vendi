@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Etiquetas - Vendi Gestão</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 0.5rem; font-family: system-ui, sans-serif; font-size: 12px; }
+      @media print {
+        body { padding: 0; }
+        .no-print { display: none !important; }
+        .label-grid { break-inside: avoid; }
+      }
+      .label-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0;
+        max-width: 210mm;
+        margin: 0 auto;
+        border-left: 1px solid #ccc;
+        border-top: 1px solid #ccc;
+      }
+      @media (min-width: 120mm) {
+        .label-grid { grid-template-columns: repeat(3, 1fr); }
+      }
+      .label-cell {
+        width: 100%;
+        min-height: 28mm;
+        padding: 2mm 3mm;
+        border-right: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+      @media print {
+        .label-grid {
+          border-left-color: #333;
+          border-top-color: #333;
+        }
+        .label-cell {
+          min-height: 30mm;
+          border-right: 1px solid #333;
+          border-bottom: 1px solid #333;
+          page-break-inside: avoid;
+        }
+      }
+      .label-logo { max-height: 12mm; max-width: 100%; object-fit: contain; margin-bottom: 1mm; }
+      .label-line { margin: 0; line-height: 1.25; }
+      .label-line strong { font-size: 11px; }
+    </style>
+  </head>
+  <body>
+    <div class="no-print" style="margin-bottom: 1rem;">
+      <%= link_to "Voltar aos produtos", backoffice_products_path, style: "color: #059669; font-weight: 500;" %>
+      <button type="button" onclick="window.print();" style="margin-left: 1rem; padding: 0.25rem 0.75rem; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Imprimir</button>
+      <div style="margin-top: 0.75rem;">
+        <span style="font-weight: 500; margin-right: 0.5rem;">Quantidade de etiquetas:</span>
+        <%= link_to "Uma por produto", backoffice_labels_print_path(por_estoque: 0), style: "color: #{@por_estoque ? '#374151' : '#059669'}; font-weight: #{@por_estoque ? '400' : '600'};" %>
+        <span style="margin: 0 0.25rem; color: #9ca3af;">|</span>
+        <%= link_to "Uma por unidade em estoque", backoffice_labels_print_path(por_estoque: 1), style: "color: #{@por_estoque ? '#059669' : '#374151'}; font-weight: #{@por_estoque ? '600' : '400'};" %>
+      </div>
+    </div>
+    <%= yield %>
+  </body>
+</html>

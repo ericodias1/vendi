@@ -1,0 +1,19 @@
+<%
+  product = local_assigns[:product]
+  selected = local_assigns[:selected]
+  redirect_query = local_assigns[:redirect_query] || {}
+%>
+<div class="shrink-0 flex items-center pr-2" onclick="event.stopPropagation(); event.preventDefault();">
+  <div data-controller="label-selection"
+       data-label-selection-add-url-value="<%= add_backoffice_labels_products_path(redirect_query) %>"
+       data-label-selection-remove-url-value="<%= remove_backoffice_labels_products_path(redirect_query) %>"
+       data-label-selection-product-id-value="<%= product.id %>"
+       class="inline">
+    <label class="flex items-center cursor-pointer">
+      <input type="checkbox"
+             class="rounded border-slate-300 text-primary focus:ring-primary"
+             <%= "checked" if selected %>
+             data-action="change->label-selection#toggle" />
+    </label>
+  </div>
+</div>

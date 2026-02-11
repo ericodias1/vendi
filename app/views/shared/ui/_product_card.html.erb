@@ -9,10 +9,19 @@
   decorated_product = decorate(product)
   product_path = local_assigns[:path] || backoffice_product_path(product)
   show_quick_sale = local_assigns[:show_quick_sale]
+  selectable_for_labels = local_assigns[:selectable_for_labels]
+  selected_for_labels = local_assigns[:selected_for_labels]
+  labels_redirect_query = local_assigns[:labels_redirect_query] || {}
   card_class = "bg-white dark:bg-surface-dark p-3 rounded-xl flex items-center justify-between shadow-sm border border-gray-100 dark:border-gray-800 group active:scale-[0.98] transition-transform"
 %>
 <% if show_quick_sale %>
   <div class="<%= card_class %> flex">
+    <% if selectable_for_labels %>
+      <%= render 'backoffice/products/label_checkbox_card',
+          product: product,
+          selected: selected_for_labels,
+          redirect_query: labels_redirect_query %>
+    <% end %>
     <%= link_to product_path, class: "flex-1 flex items-center justify-between min-w-0" do %>
       <div class="flex items-center gap-3 min-w-0">
         <%= render 'shared/ui/product_avatar', product: product, size: :small %>

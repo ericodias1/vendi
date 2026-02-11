@@ -1,0 +1,24 @@
+<%
+  selected_count = local_assigns[:selected_count].to_i
+  redirect_query = local_assigns[:redirect_query] || {}
+%>
+<div id="labels_selection_banner">
+  <div class="labels_selection_banner_inner mt-4 p-3 bg-primary-soft dark:bg-primary/20 rounded-xl border border-primary/30 flex flex-wrap items-center gap-3" style="<%= 'display: none;' if selected_count == 0 %>">
+    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
+      <span id="labels_selection_count"><%= selected_count %></span> produto(s) selecionado(s) para etiquetas
+    </span>
+    <%= button_to remove_all_backoffice_labels_products_path(redirect_query),
+        method: :post,
+        form: { class: "inline" },
+        class: "text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline" do %>
+      Desmarcar todos os produtos
+    <% end %>
+    <%= link_to backoffice_labels_print_path,
+        target: "_blank",
+        rel: "noopener",
+        class: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors" do %>
+      <span class="material-symbols-outlined text-lg">print</span>
+      Imprimir etiquetas
+    <% end %>
+  </div>
+</div>

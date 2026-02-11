@@ -31,6 +31,33 @@ module Backoffice
         Product.set_current_user(nil)
       end
 
+      # Adiciona quantidade ao estoque de um produto existente (ex.: mesmo código fornecedor na importação).
+      def add_quantity_to_existing(product, quantity_to_add, row_number:)
+        return { success: false, product: product, errors: ["Quantidade deve ser positiva"] } if quantity_to_add.to_i <= 0
+
+        quantity_before = product.stock_quantity
+        quantity_after = quantity_before + quantity_to_add.to_i
+
+        Product.set_current_user(@current_user)
+        product.update!(stock_quantity: quantity_after)
+
+        StockMovement.create!(
+          product: product,
+          account: @account,
+          user: @current_user,
+          movement_type: :adjustment_in,
+          quantity_change: quantity_to_add.to_i,
+          quantity_before: quantity_before,
+          quantity_after: quantity_after,
+          observations: "Entrada - Importação ##{@product_import.id} (código fornecedor)",
+          metadata: { product_import_id: @product_import.id, row: row_number }
+        )
+
+        { success: true, product: product, errors: [] }
+      ensure
+        Product.set_current_user(nil)
+      end
+
       private
 
       def create_initial_stock_movement(product, row_number)

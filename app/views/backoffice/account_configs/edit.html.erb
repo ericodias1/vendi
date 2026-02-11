@@ -1,5 +1,5 @@
 <!-- Header -->
-<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
+<header class="sticky -top-6 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-4 pb-2 mb-4">
   <div class="flex items-center gap-4">
     <%= render 'shared/ui/back_link', path: backoffice_account_config_path, only_icon: true %>
     <%= render 'shared/ui/heading',
@@ -166,6 +166,18 @@
               label: "Gerar SKUs automaticamente",
               hint: "Se o produto não tiver SKU, será gerado automaticamente." %>
 
+          <%= render 'shared/ui/form_select',
+              form: f,
+              field: :product_import_sku_generation_mode,
+              label: "Forma de geração de SKU",
+              options: [
+                ["Começo do nome", "name_prefix"],
+                ["Apenas números", "numbers_only"],
+                ["Números e letras aleatórias", "numbers_and_letters"]
+              ],
+              prompt: "Começo do nome",
+              hint: "Define como o SKU é gerado quando não informado no arquivo." %>
+
           <%= render 'shared/ui/toggle',
               form: f,
               field: :product_import_ignore_errors,
@@ -285,6 +297,61 @@
         <p class="text-xs text-zinc-500 mt-3">
           <span data-account-config-form-target="colorCount">0</span> cores selecionadas
         </p>
+      </div>
+    </section>
+
+    <!-- Logo da loja -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <%= render 'shared/ui/heading',
+              text: "Logo da loja",
+              size: :md %>
+        </div>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+          Logo usado na loja e nas etiquetas de produtos (opcional). Se não houver upload, as etiquetas não exibem logo.
+        </p>
+        <%= f.fields_for :account, current_account do |af| %>
+          <%= render 'shared/ui/image_upload',
+              form: af,
+              field: :logo,
+              existing_image: current_account.logo.attached? ? current_account.logo : nil,
+              multiple: false,
+              preview_class: "w-full h-32 max-w-xs mx-auto" %>
+        <% end %>
+      </div>
+    </section>
+
+    <!-- Etiquetas de produtos -->
+    <section class="px-4 mb-6">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <%= render 'shared/ui/heading',
+              text: "Etiquetas de produtos",
+              size: :md %>
+        </div>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+          Escolha quais informações aparecem nas etiquetas ao imprimir. O logo da loja pode ser exibido no topo (configure o logo acima).
+        </p>
+        <%= render 'shared/ui/toggle',
+            form: f,
+            field: :label_show_logo,
+            label: "Mostrar logo da loja na etiqueta",
+            hint: "Exibe o logo da conta no topo de cada etiqueta." %>
+        <div>
+          <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Campos a exibir na etiqueta</p>
+          <div class="flex flex-wrap gap-3">
+            <% AccountConfig::LABEL_AVAILABLE_FIELDS.each do |field_key| %>
+              <label class="inline-flex items-center gap-2 cursor-pointer">
+                <%= check_box_tag "account_config[label_fields][]",
+                    field_key,
+                    @account_config.label_fields.include?(field_key),
+                    id: "label_field_#{field_key}" %>
+                <span class="text-sm text-zinc-700 dark:text-zinc-300"><%= AccountConfig::LABEL_FIELD_LABELS[field_key] || field_key.humanize %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
       </div>
     </section>
 

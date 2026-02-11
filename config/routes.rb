@@ -33,6 +33,18 @@ Rails.application.routes.draw do
 
     resource :account_config, only: [:show, :edit, :update]
 
+    namespace :labels do
+      get "print", to: "print#show", as: :print
+      resources :products, only: [], controller: "products" do
+        collection do
+          post :add
+          post :remove
+          post :add_all
+          post :remove_all
+        end
+      end
+    end
+
     resources :products, except: [] do
       resource :stock_adjustment, only: %i[edit update], controller: "products/stock_adjustments"
       resource :quick_sale, only: [:create], controller: "products/quick_sales"

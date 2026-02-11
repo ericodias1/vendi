@@ -1,9 +1,16 @@
 <%
   products = local_assigns[:products]
+  selected_product_ids = local_assigns[:selected_product_ids] || []
+  redirect_query = { filter: params[:filter], search: params[:search], page: params[:page] }
 %>
 
 <div class="space-y-3 pb-32">
   <% products.each do |product| %>
-    <%= render 'shared/ui/product_card', product: product, show_quick_sale: true %>
+    <%= render 'shared/ui/product_card',
+        product: product,
+        show_quick_sale: true,
+        selectable_for_labels: true,
+        selected_for_labels: selected_product_ids.include?(product.id),
+        labels_redirect_query: redirect_query %>
   <% end %>
 </div>

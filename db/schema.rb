@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_09_202333) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_11_174422) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,6 +37,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_09_202333) do
     t.boolean "product_import_ignore_errors", default: true, null: false
     t.string "product_import_name_normalization"
     t.boolean "product_import_prevent_duplicate_names", default: true, null: false
+    t.string "product_import_sku_generation_mode", default: "name_prefix"
     t.string "products_view_mode", default: "cards", null: false
     t.boolean "require_customer", default: false
     t.integer "stock_alert_threshold", default: 3
@@ -159,6 +160,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_09_202333) do
     t.index ["source_type"], name: "index_product_imports_on_source_type"
     t.index ["status"], name: "index_product_imports_on_status"
     t.index ["user_id"], name: "index_product_imports_on_user_id"
+  end
+
+  create_table "product_label_selections", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "product_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "product_id"], name: "index_product_label_selections_on_account_id_and_product_id", unique: true
+    t.index ["account_id"], name: "index_product_label_selections_on_account_id"
+    t.index ["product_id"], name: "index_product_label_selections_on_product_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -290,6 +301,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_09_202333) do
   add_foreign_key "payments", "sales"
   add_foreign_key "product_imports", "accounts"
   add_foreign_key "product_imports", "users"
+  add_foreign_key "product_label_selections", "accounts"
+  add_foreign_key "product_label_selections", "products"
   add_foreign_key "products", "accounts"
   add_foreign_key "products", "product_imports"
   add_foreign_key "sale_items", "products"

@@ -1,5 +1,8 @@
+<% base_query = { search: params[:search], filter: params[:filter], per_page: params[:per_page].presence, brand: params[:brand], size: params[:size], color: params[:color], supplier: params[:supplier], category: params[:category], product_import_id: params[:product_import_id], created_at_from: params[:created_at_from], created_at_to: params[:created_at_to] }.compact %>
+<% filter_chips_query = base_query.except(:page) %>
+
 <!-- Header -->
-<div class="mb-6">
+<div class="mb-6" x-data="{ showFiltersModal: false }">
   <div class="mb-4 flex items-center justify-between">
     <%= render 'shared/ui/heading',
         text: "Produtos",
@@ -8,21 +11,36 @@
 
   <!-- Search Bar -->
   <div class="flex gap-3 mb-4">
-    <%= form_with url: backoffice_products_path, method: :get, local: true, class: "flex flex-col w-full" do |f| %>
-      <div class="flex w-full h-12 items-center bg-white dark:bg-surface-dark rounded-xl px-4 shadow-sm border border-gray-100 dark:border-gray-800">
+    <%= form_with url: backoffice_products_path, method: :get, local: true, class: "flex flex-1 gap-2 items-center" do |f| %>
+      <%= f.hidden_field :filter, value: params[:filter] if params[:filter].present? %>
+      <% %i[per_page brand size color supplier category product_import_id created_at_from created_at_to].each do |param| %>
+        <%= f.hidden_field param, value: params[param] if params[param].present? %>
+      <% end %>
+      <div class="flex flex-1 h-12 items-center bg-white dark:bg-surface-dark rounded-xl px-4 shadow-sm border border-gray-100 dark:border-gray-800">
         <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 mr-2">search</span>
-        <%= f.text_field :search, 
+        <%= f.text_field :search,
             value: params[:search],
             placeholder: "Buscar por nome...",
             class: "flex-1 bg-transparent border-none focus:ring-0 text-base placeholder:text-gray-400 dark:placeholder:text-gray-500 p-0" %>
       </div>
+      <%= f.submit "Buscar",
+                    class: "h-12 px-4 rounded-xl font-semibold bg-primary text-white hover:bg-primary-dark transition-colors shrink-0 border-0 cursor-pointer" %>
+      <button type="button"
+              @click="showFiltersModal = true"
+              class="h-12 w-12 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shrink-0 relative"
+              title="Filtros avançados">
+        <span class="material-symbols-outlined">filter_list</span>
+        <% if params[:brand].present? || params[:size].present? || params[:color].present? || params[:supplier].present? || params[:category].present? || params[:product_import_id].present? || (params[:created_at_from].present? && params[:created_at_to].present?) %>
+          <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" title="Filtros ativos"></span>
+        <% end %>
+      </button>
     <% end %>
     <!-- Desktop Buttons (top right) -->
     <div class="hidden md:flex items-center gap-2 shrink-0">
       <%= render 'shared/ui/view_mode_selector',
           current_mode: @account_config&.products_view_mode || "cards",
-          cards_path: update_view_mode_backoffice_products_path(view_mode: 'cards', filter: params[:filter], search: params[:search], page: params[:page]),
-          table_path: update_view_mode_backoffice_products_path(view_mode: 'table', filter: params[:filter], search: params[:search], page: params[:page]) %>
+          cards_path: update_view_mode_backoffice_products_path(filter_chips_query.merge(view_mode: 'cards')),
+          table_path: update_view_mode_backoffice_products_path(filter_chips_query.merge(view_mode: 'table')) %>
       <%= render 'shared/ui/button',
           text: "",
           variant: :secondary,
@@ -47,21 +65,36 @@
   <!-- Chips / Filters -->
   <%= render 'shared/ui/filter_chips',
       filters: [
-        { key: nil, label: "Todos", path: backoffice_products_path(search: params[:search]) },
-        { key: "low_stock", label: "Estoque baixo", path: backoffice_products_path(filter: "low_stock", search: params[:search]) },
-        { key: "most_sold", label: "Mais vendidos", path: backoffice_products_path(filter: "most_sold", search: params[:search]) }
+        { key: nil, label: "Todos", path: backoffice_products_path(filter_chips_query.except(:filter)) },
+        { key: "low_stock", label: "Estoque baixo", path: backoffice_products_path(filter_chips_query.merge(filter: "low_stock")) },
+        { key: "most_sold", label: "Mais vendidos", path: backoffice_products_path(filter_chips_query.merge(filter: "most_sold")) }
       ],
       active_filter: params[:filter] %>
+
+  <% redirect_query = base_query.merge(page: params[:page]).compact %>
+  <%= render 'labels_selection_banner', selected_count: (@selected_product_ids || []).size, redirect_query: redirect_query %>
+
+  <% if @products.any? %>
+    <div class="mt-2">
+      <%= button_to add_all_backoffice_labels_products_path(redirect_query),
+          method: :post,
+          form: { class: "inline" },
+          class: "text-sm text-primary hover:text-primary-dark font-medium" do %>
+        Marcar todos os produtos para etiquetas (filtro atual)
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render 'filters_modal' %>
 </div>
 
 <!-- Product List -->
 <% if @products.any? %>
   <% view_mode = @account_config&.products_view_mode || "cards" %>
-  
   <% if view_mode == "table" %>
-    <%= render 'products_table', products: @products %>
+    <%= render 'products_table', products: @products, selected_product_ids: @selected_product_ids || [] %>
   <% else %>
-    <%= render 'products_cards', products: @products %>
+    <%= render 'products_cards', products: @products, selected_product_ids: @selected_product_ids || [] %>
   <% end %>
   
   <!-- Paginação -->
@@ -74,18 +107,18 @@
     %>
     <div class="flex items-center justify-center gap-2 py-6">
       <% if current_page > 1 %>
-        <%= link_to backoffice_products_path(filter: params[:filter], search: params[:search], page: current_page - 1),
+        <%= link_to backoffice_products_path(base_query.merge(page: current_page - 1)),
             class: "px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors" do %>
           Anterior
         <% end %>
       <% end %>
-      
+
       <span class="px-4 py-2 text-sm text-zinc-600 dark:text-zinc-400">
         Página <%= current_page %> de <%= total_pages %>
       </span>
-      
+
       <% if current_page < total_pages %>
-        <%= link_to backoffice_products_path(filter: params[:filter], search: params[:search], page: current_page + 1),
+        <%= link_to backoffice_products_path(base_query.merge(page: current_page + 1)),
             class: "px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors" do %>
           Próxima
         <% end %>
@@ -117,14 +150,14 @@
   { 
     icon: 'grid_view', 
     label: 'Ver em cards', 
-    href: update_view_mode_backoffice_products_path(view_mode: 'cards', filter: params[:filter], search: params[:search], page: params[:page]),
+    href: update_view_mode_backoffice_products_path(filter_chips_query.merge(view_mode: 'cards')),
     method: :patch,
     active: current_view_mode == 'cards'
   },
   { 
     icon: 'view_list', 
     label: 'Ver em tabela', 
-    href: update_view_mode_backoffice_products_path(view_mode: 'table', filter: params[:filter], search: params[:search], page: params[:page]),
+    href: update_view_mode_backoffice_products_path(filter_chips_query.merge(view_mode: 'table')),
     method: :patch,
     active: current_view_mode == 'table'
   }

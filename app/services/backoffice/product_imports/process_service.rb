@@ -65,7 +65,8 @@ module Backoffice
 
         # Inicializar componentes
         import_result = ImportResult.new
-        sku_generator = SkuGenerator.new(account: @account, import_result: import_result)
+        sku_mode = @account.account_config&.product_import_sku_generation_mode.presence || "name_prefix"
+        sku_generator = SkuGenerator.new(account: @account, import_result: import_result, mode: sku_mode)
         sku_validator = Validators::SkuValidator.new(account: @account, import_result: import_result)
         name_validator = Validators::NameValidator.new(account: @account, import_result: import_result)
         product_builder = ProductBuilder.new(

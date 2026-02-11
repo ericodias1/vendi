@@ -1,0 +1,135 @@
+<!-- Modal de Filtros Avançados -->
+<div x-show="showFiltersModal"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center"
+     style="display: none;"
+     @click.self="showFiltersModal = false">
+
+  <div x-show="showFiltersModal"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:enter-start="translate-y-full sm:translate-y-0 sm:scale-95"
+       x-transition:enter-end="translate-y-0 sm:scale-100"
+       x-transition:leave="transition ease-in duration-200"
+       x-transition:leave-start="translate-y-0 sm:scale-100"
+       x-transition:leave-end="translate-y-full sm:translate-y-0 sm:scale-95"
+       class="bg-white dark:bg-[#1a2e20] w-full max-w-md rounded-t-[2.5rem] sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+
+    <!-- Handle para mobile -->
+    <div class="w-12 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-6 sm:hidden"></div>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="bg-primary/10 p-2 rounded-xl">
+          <span class="material-symbols-outlined text-primary text-2xl">filter_list</span>
+        </div>
+        <h2 class="text-xl font-bold tracking-tight text-[#0e1b12] dark:text-white">Filtros Avançados</h2>
+      </div>
+      <button type="button"
+              @click="showFiltersModal = false"
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <%= form_with url: backoffice_products_path, method: :get, local: true, class: "space-y-4" do |f| %>
+      <%= f.hidden_field :search, value: params[:search] %>
+      <%= f.hidden_field :filter, value: params[:filter] %>
+
+      <% if @filter_brands.any? %>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Marca</label>
+          <%= f.select :brand,
+              options_for_select([["Todas", ""]] + @filter_brands.map { |b| [b, b] }, params[:brand]),
+              {},
+              class: "input-base input-md w-full" %>
+        </div>
+      <% end %>
+
+      <% if @filter_sizes.any? %>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tamanho</label>
+          <%= f.select :size,
+              options_for_select([["Todos", ""]] + @filter_sizes.map { |s| [s, s] }, params[:size]),
+              {},
+              class: "input-base input-md w-full" %>
+        </div>
+      <% end %>
+
+      <% if @filter_colors.any? %>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cor</label>
+          <%= f.select :color,
+              options_for_select([["Todas", ""]] + @filter_colors.map { |c| [c, c] }, params[:color]),
+              {},
+              class: "input-base input-md w-full" %>
+        </div>
+      <% end %>
+
+      <% if @filter_suppliers.any? %>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Fornecedor</label>
+          <%= f.select :supplier,
+              options_for_select([["Todos", ""]] + @filter_suppliers.map { |s| [s, s] }, params[:supplier]),
+              {},
+              class: "input-base input-md w-full" %>
+        </div>
+      <% end %>
+
+      <% if @filter_categories.any? %>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria</label>
+          <%= f.select :category,
+              options_for_select([["Todas", ""]] + @filter_categories.map { |c| [c, c] }, params[:category]),
+              {},
+              class: "input-base input-md w-full" %>
+        </div>
+      <% end %>
+
+      <% if @filter_imports.any? %>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Importação</label>
+          <%= f.select :product_import_id,
+              options_for_select([["Todas", ""]] + @filter_imports.map { |pi| ["Importação ##{pi.id} (#{l(pi.created_at, format: :short)})", pi.id] }, params[:product_import_id]),
+              {},
+              class: "input-base input-md w-full" %>
+        </div>
+      <% end %>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Produtos por página</label>
+        <%= f.select :per_page,
+            options_for_select([[20, 20], [50, 50], [100, 100], [200, 200]], params[:per_page].presence || 20),
+            {},
+            class: "input-base input-md w-full" %>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Data de criação</label>
+        <div class="flex gap-2">
+          <%= f.date_field :created_at_from, value: params[:created_at_from], class: "input-base input-md flex-1", placeholder: "De" %>
+          <%= f.date_field :created_at_to, value: params[:created_at_to], class: "input-base input-md flex-1", placeholder: "Até" %>
+        </div>
+      </div>
+
+      <div class="pt-4 flex flex-col gap-3">
+        <%= f.submit "Aplicar filtros", class: "btn-base btn-lg btn-primary w-full cursor-pointer" %>
+        <%= link_to "Limpar filtros",
+            backoffice_products_path(search: params[:search], filter: params[:filter]),
+            class: "w-full py-3 text-center text-gray-500 dark:text-gray-400 font-semibold text-base hover:text-gray-700 dark:hover:text-gray-200 transition-colors" %>
+        <button type="button"
+                @click="showFiltersModal = false"
+                class="w-full py-3 text-gray-500 dark:text-gray-400 font-semibold text-base hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+          Cancelar
+        </button>
+      </div>
+    <% end %>
+
+    <div class="h-4 sm:hidden"></div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<%
+  product = local_assigns[:product]
+  label_settings = local_assigns[:label_settings] || {}
+  show_logo = label_settings["show_logo"].nil? ? true : label_settings["show_logo"]
+  fields = label_settings["fields"].presence || AccountConfig::LABEL_DEFAULT_FIELDS
+  logo_url = if show_logo && current_account.logo.attached?
+    url_for(current_account.logo.variant(resize_to_limit: [200, 80]))
+  elsif show_logo && current_account.logo_url.present?
+    current_account.logo_url
+  end
+%>
+<% if logo_url.present? %>
+  <img src="<%= logo_url %>" alt="" class="label-logo" />
+<% end %>
+<% fields.each do |field_key| %>
+  <% value = label_value_for_product(product, field_key) %>
+  <% next if value.blank? %>
+  <p class="label-line">
+    <% if field_key != "name" && AccountConfig::LABEL_FIELD_LABELS[field_key].present? %>
+      <strong><%= AccountConfig::LABEL_FIELD_LABELS[field_key] %>:</strong> <%= value %>
+    <% else %>
+      <%= value %>
+    <% end %>
+  </p>
+<% end %>
