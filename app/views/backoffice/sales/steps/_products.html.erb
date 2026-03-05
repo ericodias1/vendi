@@ -69,9 +69,14 @@
 
   <!-- Footer sticky: Itens na venda + Resumo + Continuar -->
   <div class="fixed-footer">
-    <%# Versão desktop: lista de itens inline no footer (oculta quando use_mobile_summary_only = true). Para reverter, use a div abaixo e em sale_summary deixe show_alterar_on_mobile só no mobile. %>
+    <%# use_mobile_summary_only = true: sempre usar resumo + modal (versão mobile) em todos os tamanhos. Para reverter, mudar para false. %>
     <% use_mobile_summary_only = true %>
-    <% unless use_mobile_summary_only %>
+    <% if use_mobile_summary_only %>
+      <%# Placeholder oculto para os turbo_streams (create/update/destroy de itens) continuarem atualizando sem quebrar. %>
+      <div id="sale_items_section" class="hidden" aria-hidden="true">
+        <div id="sale_items_list"></div>
+      </div>
+    <% else %>
       <div id="sale_items_section" class="mb-3 max-h-40 overflow-y-auto max-lg:hidden">
         <% if sale.sale_items.any? %>
           <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-tight mb-2 px-1">Itens na venda</p>
