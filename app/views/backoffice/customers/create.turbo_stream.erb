@@ -13,7 +13,9 @@
 <% end %>
 
 <script>
-  window.dispatchEvent(new CustomEvent('customer:created', {
-    detail: <%= { customer_id: @customer.id, customer_name: @customer.name }.to_json.html_safe %>
-  }));
+  (function() {
+    var detail = <%= { customer_id: @customer.id, customer_name: @customer.name }.to_json.html_safe %>;
+    window.dispatchEvent(new CustomEvent('customer:created', { detail: detail }));
+    window.dispatchEvent(new CustomEvent('customer:selected', { detail: JSON.stringify(detail) }));
+  })();
 </script>

@@ -1,10 +1,14 @@
 <%
   sale = local_assigns[:sale]
   
-  # Calcular totais
+  # Calcular totais (desconto pode vir em valor ou porcentagem)
   subtotal = sale.subtotal || sale.sale_items.sum(&:subtotal)
-  discount = sale.discount_amount || 0
-  total = sale.total_amount || (subtotal - discount)
+  discount = sale.discount_amount.to_f
+  if discount.zero? && sale.discount_percentage.present? && sale.discount_percentage.positive?
+    discount = (subtotal * sale.discount_percentage / 100).round(2)
+  end
+  # Total sempre = subtotal - desconto (não depender de total_amount que pode estar desatualizado)
+  total = (subtotal - discount).round(2)
   
   # Verificar estoque
   stock_issues = []

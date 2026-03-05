@@ -79,13 +79,14 @@ module Backoffice
 
       def build_rows(items_scope)
         criterion_sql = criterion_expression
+        prorated_revenue_sql = "(sale_items.subtotal / NULLIF(sales.subtotal, 0)) * sales.total_amount"
 
         rows = items_scope
                .group(Arel.sql(criterion_sql))
                .select(
                  "#{criterion_sql} AS criterion_value",
                  "SUM(sale_items.quantity) AS qty_sold",
-                 "SUM(sale_items.total_amount) AS revenue",
+                 "SUM(#{prorated_revenue_sql}) AS revenue",
                  "SUM(COALESCE(sale_items.cost_price, 0) * sale_items.quantity) AS cost",
                  "SUM(COALESCE((sale_items.unit_price - sale_items.cost_price) * sale_items.quantity, 0)) AS profit",
                  "SUM(products.stock_quantity) AS current_stock"
@@ -111,8 +112,8 @@ module Backoffice
       end
 
       def build_widgets(items_scope, rows)
-        # Usar colunas totalmente qualificadas para evitar ambiguidade com joins
-        total_revenue = items_scope.sum(Arel.sql("sale_items.total_amount")).to_f
+        prorated_revenue_sql = "(sale_items.subtotal / NULLIF(sales.subtotal, 0)) * sales.total_amount"
+        total_revenue = items_scope.sum(Arel.sql(prorated_revenue_sql)).to_f
         total_profit = items_scope.sum(
           Arel.sql("COALESCE((sale_items.unit_price - sale_items.cost_price) * sale_items.quantity, 0)")
         ).to_f

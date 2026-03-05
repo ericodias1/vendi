@@ -52,14 +52,11 @@ module Backoffice
 
       @sale.update!(customer_id: @customer.id)
 
-      render turbo_stream: [
-        turbo_stream.update("sale_customer_section",
-          partial: "backoffice/sales/steps/sale_customer_section",
-          locals: { sale: @sale.reload }),
-        turbo_stream.append("toast-container",
-          partial: "shared/ui/toast",
-          locals: { type: :success, message: "Cliente cadastrado e vinculado à venda!" })
-      ]
+      response.headers["X-Customer-Id"] = @customer.id.to_s
+      response.headers["X-Customer-Name"] = ERB::Util.url_encode(@customer.name.to_s)
+
+      @customers = []
+      render :create
     end
   end
 end

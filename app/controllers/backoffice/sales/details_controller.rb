@@ -37,10 +37,10 @@ module Backoffice
 
       def update_discount
         update_params = sale_params
-        
+
         if @sale.update(update_params)
-          # Recalcular totais
           @sale.calculate_totals
+          @sale.payment&.update!(amount: @sale.total_amount)
           head :ok
         else
           render :edit, status: :unprocessable_entity

@@ -109,7 +109,9 @@ module Backoffice
       end
 
       def finalize_sale
-        # Atualizar status da venda
+        @sale.calculate_totals
+        @sale.payment&.update!(amount: @sale.total_amount)
+
         if @payment_received || @sale.payment.method == "cash"
           @sale.complete!
         else

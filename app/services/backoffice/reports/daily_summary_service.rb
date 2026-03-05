@@ -62,14 +62,15 @@ module Backoffice
       end
 
       def build_top_products(items_scope)
-        # Agrupa por produto utilizando os snapshots de venda em SaleItem
+        # Receita proporcional ao desconto: (item.subtotal / sale.subtotal) * sale.total_amount
+        prorated_revenue_sql = "(sale_items.subtotal / NULLIF(sales.subtotal, 0)) * sales.total_amount"
         items_scope.joins(:product)
                    .group("products.id", "products.name")
                    .select(
                      "products.id AS product_id",
                      "products.name AS product_name",
                      "SUM(sale_items.quantity) AS total_quantity",
-                     "SUM(sale_items.total_amount) AS total_revenue",
+                     "SUM(#{prorated_revenue_sql}) AS total_revenue",
                      "SUM(COALESCE((sale_items.unit_price - sale_items.cost_price) * sale_items.quantity, 0)) AS total_profit"
                    )
                    .order(Arel.sql("total_profit DESC"))

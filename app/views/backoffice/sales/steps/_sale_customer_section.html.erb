@@ -12,6 +12,7 @@
   showCustomerModal: false,
   removeCustomer() {
     selectedCustomer = null;
+    window.dispatchEvent(new CustomEvent(&apos;customer:removed&apos;));
     const form = document.getElementById("customer-form-sale");
     if (form) {
       form.querySelector("#sale_customer_id").value = "";
@@ -25,25 +26,24 @@ x-effect="!customerEnabled && selectedCustomer && removeCustomer()"
   const eventData = typeof raw === 'string' ? JSON.parse(raw) : raw;
   selectedCustomer = { id: eventData.customer_id, name: eventData.customer_name };
   customerEnabled = true;
+  showCustomerModal = false;
 ">
   <div class="flex flex-col bg-white dark:bg-[#1a2e20] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
-    <div class="flex items-center gap-4 px-4 min-h-[64px]">
+    <label class="flex items-center gap-4 px-4 min-h-[64px] cursor-pointer">
       <div class="flex items-center gap-4 flex-1">
         <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10" style="color: var(--color-primary);">
           <span class="material-symbols-outlined text-xl">person_add</span>
         </div>
         <p class="text-[#0e1b12] dark:text-white text-base font-semibold truncate">Adicionar cliente</p>
       </div>
-      <div class="shrink-0">
-        <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
-               :class="customerEnabled ? 'justify-end bg-primary' : ''">
-          <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
-          <input type="checkbox"
-                 x-model="customerEnabled"
-                 class="invisible absolute peer" />
-        </label>
+      <div class="shrink-0 relative flex h-[31px] w-[51px] items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
+           :class="customerEnabled ? 'justify-end bg-primary' : ''">
+        <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+        <input type="checkbox"
+               x-model="customerEnabled"
+               class="invisible absolute peer" />
       </div>
-    </div>
+    </label>
 
     <!-- Campos de Cliente (expansível) -->
     <div x-show="customerEnabled"
@@ -62,6 +62,7 @@ x-effect="!customerEnabled && selectedCustomer && removeCustomer()"
                 @click="
                   selectedCustomer = null;
                   customerEnabled = false;
+                  window.dispatchEvent(new CustomEvent('customer:removed'));
                   const form = document.getElementById('customer-form-sale');
                   if (form) {
                     form.querySelector('#sale_customer_id').value = '';
@@ -113,7 +114,7 @@ x-effect="!customerEnabled && selectedCustomer && removeCustomer()"
                 url: update_customer_backoffice_sale_details_path(sale),
                 method: :put,
                 local: false,
-                data: { turbo_frame: "_top" },
+                data: { turbo_frame: "_top", action: "turbo:submit-end->sale-form#onCustomerFormSubmitEnd" },
                 id: "customer-form-sale",
                 style: "display: none;" do |f| %>
     <%= f.hidden_field :customer_id, value: sale.customer_id %>

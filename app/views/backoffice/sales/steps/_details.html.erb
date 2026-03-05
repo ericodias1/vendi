@@ -117,24 +117,22 @@
       
       <!-- ListItem: Aplicar Desconto -->
       <div class="flex flex-col bg-white dark:bg-[#1a2e20] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
-        <div class="flex items-center gap-4 px-4 min-h-[64px]">
+        <label class="flex items-center gap-4 px-4 min-h-[64px] cursor-pointer">
           <div class="flex items-center gap-4 flex-1">
             <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10" style="color: var(--color-primary);">
               <span class="material-symbols-outlined text-xl">local_offer</span>
             </div>
             <p class="text-[#0e1b12] dark:text-white text-base font-semibold truncate">Aplicar desconto</p>
           </div>
-          <div class="shrink-0">
-            <label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
-                   :class="discountEnabled ? 'justify-end bg-primary' : ''">
-              <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
-              <input type="checkbox" 
-                     x-model="discountEnabled"
-                     @change="saveDiscount()"
-                     class="invisible absolute peer" />
-            </label>
+          <div class="shrink-0 relative flex h-[31px] w-[51px] items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all"
+               :class="discountEnabled ? 'justify-end bg-primary' : ''">
+            <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+            <input type="checkbox"
+                   x-model="discountEnabled"
+                   @change="saveDiscount()"
+                   class="invisible absolute peer" />
           </div>
-        </div>
+        </label>
         
         <!-- Campos de Desconto (expansível) -->
         <div x-show="discountEnabled" 

@@ -78,8 +78,13 @@ class Sale < ApplicationRecord
 
   def calculate_totals
     self.subtotal = sale_items.sum(&:subtotal).round(2)
-    self.discount_amount ||= 0
-    self.total_amount = (subtotal - discount_amount).round(2)
+    if discount_percentage.present? && discount_percentage.positive?
+      self.discount_amount = (subtotal * discount_percentage / 100).round(2)
+    else
+      self.discount_amount = (discount_amount.to_f).round(2)
+    end
+    self.discount_amount = 0 if self.discount_amount.negative?
+    self.total_amount = (subtotal - self.discount_amount).round(2)
     self.total_items = sale_items.sum(&:quantity)
     save(validate: false) if persisted?
   end

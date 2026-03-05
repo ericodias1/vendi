@@ -18,13 +18,63 @@ export default class extends Controller {
     this.discountAmount = 0
     this.discountPercentage = null
     this.customerId = null
-    
+
+    this.boundOnCustomerSelected = this._onCustomerSelected.bind(this)
+    this.boundOnCustomerRemoved = this._onCustomerRemoved.bind(this)
+    this.boundOnNewCustomerFormSubmitEnd = this._onNewCustomerFormSubmitEnd.bind(this)
+    window.addEventListener("customer:selected", this.boundOnCustomerSelected)
+    window.addEventListener("customer:removed", this.boundOnCustomerRemoved)
+    document.addEventListener("turbo:submit-end", this.boundOnNewCustomerFormSubmitEnd)
+
     if (this.hasStepValue && this.stepValue === 1) {
       this.updateSummary()
     } else if (this.hasStepValue && this.stepValue === 2) {
       this.loadStep2Data()
       this.updateTotal()
     }
+  }
+
+  disconnect() {
+    window.removeEventListener("customer:selected", this.boundOnCustomerSelected)
+    window.removeEventListener("customer:removed", this.boundOnCustomerRemoved)
+    document.removeEventListener("turbo:submit-end", this.boundOnNewCustomerFormSubmitEnd)
+  }
+
+  _onNewCustomerFormSubmitEnd(event) {
+    if (this.hasStepValue && this.stepValue !== 2) return
+    if (event.target?.id !== "customer-form") return
+    const fr = event.detail?.fetchResponse
+    if (!fr?.succeeded || !fr.response) return
+    const customerId = fr.response.headers.get("X-Customer-Id")
+    const customerName = fr.response.headers.get("X-Customer-Name")
+    if (!customerId) return
+    const detail = JSON.stringify({
+      customer_id: customerId,
+      customer_name: customerName ? decodeURIComponent(customerName.replace(/\+/g, " ")) : ""
+    })
+    window.dispatchEvent(new CustomEvent("customer:selected", { detail }))
+  }
+
+  _onCustomerSelected(event) {
+    const raw = event.detail
+    const data = typeof raw === "string" ? JSON.parse(raw) : raw
+    if (data?.customer_id) {
+      this.customerId = String(data.customer_id)
+      const field = document.querySelector("#sale_customer_id")
+      const form = document.getElementById("customer-form-sale")
+      if (field) field.value = this.customerId
+      this.updateContinueButton()
+      if (form) form.requestSubmit()
+    }
+  }
+
+  _onCustomerRemoved() {
+    this.customerId = null
+    this.updateContinueButton()
+  }
+
+  onCustomerFormSubmitEnd() {
+    this.updateContinueButton()
   }
 
   addProduct(event) {
@@ -142,31 +192,17 @@ export default class extends Controller {
   selectCustomer(event) {
     const customerId = event.currentTarget.dataset.customerId
     const customerName = event.currentTarget.dataset.customerName
-    
-    this.customerId = customerId
-    
-    // Disparar evento para Alpine.js
+
+    const field = document.querySelector("#sale_customer_id")
+    if (field) field.value = customerId
+
     window.dispatchEvent(new CustomEvent('customer:selected', {
       detail: JSON.stringify({
         customer_id: customerId,
         customer_name: customerName
       })
     }))
-    
-    // Salvar cliente na venda
-    const form = document.getElementById('customer-form-sale')
-    if (form) {
-      const customerIdField = form.querySelector('#sale_customer_id')
-      if (customerIdField) {
-        customerIdField.value = customerId
-        // Usar setTimeout para garantir que o Alpine.js atualizou primeiro
-        setTimeout(() => {
-          form.requestSubmit()
-        }, 100)
-      }
-    }
-    
-    // Atualizar botão continuar
+
     this.updateContinueButton()
   }
 
@@ -203,10 +239,11 @@ export default class extends Controller {
       // Verificar se método de pagamento está selecionado
       canContinue = this.selectedPaymentMethod !== null
       
-      // Se método é fiado, cliente é obrigatório
+      // Se método é fiado, cliente é obrigatório (sempre ler do DOM para refletir estado real)
       if (canContinue && this.selectedPaymentMethod === 'fiado') {
-        const customerId = this.customerId || document.querySelector('#sale_customer_id')?.value
-        canContinue = customerId && customerId !== ''
+        const customerIdField = document.querySelector('#sale_customer_id')
+        const customerId = (customerIdField?.value ?? '').toString().trim()
+        canContinue = customerId !== ''
       }
     }
 
@@ -255,6 +292,12 @@ export default class extends Controller {
           this.savePaymentMethod(firstMethod)
         }, 100)
       }
+    }
+
+    // Carregar customer_id do DOM (ex.: após Turbo ou página já com cliente)
+    const customerIdField = document.querySelector("#sale_customer_id")
+    if (customerIdField?.value?.trim()) {
+      this.customerId = customerIdField.value.trim()
     }
     
     this.updateContinueButton()
