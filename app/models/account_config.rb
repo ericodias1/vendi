@@ -33,7 +33,7 @@ class AccountConfig < ApplicationRecord
   validates :product_import_name_normalization, inclusion: { in: NAME_NORMALIZATION_MODES }, allow_nil: true
   validates :daily_goal, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :stock_alert_threshold, numericality: { greater_than: 0 }, allow_nil: true
-  validates :automatic_pricing_markup_percent, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
+  validates :automatic_pricing_markup_percent, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 1000 }, allow_nil: true
   validates :automatic_pricing_rounding_mode, inclusion: { in: ROUNDING_MODES }, allow_nil: true
   validates :products_view_mode, inclusion: { in: PRODUCTS_VIEW_MODES }
   validates :product_import_sku_generation_mode, inclusion: { in: SKU_GENERATION_MODES }, allow_nil: true
