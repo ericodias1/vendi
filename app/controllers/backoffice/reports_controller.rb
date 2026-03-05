@@ -33,6 +33,14 @@ module Backoffice
             available: true
           },
           {
+            id: :sales_detail,
+            name: "Vendas Detalhadas",
+            description: "Venda a venda com filtros por data e cliente, totais e descontos",
+            icon: "receipt_long",
+            path: sales_detail_backoffice_reports_path,
+            available: true
+          },
+          {
             id: :category_performance,
             name: "Desempenho Categorias",
             description: "Análise setorial de vendas",

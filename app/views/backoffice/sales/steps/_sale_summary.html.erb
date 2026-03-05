@@ -3,6 +3,9 @@
   total_items = sale.sale_items.sum(&:quantity)
   total = sale.total_amount
   show_alterar_on_mobile = local_assigns[:show_alterar_on_mobile]
+  use_mobile_summary_only = local_assigns[:use_mobile_summary_only]
+  # No desktop: mostrar botão Alterar só quando estamos testando "sempre mobile"; senão só no mobile (lg:hidden)
+  alterar_button_class = (use_mobile_summary_only ? "" : "lg:hidden ") + "text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
 %>
 
 <div id="sale_summary" class="flex items-center justify-between mb-3 px-1">
@@ -14,7 +17,7 @@
       <% if show_alterar_on_mobile && sale.sale_items.any? %>
         <button type="button"
                 @click="showItemsModal = true"
-                class="lg:hidden text-xs font-semibold text-primary hover:text-primary-dark transition-colors">
+                class="<%= alterar_button_class %>">
           Alterar
         </button>
       <% end %>

@@ -100,6 +100,7 @@ Rails.application.routes.draw do
         get "stagnant_products", to: "reports/stagnant_products#show", as: :stagnant_products
         get "replenishment_suggestion", to: "reports/replenishment_suggestion#show", as: :replenishment_suggestion
         get "sales_ranking", to: "reports/sales_ranking#show", as: :sales_ranking
+        get "sales_detail", to: "reports/sales_detail#show", as: :sales_detail
       end
 
       # Rotas de exportação (preparar para futuro)

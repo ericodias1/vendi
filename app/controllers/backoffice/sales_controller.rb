@@ -14,13 +14,12 @@ module Backoffice
                               .by_period(@active_period)
                               .recent
       
-      # Drafts (separados)
+      # Drafts (separados) — todos da conta
       @drafts = current_account.sales.with_drafts
                                .draft
-                               .where(user: current_user)
                                .includes(:sale_items)
                                .order(created_at: :desc)
-                               .limit(10)
+                               .limit(20)
     end
 
     def show

@@ -69,19 +69,23 @@
 
   <!-- Footer sticky: Itens na venda + Resumo + Continuar -->
   <div class="fixed-footer">
-    <div id="sale_items_section" class="mb-3 max-h-40 overflow-y-auto max-lg:hidden">
-      <% if sale.sale_items.any? %>
-        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-tight mb-2 px-1">Itens na venda</p>
-        <div id="sale_items_list" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
-          <% sale.sale_items.each do |item| %>
-            <%= render 'backoffice/sales/items/sale_item_footer', item: item, sale: sale %>
-          <% end %>
-        </div>
-      <% else %>
-        <div id="sale_items_list" class="hidden"></div>
-      <% end %>
-    </div>
-    <%= render 'backoffice/sales/steps/sale_summary', sale: sale, show_alterar_on_mobile: true %>
+    <%# Versão desktop: lista de itens inline no footer (oculta quando use_mobile_summary_only = true). Para reverter, use a div abaixo e em sale_summary deixe show_alterar_on_mobile só no mobile. %>
+    <% use_mobile_summary_only = true %>
+    <% unless use_mobile_summary_only %>
+      <div id="sale_items_section" class="mb-3 max-h-40 overflow-y-auto max-lg:hidden">
+        <% if sale.sale_items.any? %>
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-tight mb-2 px-1">Itens na venda</p>
+          <div id="sale_items_list" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
+            <% sale.sale_items.each do |item| %>
+              <%= render 'backoffice/sales/items/sale_item_footer', item: item, sale: sale %>
+            <% end %>
+          </div>
+        <% else %>
+          <div id="sale_items_list" class="hidden"></div>
+        <% end %>
+      </div>
+    <% end %>
+    <%= render 'backoffice/sales/steps/sale_summary', sale: sale, show_alterar_on_mobile: true, use_mobile_summary_only: use_mobile_summary_only %>
     <div id="continue_button">
       <%= render 'shared/ui/button',
           href: edit_backoffice_sale_details_path(sale),
@@ -99,7 +103,7 @@
     <div class="h-4"></div>
   </div>
 
-  <!-- Modal de itens (apenas mobile) -->
+  <%# Modal de itens: quando use_mobile_summary_only = true, visível em todos os tamanhos; senão apenas mobile (lg:hidden) %>
   <div x-show="showItemsModal"
        x-transition:enter="transition ease-out duration-300"
        x-transition:enter-start="opacity-0"
@@ -107,7 +111,7 @@
        x-transition:leave="transition ease-in duration-200"
        x-transition:leave-start="opacity-100"
        x-transition:leave-end="opacity-0"
-       class="fixed inset-0 z-50 bg-black/40 flex items-end justify-center lg:hidden"
+       class="fixed inset-0 z-50 bg-black/40 flex items-end justify-center <%= 'lg:hidden' unless use_mobile_summary_only %>"
        style="display: none;"
        @click.self="showItemsModal = false">
 
@@ -118,7 +122,7 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="translate-y-0"
          x-transition:leave-end="translate-y-full"
-         class="bg-white dark:bg-[#1a2e20] w-full max-h-[85vh] rounded-t-2xl shadow-2xl flex flex-col"
+         class="bg-white dark:bg-[#1a2e20] w-full max-h-[85vh] rounded-t-2xl shadow-2xl flex flex-col <%= 'lg:max-w-md lg:rounded-xl lg:mx-auto' if use_mobile_summary_only %>"
          @click.stop>
 
       <div class="w-12 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mt-3 mb-4 shrink-0"></div>

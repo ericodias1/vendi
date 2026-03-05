@@ -56,11 +56,13 @@ module Backoffice
     def sale_status_badge(sale)
       case sale.status
       when "paid"
-        render 'shared/ui/badge', text: "PAGA", variant: :success
+        render 'shared/ui/badge', text: "FINALIZADA", variant: :success
       when "pending_payment"
         render 'shared/ui/badge', text: "PENDENTE", variant: :warning
       when "cancelled"
         render 'shared/ui/badge', text: "CANCELADA", variant: :error
+      when "draft"
+        render 'shared/ui/badge', text: "RASCUNHO", variant: :info
       else
         render 'shared/ui/badge', text: sale.status.humanize, variant: :info
       end
