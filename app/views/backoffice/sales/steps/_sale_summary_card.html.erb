@@ -40,7 +40,7 @@
           summary_text += " + #{remaining_items} #{remaining_items == 1 ? 'item' : 'itens'}"
         end
       %>
-      <p class="text-gray-600 dark:text-gray-400 text-sm truncate" title="<%= summary_parts.join(', ') %>"><%= summary_text %></p>
+      <p class="text-gray-600 dark:text-gray-400 text-xs md:text-sm break-words" title="<%= summary_parts.join(', ') %>"><%= summary_text %></p>
       <p class="text-primary text-sm font-semibold" style="color: var(--color-primary);">Subtotal: <%= number_to_currency(subtotal, unit: "R$ ", separator: ",", delimiter: ".") %></p>
     </div>
     <div class="relative w-20 h-20 shrink-0">

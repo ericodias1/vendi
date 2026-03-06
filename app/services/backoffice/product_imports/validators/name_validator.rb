@@ -9,7 +9,7 @@ module Backoffice
           @import_result = import_result
         end
 
-        def validate(product_name, prevent_duplicates: true, exclude_product_id: nil, size: nil, brand: nil, color: nil)
+        def validate(product_name, prevent_duplicates: true, exclude_product_id: nil, size: nil, brand: nil, color: nil, sku: nil, supplier_code: nil)
           return [] unless prevent_duplicates
           return [] if product_name.blank?
 
@@ -17,7 +17,9 @@ module Backoffice
             name: product_name,
             size: size,
             brand: brand,
-            color: color
+            color: color,
+            sku: sku,
+            supplier_code: supplier_code
           )
           return [] unless composite_key.present?
 
@@ -32,6 +34,8 @@ module Backoffice
             size: size,
             brand: brand,
             color: color,
+            sku: sku,
+            supplier_code: supplier_code,
             exclude_product_id: exclude_product_id
           )
           if scope.exists?
@@ -43,7 +47,7 @@ module Backoffice
 
         private
 
-        def scope_for_duplicate_check(product_name, size:, brand:, color:, exclude_product_id:)
+        def scope_for_duplicate_check(product_name, size:, brand:, color:, sku: nil, supplier_code: nil, exclude_product_id:)
           parameterized_name = product_name.to_s.strip.parameterize
           norm_size = DuplicateKey.normalize_value(size)
           norm_brand = DuplicateKey.normalize_value(brand)
@@ -54,6 +58,14 @@ module Backoffice
           scope = scope.where("TRIM(COALESCE(brand, '')) = ?", norm_brand)
           scope = scope.where("TRIM(COALESCE(color, '')) = ?", norm_color)
           scope = scope.where.not(id: exclude_product_id) if exclude_product_id.present?
+
+          # Só considerar duplicata se o código também for o mesmo (mesmo nome+atributos com código diferente é permitido)
+          if sku.to_s.strip.present?
+            scope = scope.where(sku: sku.to_s.strip)
+          elsif supplier_code.to_s.strip.present?
+            scope = scope.where(supplier_code: supplier_code.to_s.strip)
+          end
+
           scope
         end
       end

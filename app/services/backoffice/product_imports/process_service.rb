@@ -51,7 +51,7 @@ module Backoffice
             @product_import.update(import_errors: duplicate_errors)
           else
             # Falhar completamente - salvar erros E status em um único update
-            errors.add(:base, "Existem produtos duplicados no arquivo (mesmo nome, tamanho, marca e cor). Corrija antes de importar.")
+            errors.add(:base, "Existem produtos duplicados no arquivo (mesmo nome, tamanho, marca, cor e código). Corrija antes de importar.")
             @product_import.update(
               import_errors: duplicate_errors,
               status: 'failed'
@@ -133,7 +133,7 @@ module Backoffice
             duplicate_errors << {
               'row' => entry[:row],
               'data' => entry[:data],
-              'errors' => ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho/marca/cor (também na linha #{other_rows_text})"]
+              'errors' => ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho, marca, cor e código (também na linha #{other_rows_text})"]
             }
           end
         end

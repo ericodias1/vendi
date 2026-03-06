@@ -229,7 +229,7 @@ module Backoffice
           new_errors << {
             'row' => entry[:row],
             'data' => entry[:data],
-            'errors' => ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho/marca/cor (também na linha #{other_rows.join(', ')})"]
+            'errors' => ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho, marca, cor e código (também na linha #{other_rows.join(', ')})"]
           }
         end
       end

@@ -17,7 +17,7 @@
     <% end %>
   </div>
   <div class="flex-1 min-w-0">
-    <p class="font-medium text-sm text-[#0e1b12] dark:text-white truncate"><%= product.name %></p>
+    <p class="font-medium text-xs md:text-sm text-[#0e1b12] dark:text-white break-words"><%= product.name %></p>
     <p class="text-xs text-gray-500 dark:text-gray-400">
       <%= number_to_currency(item.unit_price, unit: "R$ ", separator: ",", delimiter: ".") %> × <%= item.quantity %>
     </p>

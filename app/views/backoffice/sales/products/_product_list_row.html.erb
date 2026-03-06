@@ -20,11 +20,11 @@
     <% end %>
   </div>
 
-  <!-- Mobile: SKU/Nome/Variações na mesma coluna | Desktop: SKU/Nome + coluna Variações -->
+  <!-- Mobile: SKU/Nome/Variações na mesma coluna | Desktop: SKU/Nome + coluna Variações. Nome nunca truncado. -->
   <div class="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-4">
     <div class="min-w-0 flex flex-col gap-0.5">
       <p class="text-xs text-gray-500 dark:text-gray-400 font-medium"><%= product.sku.presence || "—" %></p>
-      <p class="font-semibold text-[#0e1b12] dark:text-white truncate"><%= product.name %></p>
+      <p class="font-semibold text-sm md:text-base text-[#0e1b12] dark:text-white break-words"><%= product.name %></p>
     </div>
     <p class="text-xs text-gray-500 dark:text-gray-400 md:shrink-0"><%= product.display_variation %></p>
   </div>

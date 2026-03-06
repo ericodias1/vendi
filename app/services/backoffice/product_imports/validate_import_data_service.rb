@@ -41,7 +41,7 @@ module Backoffice
             errors << {
               row: entry[:row],
               data: entry[:data],
-              errors: ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho/marca/cor (também na #{other_rows_text})"]
+              errors: ["Produto duplicado: \"#{entry[:name]}\" com mesmo tamanho, marca, cor e código (também na #{other_rows_text})"]
             }
           end
         end

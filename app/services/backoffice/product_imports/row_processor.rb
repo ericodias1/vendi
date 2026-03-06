@@ -69,7 +69,9 @@ module Backoffice
           exclude_product_id: existing.id,
           size: product_attributes[:size],
           brand: product_attributes[:brand],
-          color: product_attributes[:color]
+          color: product_attributes[:color],
+          sku: product_attributes[:sku],
+          supplier_code: product_attributes[:supplier_code]
         )
         if name_errors.any?
           result = { success: false, errors: name_errors }
@@ -113,7 +115,9 @@ module Backoffice
           prevent_duplicates: true,
           size: product_attributes[:size],
           brand: product_attributes[:brand],
-          color: product_attributes[:color]
+          color: product_attributes[:color],
+          sku: product_attributes[:sku],
+          supplier_code: product_attributes[:supplier_code]
         )
         if name_errors.any?
           result = { success: false, errors: name_errors }
@@ -145,7 +149,9 @@ module Backoffice
             name: product_attributes[:name],
             size: product_attributes[:size],
             brand: product_attributes[:brand],
-            color: product_attributes[:color]
+            color: product_attributes[:color],
+            sku: product_attributes[:sku],
+            supplier_code: product_attributes[:supplier_code]
           )
           @import_result.track_name(composite_key)
           @import_result.track_sku(product_attributes[:sku])
@@ -161,7 +167,9 @@ module Backoffice
             name: existing_product.name,
             size: existing_product.size,
             brand: existing_product.brand,
-            color: existing_product.color
+            color: existing_product.color,
+            sku: existing_product.sku,
+            supplier_code: existing_product.supplier_code
           )
           @import_result.track_name(composite_key)
           @import_result.track_sku(existing_product.sku)
