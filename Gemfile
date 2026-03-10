@@ -34,7 +34,7 @@ gem "discard"
 
 # Para PDFs (futuro)
 gem "matrix" # Necessário para prawn
-gem "prawn", "~> 2.4"
+gem "prawn", "~> 2.5"
 gem "prawn-table", "~> 0.2"
 
 # Para pagamentos (futuro, mas já preparar)
